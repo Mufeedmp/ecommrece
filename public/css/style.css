@@ -504,14 +504,21 @@ ol {
 }
 
 .header__nav__option {
-	text-align: right;
-	padding: 30px 0;
+    text-align: right;
+    padding: 30px 0;
+    display: flex; /* Align items horizontally */
+    align-items: center; /* Align items vertically */
+    justify-content: flex-end; /* Push items to the right */
+    gap: 25px; /* Add spacing between items */
 }
 
 .header__nav__option a {
-	display: inline-block;
-	margin-right: 26px;
-	position: relative;
+    display: inline-flex; /* Ensure proper inline alignment */
+    align-items: center; /* Vertically center text and icons */
+    margin-right: 0; /* Remove excess margins */
+    font-size: 18px; /* Uniform font size */
+    text-decoration: none; /* Remove underline */
+    color: #111111; /* Text color */
 }
 
 .header__nav__option a span {

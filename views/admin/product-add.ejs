@@ -28,8 +28,7 @@
                <div class="card mb-4">
                    <div class="card-body">
                        <form method="post" action="/admin/addProducts" enctype="multipart/form-data"
-                           onsubmit="return validateForm()>
-">
+                           onsubmit="return validateForm()">
                            <div class="mb-4">
                                <label for="product_name" class="form-label">Product Name</label>
                                <input type="text" placeholder="Type here" name="productName"
@@ -73,13 +72,7 @@
                                    </div>
                                    <div id="salePrice-error" class="error-message"></div>
                                </div>
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">Quantity</label>
-                                       <input placeholder="" name="quantity" type="text" class="form-control border">
-                                       <div id="quantity-error" class="error-message"></div>
-                                   </div>
-                               </div>
+                               
                            </div>
                            <div class="row">
                               
@@ -113,6 +106,11 @@
                                    </div>
                                </div>
                            </div>
+                           <div class="col-lg-4">
+                            <div class="mb-4">
+                                <a href="/admin/variants" id="saveButton4" class="btn-sm btn-primary">Variants</a>
+                            </div>
+                          </div>
                            <div class="card mb-2">
                                <div class="card-header">
                                    <h4>Choose images</h4>
@@ -183,9 +181,10 @@
                           
                                                        </div>
                            </div>
+                           
                            <div>
-                               <button class="btn btn-md rounded font-sm hover-up"  type="button" onclick="validateAndSubmit()
-">Publish</button>
+                               <button class="btn btn-md rounded font-sm hover-up"  type="submit" onclick="validateAndSubmit()
+                               ">Publish</button>
                            </div>
                        </form>
                    </div>

@@ -2,7 +2,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 mt-60">
-            <form method="post" action="/admin/editCategory/<%=category._id%>">
+            <form method="POST" action="/admin/editCategory/<%=category._id%>" enctype="multipart/form-data">
                 <div class="d-grid text-end mt-30 col-md-5">
                     <button class="btn btn-primary" type="submit">Update category</button>
                 </div>
@@ -15,8 +15,18 @@
                     <label class="form-label">Description</label>
                     <textarea name="description" class="form-control border"><%=category.description%></textarea>
                 </div>
+                <div class="mb-4 position-relative">
+                    <label for="category_image" class="form-label">Image</label>
+                    <input type="file" name="images" class="form-control" id="category_image" accept="image/*" required />
+                    <div id="image-preview" class="mt-3 position-relative">
+                        <img id="selected-image" src="<%=category.imagePath%>" alt="Category Image" class="img-thumbnail" style="max-width: 100%; display: none;" />
+                        <button type="button" id="remove-image" class="btn-close" aria-label="Close" style="display: none; position: absolute; top: 0; right: 0;"></button>
+                    </div>
+                    <div id="image-error" class="error-message"></div>
+                </div>
             </form>
         </div>
     </div>
 </div>
 <%- include("../../views/partials/admin/footer") %>
+

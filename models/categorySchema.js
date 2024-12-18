@@ -14,6 +14,10 @@ const categorySchema=new Schema({
         required:true,
         trim: true
     },
+    imagePath:{ 
+     type:String,
+     required:true
+    },
     isListed:{
         type:Boolean,
         default:true

@@ -1,26 +1,31 @@
 const express = require('express')
-const app = express()
 const path = require('path')
 const dotenv = require('dotenv')
 const session=require('express-session')
 const passport=require('./config/passport')
-dotenv.config()
-const db = require('./config/db')
 const userRouter = require('./routes/userRouter')
 const adminRouter = require('./routes/adminRouter')
+const MongoStore = require('connect-mongo');
+const db = require('./config/db')
+
+dotenv.config()
+
+const app = express()
+
 db()
 
-
+const mongoUrl = process.env.MONGO_URI || 'mongodb://localhost:27017/ecommerce';
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+
 app.use(session({
     secret:process.env.SESSION_SECRET,
-    resave:false,
+    resave:false,  
     saveUninitialized:true,
     cookie:{
-        secure:false,
+        secure:false, 
         httpOnly:true,
-        maxAge:72*60*60*1000
+        maxAge:72*60*60*1000 
     }
 }))
 
@@ -36,6 +41,7 @@ app.use((req,res,next)=>{
 app.set('view engine','ejs')
 app.set('views',[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')])
 app.use(express.static(path.join(__dirname,'public')))
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 
@@ -47,7 +53,7 @@ const PORT= 3000 || process.env.PORT
 app.listen(PORT, ()=>{
 console.log('Server Running http://localhost:3000')
 
-})
+}) 
 
 
 module.exports = app;

@@ -1,5 +1,10 @@
 const Category = require('../../models/categorySchema')
-const { updateOne } = require('../../models/userSchema')
+const fs = require('fs');
+const path = require('path');
+
+
+
+
 
 
 
@@ -39,9 +44,12 @@ const addCategory=async (req,res) => {
             return res.status(400).json({error:"category already exist"})
         }
 
+        const imagePath=`/uploads/cat-images/${req.file.filename}`
+
         const newCategory=new Category({
             name,
-            description
+            description,
+            imagePath
         })
         await newCategory.save()
         return res.json({message:"category added successfully"})
@@ -88,13 +96,34 @@ const editCategory=async (req,res) => {
         const {categoryname,description}=req.body
        const existingCategory=await Category.findOne({
         name:categoryname,
-        description})
+        _id:{$ne:id}
+        })
       if(existingCategory){
         return res.status(400).json({error:'category exists,please choose another name'})
       }
 
+      const currentCategory = await Category.findById(id);
+      if (!currentCategory) {
+          return res.status(404).json({ error: 'Category not found' });
+      }
+
+      let imagePath = currentCategory.imagePath;
+
+      if(req.file&& req.file.filename){
+        imagePath = `/uploads/cat-images/${req.file.filename}`;
+
+        if (currentCategory.imagePath) {
+        const oldImagePath=path.join(__dirname,'..','public',currentCategory.imagePath.replace('/uploads',''))
+        if(fs.existsSync(oldImagePath)){
+            fs.unlinkSync(oldImagePath)
+        }
+    }
+} 
       const updateCategory=await Category.findByIdAndUpdate(id,{
-        name:categoryname,description},
+        name:categoryname,
+        description,
+        imagePath
+    },
         {new:true})
 
       if(updateCategory){

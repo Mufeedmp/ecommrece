@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zxx">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Male_Fashion Template" />
+    <meta name="keywords" content="Male_Fashion, unica, creative, html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Gents Club </title>
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css" />
+    <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css" />
+    <link rel="stylesheet" href="/css/nice-select.css" type="text/css" />
+    <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/style.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        .product__cart__item__pic img {
+            width: 100px; 
+            height: auto;
+            object-fit: cover; 
+            border-radius: 5px;
+        }
+        .quantity {
+            display: flex;
+            align-items: center;
+        }
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .qty-btn:hover {
+            background-color: #ddd;
+        }
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            margin: 0 5px;
+            background-color: #fff;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <%- include("../../views/partials/user/header") %>
+
+    <section class="breadcrumb-option">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="breadcrumb__text">
+              <h4>Shopping Cart</h4>
+              <div class="breadcrumb__links">
+                <a href="/">Home</a>
+                <a href="/shop">Shop</a>
+                <span>Shopping Cart</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="shopping-cart spad">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="shopping__cart__table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% cartItems.forEach(item => { %>
+                    <tr data-size="<%= item.size %>" data-id="<%= item.productId._id %>" >
+                      <td class="product__cart__item">
+                        <div class="product__cart__item__pic">
+                          <img src="/uploads/product-images/<%= item.productImage %>" alt="Product Image">
+                        </div>
+                        <div class="product__cart__item__text">
+                          <h6><%= item.productName %></h6>
+                          <h5>₹<%= item.salePrice %></h5>
+                        </div>
+                      </td>
+                      <td class="quantity__item">
+                        <div class="quantity">
+                          <button class="qty-btn minus" data-id="<%= item.productId._id %>" data-action="decrease">-</button>
+                          <input type="text" class="qty-input" data-id="<%= item.productId._id %>" value="<%= item.quantity %>" min="1" max="5" readonly>
+                          <button class="qty-btn plus" data-id="<%= item.productId._id %>" data-action="increase">+</button>
+                        </div>
+                      </td>
+                      <td class="cart__price">₹<%= item.totalPrice %></td>
+                      <td class="cart__close">
+                        <i class="fa fa-close" data-size="<%= item.size %>" data-id="<%= item.productId._id %>" ></i>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+                
+              </table>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="continue__btn">
+                  <a href="/">Continue Shopping</a>
+                </div>
+              </div>
+            </div>
+          </div>
+    
+          <div class="col-lg-4">
+            <div class="cart__discount">
+              <h6>Discount codes</h6>
+              <form action="#">
+                <input type="text" placeholder="Coupon code">
+                <button type="submit">Apply</button>
+              </form>
+            </div>
+            
+            <% let cartTotal = cartItems.reduce((acc, item) => acc + (item.salePrice * item.quantity), 0); %>
+            
+            <div class="cart__total">
+              <h6>Cart total</h6>
+              <ul>
+                <li>Subtotal <span>₹<%= cartTotal.toFixed(2) %></span></li>
+                <li>Total <span>₹<%= cartTotal.toFixed(2) %></span></li>
+              </ul>
+              <a href="/checkout" class="primary-btn">Proceed to checkout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <%- include("../../views/partials/user/footer") %>
+    
+    
+    <!-- Search Begin -->
+    <div class="search-model">
+      <div class="h-100 d-flex align-items-center justify-content-center">
+          <div class="search-close-switch">+</div>
+          <form class="search-model-form">
+              <input type="text" id="search-input" placeholder="Search here.....">
+          </form>
+      </div>
+    </div>
+    <!-- Search End -->
+    
+    <!-- Js Plugins -->
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.nice-select.min.js"></script>
+    <script src="/js/jquery.nicescroll.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/jquery.countdown.min.js"></script>
+    <script src="/js/jquery.slicknav.js"></script>
+    <script src="/js/mixitup.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <script src="/js/main.js"></script>
+  </body>
+</html>
+
+<script>
+ document.addEventListener('DOMContentLoaded', () => {
+  const cartTable = document.querySelector('.shopping__cart__table tbody');
+  const cartSubtotalElement = document.querySelector('.cart__total ul li:first-child span');
+  const cartTotalElement = document.querySelector('.cart__total ul li:last-child span');
+
+  // Handle cart updates when quantity buttons are clicked
+  cartTable.addEventListener('click', (event) => {
+    const button = event.target;
+
+    if (button.classList.contains('qty-btn')) {
+      const row = button.closest('tr');
+      const qtyInput = row.querySelector('.qty-input');
+      const cartPriceElement = row.querySelector('.cart__price');
+      const salePrice = parseFloat(row.querySelector('.product__cart__item__text h5').innerText.replace('₹', ''));
+      const productId = button.getAttribute('data-id');
+
+      let quantity = parseInt(qtyInput.value);
+      const minValue = parseInt(qtyInput.getAttribute('min'));
+      const maxValue = parseInt(qtyInput.getAttribute('max'));
+
+      // Adjust quantity based on the button clicked
+      if (button.classList.contains('plus') && quantity < maxValue) {
+        quantity++;
+      } else if (button.classList.contains('minus') && quantity > minValue) {
+        quantity--;
+      }
+
+      // Update quantity input and price
+      qtyInput.value = quantity;
+      cartPriceElement.innerText = `₹${(salePrice * quantity).toFixed(2)}`;
+
+      // Send updated quantity to the server
+      updateQuantityInDatabase(productId, quantity);
+
+      // Recalculate and update the cart totals
+      updateCartTotal();
+    }
+  });
+
+  // Function to send updated quantity to the server
+  function updateQuantityInDatabase(productId, quantity) {
+    console.log('Sending productId:', productId, 'with quantity:', quantity );
+    fetch('/updateCart', {
+      method: 'put',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, quantity })
+    })
+    .then(response => response.json())
+    .then(data => console.log('Quantity updated successfully:', data))
+    .catch(error => console.error('Error updating quantity:', error));
+  }
+
+  // Function to update cart totals
+  function updateCartTotal() {
+    let subtotal = 0;
+
+    // Loop through each row to calculate the subtotal
+    document.querySelectorAll('.shopping__cart__table tbody tr').forEach(row => {
+      const cartPriceElement = row.querySelector('.cart__price');
+      const price = parseFloat(cartPriceElement.innerText.replace('₹', ''));
+      subtotal += price;
+    });
+
+    // Update the total elements
+    cartSubtotalElement.innerText = `₹${subtotal.toFixed(2)}`;
+    cartTotalElement.innerText = `₹${subtotal.toFixed(2)}`;
+  }
+
+  // Handle item removal from the cart
+  const deleteButtons = document.querySelectorAll('.cart__close i');
+
+  deleteButtons.forEach(button => {
+    button.addEventListener('click', async (event) => {
+      const productId = event.target.dataset.id;
+   
+
+      if (confirm('Are you sure you want to delete this item from the cart?')) {
+        try {
+          const response = await fetch(`/removeItem/${productId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+          });
+
+          if (response.ok) {
+            // Remove the row from the table
+            const row = event.target.closest('tr');
+            row.remove();
+
+            
+            // Recalculate and update the cart total
+            updateCartTotal();
+
+           
+          } else {
+            alert('Failed to delete the item. Please try again.');
+          }
+        } catch (error) {
+          console.error('Error deleting cart item:', error);
+          alert('An error occurred. Please try again.');
+        }
+      }
+    });
+  });
+
+  // Update the cart totals on page load in case there are any pre-existing items
+  updateCartTotal();
+
+});
+
+
+</script>

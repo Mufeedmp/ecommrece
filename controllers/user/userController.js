@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const Address = require('../../models/addressSchema');
 
 
-// Render Signup Page
+
 const loadSignup = async (req, res) => {
     try {
         res.render('signup');
@@ -29,7 +29,7 @@ const loadHomepage = async (req, res) => {
        
         let productData=await Product.find({
             isBlocked:false,
-            quantity:{$gt:0} 
+            
         }).populate('category')
         
 
@@ -52,30 +52,53 @@ const loadHomepage = async (req, res) => {
     }
 };
 
+
 const loadShopPage=async (req,res) => {
     try {
         if(req.session.passport){
             req.session.user=req.session.passport.user
         }
-        
+        const query = req.query.query?.trim() || '';
+        const sortOption =req.query.sort || '';
         const categories=await Category.find({isListed:true})
+        
     
+    let sortCriteria = {};
+    switch (sortOption) {
+      case 'popularity':
+        sortCriteria = { popularity: -1 }; 
+        break;
+      case 'price-asc':
+        sortCriteria = { salePrice: 1 }; 
+        break;
+      case 'price-desc':
+        sortCriteria = { salePrice: -1 }; 
+        break;
+      case 'new-arrivals':
+        sortCriteria = { createdAt: -1 }; 
+        break;
+      case 'a-z':
+        sortCriteria = { productName: 1 }; 
+        break;
+      case 'z-a':
+        sortCriteria = { productName: -1 }; 
+        break;
+      default:
+        sortCriteria = { createdAt: -1 }; 
+    }
        
+     
         let productData=await Product.find({
             isBlocked:false,
-            quantity:{$gt:0} 
-        }).populate('category')
+            productName: { $regex: query, $options: 'i' },
+        }).populate('category') .sort(sortCriteria)
         
 
-        productData.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))
-        productData=productData.slice(0,4)
- 
-     
  
         if(req.session.user){
            const userData=await User.findOne({_id:req.session.user}) 
            
-          return res.render('shop',{user:userData,Products:productData,categories});
+          return res.render('shop',{user:userData,Products:productData,categories,});
         }else{
             return res.render('shop',{Products:productData,categories})
         }
@@ -86,7 +109,7 @@ const loadShopPage=async (req,res) => {
     }
 }
 
-// Render 404 Page
+
 const pageNotFound = async (req, res) => {
     try {
         res.render('page-404');
@@ -96,12 +119,11 @@ const pageNotFound = async (req, res) => {
     }
 };
 
-// Generate 6-digit OTP
+
 function generateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Send Verification Email
 async function sendVerificationEmail(email, otp) {
     try {
         const transporter = nodemailer.createTransport({
@@ -127,17 +149,18 @@ async function sendVerificationEmail(email, otp) {
     }
 }
 
-// Secure Password with Bcrypt
 const securePassword = async (password) => {
+    const saltRounds = 10;
     try {
-        return await bcrypt.hash(password, 10);
+        
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        return hashedPassword;
     } catch (error) {
         console.error('Error hashing password:', error);
         throw error;
     }
-};
-
-// Handle Signup Logic
+}; 
+ 
 const signup = async (req, res) => {
     try {
         const { name, phone, email, password, cPassword } = req.body;
@@ -150,7 +173,7 @@ const signup = async (req, res) => {
         if (existingUser) {
             return res.render('signup', { message: 'User already exists.' });
         }
-
+ 
         const otp = generateOtp();
         const emailSent = await sendVerificationEmail(email, otp);
 
@@ -158,7 +181,6 @@ const signup = async (req, res) => {
             return res.render('signup', { message: 'Failed to send OTP. Please try again.' });
         }
 
-        // Store OTP and user data in session
         req.session.userOtp = otp;
         req.session.userData = { name, phone, email, password };
 
@@ -170,7 +192,6 @@ const signup = async (req, res) => {
     }
 };  
 
-// Handle OTP Verification
 const verifyotp = async (req, res) => {
     try {
         const { otp } = req.body;
@@ -193,10 +214,8 @@ const verifyotp = async (req, res) => {
             console.log('Stored in session:', req.session.userOtp);
             await newUser.save();
            
-            
             req.session.user = newUser._id;
 
-            // Clear OTP and user data from session
             delete req.session.userOtp;
             delete req.session.userData;
 
@@ -253,6 +272,7 @@ const resendotp=async (req,res) => {
     const login=async (req,res) => {
         try {
             const {email,password}=req.body
+            
 
             const findUser=await User.findOne({isAdmin:0,email:email})
 
@@ -271,6 +291,7 @@ const resendotp=async (req,res) => {
              }
 
              req.session.user=findUser.id
+             console.log('User logged in:', req.session.user);
              res.redirect('/')
         } catch (error) {
             console.error('login error');
@@ -315,9 +336,19 @@ const resendotp=async (req,res) => {
 
    const loadChangeEmail=async (req,res) => {
     try {
-        res.render('change-email')
+        if(req.session.passport){
+            req.session.user=req.session.passport.user
+        }
+        if(req.session.user){
+            const userData=await User.findOne({_id:req.session.user}) 
+            
+            res.render('change-email',{userData})
+        }else{
+             res.redirect('/home')
+        }
     } catch (error) {
-        
+        console.log('error',error);
+        res.redirect('/pageNotFound')  
     }
    }
 
@@ -399,58 +430,77 @@ const resendotp=async (req,res) => {
     }
    }
 
-   const loadAddAddress=async (req,res) => {
+   const loadAddAddress = async (req, res) => {
     try {
-        const userData=await User.findOne({_id:req.session.user})
-        res.render('add-address',{user:userData})
-    } catch (error) {
-        
-    }
-   }
-
-   const addAddress=async (req,res) => {
-    try {
-       
-        if  (!req.user || !req.user._id) {
-            throw new Error('User ID is missing');
+        if (!req.session.user) {
+            return res.redirect('/login'); 
         }
 
-        const address = req.body;
-        const userId = req.user._id;
+        const userData = await User.findOne({ _id: req.session.user });
 
-        const newAddress=new Address({
-            userId:userId,
-            address:[
-                {
-                    addressType:address.addressType,
-                    name:address.name,
-                    city:address.city,
-                    landmark:address.landmark,
-                    state:address.state,
-                    pincode:String(address.pincode),
-                    phone:address.phone,
-                    altphone:address.altphone
-                }
-            ]
-            
-        })
-
-        await newAddress.save()
-        return res.redirect('/address')
-
+        res.render('add-address', { user: userData });
     } catch (error) {
-        console.error('error creating address',error);
-        return res.redirect('/pageNotFound')
-        
+        console.error('Error loading add address page:', error);
+        res.status(500).send('Internal Server Error');
     }
-   }
+};
+
+   const addAddress = async (req, res) => {
+    try {
+      if (!req.user || !req.user._id) {
+        throw new Error('User ID is missing');
+      }
+  
+      const address = req.body;
+      const userId = req.user._id;
+  
+      let addressDocument = await Address.findOne({ userId });
+  
+      if (addressDocument) {
+        addressDocument.address.push({
+          addressType: address.addressType,
+          name: address.name,
+          city: address.city,
+          landmark: address.landmark,
+          state: address.state,
+          pincode: String(address.pincode),
+          phone: address.phone,
+          altphone: address.altphone
+        });
+        await addressDocument.save();
+      } else {
+        const newAddress = new Address({
+          userId: userId,
+          address: [
+            {
+              addressType: address.addressType,
+              name: address.name,
+              city: address.city,
+              landmark: address.landmark,
+              state: address.state,
+              pincode: String(address.pincode),
+              phone: address.phone,
+              altphone: address.altphone
+            }
+          ]
+        });
+        await newAddress.save();
+      }
+  
+      return res.redirect('/address');
+    } catch (error) {
+      console.error('Error creating address:', error);
+      return res.redirect('/pageNotFound');
+    }
+  };
+  
    const loadEditAddress=async (req,res) => {
     const addressId=req.params.id
     
     try {
         const userData=await User.findOne({_id:req.session.user})
         const parentDocument = await Address.findOne({
-            "address._id": addressId // Match the address by its ObjectId within the array
+            "address._id": addressId 
         });
         const address = parentDocument.address.find(addr => addr._id.toString() === addressId);
         console.log('address',address);
@@ -500,11 +550,11 @@ const resendotp=async (req,res) => {
    const deleteAddress=async (req,res) => {
     const addressId=req.params.id
     const userId = req.user.id;
-    console.log('Address ID:', addressId);  // Log the addressId to verify it's correct
-    console.log('User ID:', userId);  // Log the userId to verify it's correct
+    console.log('Address ID:', addressId); 
+    console.log('User ID:', userId); 
     try {
-        const result = await Address.deleteOne(
-            { userId: userId,'address._id': addressId  } 
+        const result = await Address.updateOne(
+            { userId: userId},{$pull:{address:{_id: addressId }}}
         );
         console.log('Address deleted successfully:', result);
         res.redirect('/address')
@@ -513,6 +563,115 @@ const resendotp=async (req,res) => {
         res.status(500).send('Internal Server Error');
     }
    }
+
+   const loadForgetPassword=async (req,res) => {
+    try {
+        res.render('forget-password')
+    } catch (error) {
+        
+    }
+   }
+
+   const forgetPassword=async (req,res) => {
+    const{email}=req.body
+    try {
+        const user=await User.findOne({email})
+        if (!user) {
+            return res.render('forget-password', { errorMessage: 'Email not found!' });
+          }
+          const otp = generateOtp();
+          const emailSent = await sendVerificationEmail(email, otp);
+  
+          if (!emailSent) {
+              return res.render('login', { message: 'Failed to send OTP. Please try again.' });
+          }
+  
+          req.session.userOtp = otp;
+          req.session.userEmail = email;
+  
+          res.render('forget-passwordOTP');
+          console.log('OTP sent:', otp);
+    } catch (error) {
+        console.error(' error:', error);
+        res.redirect('/pageNotFound');
+    }
+   }
+   const forgetPasswordOtp=async (req,res) => {
+    try {
+        const { otp } = req.body;
+
+        console.log('Received OTP:', otp);
+        console.log('Stored OTP:', req.session.userOtp);
+        
+        if (otp === req.session.userOtp) {
+           
+            res.status(200).json({
+                success: true,
+                redirectUrl: '/reset-password',  
+            });
+        } else {
+            
+            res.status(400).json({
+                success: false,
+                message: 'Invalid OTP. Please try again.',
+            });
+        }
+    } catch (error) {
+        console.error('Error verifying OTP:', error);
+        res.status(500).json({ success: false, message: 'An error occurred. Please try again.' });
+    }
+   }
+
+   const loadResetPassword=async (req,res) => {
+    try {
+        res.render('reset-password')
+    } catch (error) {
+        
+    }
+   }
+
+   const resetPassword = async (req, res) => {
+       const { newPass, confirmPass} = req.body;
+       try {
+           if (!newPass || !confirmPass) {
+               return res.status(400).json({
+                   success: false,
+                   message: "Both newPass and confirmPass are required",
+               });
+           }
+           if (newPass !== confirmPass) {
+               return res.status(400).render('reset-password', {
+                   message: 'New passwords do not match.',
+               });
+           }
+           const hashedPassword = await bcrypt.hash(newPass,10);
+           const user = await User.findOne({ email: req.session.userEmail });
+           if (!user) {
+               return res.status(400).json({
+                   success: false,
+                   message: "User not found with the provided email",
+               });
+           }
+           user.password = hashedPassword;
+           await user.save();
+   
+           req.session.userOtp = null;
+           req.session.userEmail = null;
+        
+           res.redirect('/login');
+   
+       } catch (error) {
+        console.error(error);
+        if (!res.headersSent) {
+            res.status(500).send('Internal server error');
+        }
+       }
+   };
+   
+  
+
+   
+    
 module.exports = {
     loadHomepage,
     pageNotFound,
@@ -536,6 +695,13 @@ module.exports = {
     loadEditAddress,
     addAddress,
     editAddress,
-    deleteAddress
+    deleteAddress,
+    loadForgetPassword,
+    forgetPassword,
+    forgetPasswordOtp,
+    loadResetPassword,
+    resetPassword,
+  
+    
 };
  

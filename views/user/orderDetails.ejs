@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zxx">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Male_Fashion Template" />
+    <meta name="keywords" content="Male_Fashion, unica, creative, html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Gents Club </title>
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css" />
+    <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css" />
+    <link rel="stylesheet" href="/css/nice-select.css" type="text/css" />
+    <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/style.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+<style>
+/* Scoped styles for the order details container */
+.container1 {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Titles */
+.container1 h1,
+.container1 h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: 700;
+}
+
+/* Tables */
+.container1 table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.container1 th,
+.container1 td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #e0e0e0;
+}
+
+.container1 th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.container1 td img {
+  max-width: 80px;
+  max-height: 80px;
+  display: block;
+  margin: 0 auto;
+  border-radius: 4px;
+}
+
+/* Buttons */
+.container1 button {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.container1 button:hover {
+  background-color: #0056b3;
+}
+
+/* Cancel Button */
+.container1 #cancel-button {
+  background-color: #dc3545;
+}
+
+.container1 #cancel-button:hover {
+  background-color: #c82333;
+}
+
+/* Forms */
+.container1 form {
+  margin-top: 20px;
+}
+
+.container1 form label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.container1 form select,
+.container1 form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.container1 textarea {
+  resize: none;
+}
+
+.container1 form button {
+  max-width: 150px;
+  margin: 10px 0;
+}
+
+/* Review Section */
+.container1 .review-section {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.container1 .review-section p {
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: bold;
+}
+
+.container1 .review-section form {
+  width: 100%;
+}
+
+/* Centered Messages */
+.container1 p {
+  text-align: center;
+  color: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+
+  .container1 th,
+  .container1 td {
+    font-size: 14px;
+  }
+
+  .container1 button {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .container1 form {
+    font-size: 14px;
+  }
+}
+
+
+</style>
+   
+   
+</head>
+<body>
+
+
+<%- include("../../views/partials/user/header") %>
+
+    <div class="container1">
+        <h1>Order Details</h1>
+
+       
+        <table class="order-details">
+            <tr>
+                <th>Order ID</th>
+                <td><%= order._id %></td>
+            </tr>
+            <tr>
+                <th>Order Status</th>
+                <td><%= order.status %></td>
+            </tr>
+            <tr>
+                <th>Order Date</th>
+                <td><%= order.orderDate %></td>
+            </tr>
+            <tr>
+                <th>Payment Status</th>
+                <td><%= order.paymentStatus %></td>
+            </tr>
+            <tr>
+                <th>Total Amount</th>
+                <td>₹<%= order.totalAmount %></td>
+            </tr>
+        </table>
+
+        
+
+        <h2>Address</h2>
+        <table class="address-table">
+            <tr>
+                <th>Name</th>
+                <td><%=address.name%></td>
+            </tr>
+            <tr>
+                <th>Place</th>
+                <td><%=address.landmark%></td>
+            </tr>
+            <tr>
+                <th>City</th>
+                <td><%=address.city%></td>
+            </tr>
+            <tr>
+                <th>State</th>
+                <td><%=address.state%></td>
+            </tr>
+            <tr>
+                <th>Pincode</th>
+                <td><%=address.pincode%></td>
+            </tr>
+            <tr>
+                <th>Phone</th>
+                <td><%=address.phone%></td>
+            </tr>
+        </table>
+
+        <h2>Items in Order</h2>
+        <table class="order-items">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Size</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% order.items.forEach(item => { %>
+                    <tr>
+                        <td>
+                            <img src="/uploads/product-images/<%= item.image %>" alt="<%= item.productId.name %>">
+                        </td>
+                        <td><%= item.size %></td>
+                        <td><%= item.quantity %></td>
+                        <td>₹<%= item.price %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <h2>Reviews</h2>
+        <% order.items.forEach(item => { %>
+            <div class="review-section">
+                <p><strong><%= item.name %></strong></p>
+                <% if (order.status === 'Delivered') { %>
+                    <form action="/review/<%= order.userId %>" method="POST">
+                        <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                        <label for="rating-<%= item.productId._id %>">Rating:</label>
+                        <select name="rating" id="rating-<%= item.productId._id %>" class="rating-select">
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="3">3 - Good</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                        <label for="comment-<%= item.productId._id %>">Comment:</label>
+                        <textarea name="comment" id="comment-<%= item.productId._id %>" rows="3" placeholder="Write your review here..."></textarea>
+                        <button type="submit">Submit Review</button>
+                    </form>
+                <% } else { %>
+                    <p style="color: #555;">You can review this product after it's delivered.</p>
+                <% } %>
+            </div>
+        <% }); %>
+        
+
+        <hr>
+
+        
+            <form action="/cancel-order/<%= order._id %>" method="POST">
+                <button type="submit" id="cancel-button">Cancel Order</button>
+            </form>
+      
+            <p style="text-align: center; color: #555;">Order has been canceled.</p>
+       
+        
+    </div>
+    <%- include("../../views/partials/user/footer") %>
+
+    <!-- Search Begin -->
+    <div class="search-model">
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <div class="search-close-switch">+</div>
+            <form class="search-model-form">
+                <input type="text" id="search-input" placeholder="Search here.....">
+            </form>
+        </div>
+    </div>
+    <!-- Search End -->
+    
+    <!-- Js Plugins -->
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.nice-select.min.js"></script>
+    <script src="/js/jquery.nicescroll.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/jquery.countdown.min.js"></script>
+    <script src="/js/jquery.slicknav.js"></script>
+    <script src="/js/mixitup.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <script src="/js/main.js"></script>
+    </body>
+    
+    </html>
+    
+    

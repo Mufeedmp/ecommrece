@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zxx">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Male_Fashion Template" />
+    <meta name="keywords" content="Male_Fashion, unica, creative, html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Gents Club </title>
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css" />
+    <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css" />
+    <link rel="stylesheet" href="/css/nice-select.css" type="text/css" />
+    <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/style.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+}
+
+.account__wrapper {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.account__content--title {
+  font-weight: 700;
+  text-align: center;
+  color: #333333;
+  margin-bottom: 20px;
+}
+
+.account__table--area {
+  overflow-x: auto;
+}
+
+.account__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  margin-top: 20px;
+}
+
+.account__table--header {
+  background-color: #f4f4f4;
+}
+
+.account_table--header_child th {
+  padding: 15px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555555;
+  text-transform: uppercase;
+}
+
+.account_table--body_child {
+  border-bottom: 1px solid #eaeaea;
+}
+
+.account_table--body_child--items {
+  padding: 15px 10px;
+  font-size: 14px;
+  color: #666666;
+  vertical-align: middle;
+}
+
+.account_table--body_child--items img {
+  margin-right: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.account_table--body_child--items a {
+  text-decoration: none;
+  background-color: #007bff;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: background-color 0.3s ease;
+}
+
+.account_table--body_child--items a:hover {
+  background-color: #0056b3;
+}
+
+.text-center {
+  text-align: center;
+  color: #999999;
+  font-style: italic;
+}
+
+.mobile_none td {
+  word-wrap: break-word;
+}
+
+@media screen and (max-width: 768px) {
+  .account__table--header th,
+  .account_table--body_child--items {
+    font-size: 12px;
+    padding: 10px 5px;
+  }
+
+  .account_table--body_child--items a {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .account__content--title {
+    font-size: 20px;
+  }
+}
+</style>
+   
+  </head>
+<body>
+
+
+    <%- include("../../views/partials/user/header") %>
+
+    <div class="account__wrapper">
+        <div class="account__content">
+            <h2 class="account__content--title h3 mb-20">Orders History</h2>
+            <div class="account__table--area">
+                <table class="account__table">
+                    <thead class="account__table--header">
+                        <tr class="account_table--header_child">
+                            <th class="account_table--header_child--items">Order</th>
+                            <th class="account_table--header_child--items">Date</th>
+                            <th class="account_table--header_child--items">Payment Status</th>
+                            <th class="account_table--header_child--items">Oder Status</th>
+                            <th class="account_table--header_child--items">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="account_table--body mobile_none">
+                        <% if (orders.length > 0) { %>
+                            <% orders.forEach(order => { %>
+                                <tr class="account_table--body_child">
+                                    <td class="account_table--body_child--items">
+                                        <% order.items.forEach(item => { %>
+                                            <img src="/uploads/product-images/<%= item.image[0] %>" alt="<%= item.productName %>" width="50" height="50" /> <%= item.productName %><br>
+                                        <% }); %>
+                                    </td>
+                                    <td class="account_table--body_child--items">
+                                        <% if (order.createdAt) { %>
+                                            <%= order.createdAt.toLocaleDateString() %>
+                                        <% } else { %>
+                                            <span>N/A</span>
+                                        <% } %>
+                                    </td>
+                                    <td class="account_table--body_child--items"><%= order.paymentStatus %></td>
+                                    <td class="account_table--body_child--items"> <%= order.status %></td>
+                                    <td class="account_table--body_child--items">$<%= order.totalAmount.toFixed(2) %></td>
+                                    <td class="account_table--body_child--items">
+                                        <a href="/orderDetails/<%= order._id %>" class="btn btn-primary">View Details</a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center">No orders found.</td>
+                            </tr>
+                        <% } %>
+                        
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <%- include("../../views/partials/user/footer") %>
+    
+    
+    
+
+
+    <!-- Search Begin -->
+    <div class="search-model">
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <div class="search-close-switch">+</div>
+            <form class="search-model-form">
+                <input type="text" id="search-input" placeholder="Search here.....">
+            </form>
+        </div>
+    </div>
+    <!-- Search End -->
+    
+    <!-- Js Plugins -->
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.nice-select.min.js"></script>
+    <script src="/js/jquery.nicescroll.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/jquery.countdown.min.js"></script>
+    <script src="/js/jquery.slicknav.js"></script>
+    <script src="/js/mixitup.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <script src="/js/main.js"></script>
+    </body>
+    
+    </html>
+    

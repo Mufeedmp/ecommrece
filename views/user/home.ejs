@@ -179,10 +179,10 @@
           <div class="col-lg-7">
               <div class="banner__item banner__item--last">
                   <div class="banner__item__pic">
-                      <img src="<%= categories[2].imagePath %>" alt="Shoes Spring 2030">
+                      <img src="<%= categories[3].imagePath %>" alt="Shoes Spring 2030">
                   </div>
                   <div class="banner__item__text">
-                      <h2><%= categories[2].description %></h2>
+                      <h2><%= categories[3].description %></h2>
                       <a href="#">Shop now</a>
                   </div>
               </div>
@@ -215,12 +215,13 @@
                           </a>
                       </div>
 
-                      <div class="product-content-wrap">
+                      <div class="product-card">
                           <h6><%=Products[i].productName%></h6>
                           <h5><%=Products[i].salePrice%></h5>
-                          <a href="/addToCart?id=<%=Products[i]._id%>">Add To Cart</a>
+                          
                       </div>
                   </div>
+        
               </div>
               <%}%>
       </div>
@@ -254,6 +255,9 @@
 
 </html>
 
+  
+  
+  
 
 
 

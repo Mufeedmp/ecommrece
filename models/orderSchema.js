@@ -2,6 +2,7 @@ const mongoose=require('mongoose')
 const {Schema}=mongoose
 const {v4:uuidv4}=require('uuid')
 const Address = require('./addressSchema')
+const { request } = require('express')
 
 
 const orderSchema=new Schema({
@@ -20,10 +21,7 @@ const orderSchema=new Schema({
         type:Date,
         default:Date.now
     },
-    status:{
-        type:String,
-        default:'pending'
-    },
+
     paymentStatus: {
         type: String, 
         default: "Pending"
@@ -42,35 +40,66 @@ const orderSchema=new Schema({
             type:String,
             required:true
         },
-        quantity:{
-            type:Number,
-            default:1
-        },
+        quantity: {
+            type: Number, 
+            default: 1
+          },
+          size: {
+            type: Map,
+            of: Number, 
+            required: true
+          },
         price:{
-            type:Number,
+            type:String,
             required:true
         },
         total:{
-            type:Number,
+            type:String,
+            required:true
+        },
+        image:{
+            type:[String],
             required:true
         }
     }],
-    totalPrice:{
-        type:Number,
-        required:true
-    },
+
     discount:{
         type:Number,
         default:0,
     },
-    finalAmount:{
-        type:Number,
-        required:true
-    },
     address:{
-        type:String,
-        ref:'User',
-        required:true
+        addressType:{
+            type:String,
+            required:true
+        },
+        name:{
+            type:String,
+            required:true
+        },
+        city:{
+            type:String,
+            required:true
+        },
+        landmark:{
+            type:String,
+            required:true
+        },
+        state:{
+            type:String,
+            required:true
+        },
+        pincode:{
+            type:String,
+            required:true
+        },
+        phone:{
+            type:String,
+            required:true
+        },
+        altphone:{
+            type:String,
+            required:true
+        }
     },
     invoiceDate:{
         type:Date,
@@ -96,6 +125,10 @@ const orderSchema=new Schema({
     couponApplied:{
         type:Boolean,
         default:false
+    },
+    paymentMethod:{
+        type:String,
+        required:true
     }
 })
 

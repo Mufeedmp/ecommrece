@@ -34,8 +34,8 @@ router.get('/unblockProduct',adminAuth,productController.unblockProduct)
 router.get('/editProduct',adminAuth,productController.getEditProduct)
 router.post('/editProduct/:id',adminAuth,uploadProductImage.array('images', 4),productController.editProduct)
 router.delete('/deleteImage/:productId/:imageName',adminAuth,productController.deleteSingleImage)
-router.get('/variants',adminAuth,productController.getVariants)
-
-
+router.get('/orderList',adminAuth,customerController.orderList)
+router.get('/order-details/:id',adminAuth,customerController.orderDetails)
+router.post('/update-status',adminAuth,customerController.updateOrderStatus)
 
 module.exports=router

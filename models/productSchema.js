@@ -10,23 +10,19 @@ const productSchema=new Schema({
         type:String,
         required:true
     },
-    brand:{
-        type:String,
-        required:false
-    },
-
     category:{
         type:Schema.Types.ObjectId,
         ref:"Category",
         required:true
+    },
+    quantity: {
+        type: Number,
+        default: 1,
+        required: true,
         },
     regularPrice:{
         type:Number,
         required:true
-    },
-    size:{
-        type:String,
-        required:false
     },
     salePrice:{
         type:Number,
@@ -35,10 +31,6 @@ const productSchema=new Schema({
     productOffer:{
         type:Number,
         default:0
-    },
-    quantity:{
-        type:Number,
-        required:true
     },
     color:{
         type:String,
@@ -58,21 +50,16 @@ const productSchema=new Schema({
         required:true,
         default:"Available"
     },
-    variants: [
-        {
-          
-              size: {
-                type: String,
-                required: true,
-                enum: [ 'M', 'L', 'XL', 'XXL'], 
-              },
-              stock: {
-                type: Number,
-                required: true,
-                min: 0,
-              },
-        }
-      ],
+
+    size: {
+        M: { type: Number, required: true, min: 0, default: 0 },
+        L: { type: Number, required: true, min: 0, default: 0 },
+        XL: { type: Number, required: true, min: 0, default: 0 },
+      },
+    
+
+
+   
 },{timestamps:true})
 
 

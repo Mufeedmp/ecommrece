@@ -146,7 +146,7 @@
  <div class="page-header breadcrumb-wrap mb-3">
    <div class="container">
      <div class="breadcrumb">
-       <a href="#" rel="nofollow">Home</a>
+       <a href="/" rel="nofollow">Home</a>
        <span></span> Profile <span></span> Account
      </div>
    </div>
@@ -170,7 +170,7 @@
                    </a>
                  </li>
                  <li class="nav-item">
-                   <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="false">
+                   <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="/orders" role="tab" aria-controls="orders" aria-selected="false">
                      <i class="fi-rs-shopping-bag mr-10"></i>Orders
                    </a>
                  </li>
@@ -208,13 +208,16 @@
                    <div class="card-body text-center">
                      <h5 class="card-title"></h5>
                      <p class="card-text">
+                      <% if (user.authMethod !== 'google') { %>
                        <strong>Phone:<%=user.phone%></strong>
+                       <% } %>
                      </p>
                      <p class="card-text">
                        <strong>Email:<%=user.email%></strong>
                      </p>
-                     <a href="/change-email" class="btn btn-sm btn-dark ml-2">Change Email</a>
+                     <% if (user.authMethod !== 'google') { %>
                      <a href="/change-password" class="btn btn-sm btn-dark">Change Password</a>
+                     <% } %>
                    </div>
                  </div>
                </div>

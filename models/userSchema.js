@@ -31,6 +31,10 @@ const userSchema=new Schema({
         type:Boolean,
         default:false
     },
+    authMethod: {
+        type: String,
+        default: 'local'
+    }, 
     isAdmin:{
         type:Boolean,
         default:false

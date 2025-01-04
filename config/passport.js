@@ -16,16 +16,20 @@ async (accessTocken,refreshTocken,profile,done) => {
             if (user.isBlocked) {
                 return done(null, false, { message: 'Your account is blocked.' });
             }
+            user.authMethod = 'google';
+            await user.save();
             return done(null,user)
         } 
 
 
         user = await User.findOne({ email: profile.emails[0].value });
         if (user) {
-            user.googleId = profile.id;
+           
             if (user.isBlocked) {
                 return done(null, false, { message: 'Your account is blocked.' });
             }
+            user.googleId = profile.id;
+            user.authMethod = 'google'; 
             await user.save();
             return done(null, user);
         }
@@ -33,7 +37,8 @@ async (accessTocken,refreshTocken,profile,done) => {
          const newUser=new User({
                 name:profile.displayName,
                 email:profile.emails[0]. value,
-                googleId:profile.id
+                googleId:profile.id,
+                authMethod: 'google',
             })
             await newUser.save()
             return done(null,newUser)

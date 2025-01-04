@@ -24,39 +24,32 @@ const addProducts = async (req, res) => {
   try {
     const products = req.body;
 
-    const productExists = await Product.findOne({
-      productName: products.productName,
-    });
-    if (productExists) {
-      return res
-        .status(400)
-        .json("Product already exists. Please try a new name.");
-    }
     const images = [];
 
-    if (req.files && req.files.length > 0) {
-      for (let i = 0; i < req.files.length; i++) { 
-        const originalImagePath = req.files[i].path;
     
-        // Generate a unique path for the resized image
+    if (req.files && req.files.length > 0) {
+      for (let i = 0; i < req.files.length; i++) {
+        const originalImagePath = req.files[i].path;
+
         const resizedImagepath = path.join(
           "public",
           "uploads",
           "product-images",
           `${Date.now()}-${req.files[i].filename}`
         );
-    
-        // Process and save the resized image
+
         await sharp(originalImagePath)
           .resize({ width: 440, height: 440 })
           .toFile(resizedImagepath);
-    
-        // Push resized image filename to the images array
-        images.push(path.basename(resizedImagepath)); // Save only the filename
+        images.push(path.basename(resizedImagepath));
       }
     }
-    
-    const categoryName = products.category.trim();
+
+
+    const categoryName = (products.category|| "").trim();
+    if (!categoryName) {
+      return res.status(400).json({ error: "Category is required." });
+    }
     const category = await Category.findOne({
       name: categoryName,
       isListed: true,
@@ -64,6 +57,12 @@ const addProducts = async (req, res) => {
     if (!category) {
       return res.status(400).json({ error: "Invalid category name" });
     }
+
+    
+     
+    
+
+    
     const newProduct = new Product({
       productName: products.productName,
       description: products.description,
@@ -72,19 +71,26 @@ const addProducts = async (req, res) => {
       regularPrice: products.regularPrice,
       salePrice: products.salePrice,
       createdAt: new Date(),
-      quantity: products.quantity,
       color: products.color,
-      size: products.size,
-      productImage:images,
+      productImage: images,
       status: "Available",
+      size: {
+        M: parseInt(products.M, 10) || 0,
+        L: parseInt(products.L, 10) || 0,
+        XL: parseInt(products.XL, 10) || 0,
+      },
+
     });
+
     await newProduct.save();
+
     return res.redirect("/admin/addProducts");
   } catch (error) {
     console.error("error saving product", error);
     return res.redirect("/admin/pageerror");
   }
 };
+
 
 const getAllProducts = async (req, res) => {
   try {
@@ -186,6 +192,14 @@ const editProduct = async (req, res) => {
   
     const updatedImages = [...existingImages, ...images];
 
+    const updatedSize = {
+      M: parseInt(data.M, 10) || product.size.M || 0,
+      L: parseInt(data.L, 10) || product.size.L || 0,
+      XL: parseInt(data.XL, 10) || product.size.XL || 0,
+    };
+    if (Object.values(updatedSize).some((stock) => stock < 0)) {
+      return res.status(400).json({ error: "Stock values cannot be negative" });
+    }
     
     const updateFields = {
       productName: data.productName,
@@ -197,7 +211,7 @@ const editProduct = async (req, res) => {
       quantity: data.quantity,
       color: data.color,
       productImage: updatedImages, 
-      size: data.size,
+      size: updatedSize,
     };
 
  
@@ -237,16 +251,6 @@ const deleteSingleImage = async (req, res) => {
     }
 };
 
-const getVariants=async (req,res) => {
-  
-  try {
-    const id = req.query.id;
-    const product = await Product.findOne({_id:id})
-    res.render('variants',{ product: product})
-  } catch (error) {
-    
-  }
-}
 
 module.exports = {
   getProductAddPage,
@@ -257,5 +261,5 @@ module.exports = {
   getEditProduct,
   editProduct,
   deleteSingleImage,
-  getVariants
+ 
 };

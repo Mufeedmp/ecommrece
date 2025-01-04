@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Order Success - Gents Club</title>
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css/style.css" type="text/css" />
+
+    <style>
+      .order-success {
+        text-align: center;
+        padding: 50px 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 50px;
+      }
+
+      .order-success h1 {
+        font-size: 2.5rem;
+        color: #28a745;
+        margin-bottom: 20px;
+      }
+
+      .order-success p {
+        font-size: 1.2rem;
+        color: #555;
+      }
+
+      .order-success .order-id {
+        font-weight: bold;
+        font-size: 1.3rem;
+        color: #333;
+        margin-top: 10px;
+      }
+
+      .order-success a {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 25px;
+        font-size: 1rem;
+        color: #fff;
+        background-color: #007bff;
+        border-radius: 5px;
+        text-decoration: none;
+      }
+
+      .order-success a:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <%- include("../../views/partials/user/header") %>
+
+    <section class="order-success">
+      <div class="container">
+        <h1>Order Placed Successfully!</h1>
+        <p>Thank you for shopping with <strong>Gents Club</strong>.</p>
+        <p>Your order has been successfully placed and is now being processed.</p>
+        <p class="order-id">Order ID: <%= order.id %></p>
+        <p>You will receive a confirmation email shortly with the order details.</p>
+        <a href="/shop">Continue Shopping</a>
+      </div>
+    </section>
+
+    <%- include("../../views/partials/user/footer") %>
+
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/main.js"></script>
+  </body>
+</html>

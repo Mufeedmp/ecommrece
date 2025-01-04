@@ -1,28 +1,33 @@
 const { session } = require('passport')
-const User=require('../models/userSchema');
+const User=require('../models/userSchema')
 const { Admin } = require('mongodb');
 
-const userAuth = (req, res, next) => {
+// Global middleware to populate req.user
+const userAuth=(async (req, res, next) => {
     if (req.session.user) {
-        User.findById(req.session.user)
-            .then(user => {
-                if (user && !user.isBlocked) {
-                    req.user = user;
-                    console.log('Authenticated User:', req.user);
-                    next();
-                } else {
-                    res.redirect('/login');
-                }
-            })
-            .catch(error => {
-                console.error('Error in user auth middleware:', error);
-                res.status(500).send('Internal server error');
-            });
-    } else {
-        console.error('No user session found');
-        res.redirect('/login');
+        try {
+            const user = await User.findById(req.session.user);
+            if (user && !user.isBlocked) {
+                req.user = user;
+            } else {
+                // If user is blocked, destroy session
+                 req.session.destroy(err => {
+                    if (err) {
+                        console.error('Error destroying session:', err);
+                        return next(err);
+                    }
+                    // Redirect with a query parameter to show a message
+                    return res.redirect('/login?message=blocked');
+                });
+                return;
+            }
+        } catch (error) {
+            console.error('Error fetching user in global middleware:', error);
+            return next(error);
+        }
     }
-};
+    next();
+});
 
 
 const adminAuth=(req,res,next)=>{

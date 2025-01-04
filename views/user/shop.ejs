@@ -225,8 +225,8 @@
  <section class="shop-page container">
    <div class="shop-topbar">
      <div class="search-bar">
-       <form action="/shop" method="POST" class="search-form">
-         <input type="text" name="query" placeholder="Search items..." class="search-input" />
+       <form action="/shop" method="get" class="search-form" id="searchForm">
+         <input type="text" name="query" placeholder="Search items..." value="" class="search-input" id="searchInput" />
          <button type="submit" class="search-button">Search</button>
        </form>
      </div>
@@ -234,40 +234,19 @@
   
    <div class="product-list-container">
      <aside class="sidebar">
-       <div class="filter-section">
-         <div class="filter-title">Categories</div>
-         <div class="category-brand-container">
-           <ul>
-               <li class="filter-item">
-                 <a href=""></a>
-               </li>
-           </ul>
-         </div>
-       </div>
-
-      
-       <div class="filter-section">
-         <div class="filter-title">Brands</div>
-         <div class="category-brand-container">
-           <ul>
-               <li class="filter-item">
-                 <a href=""></a>
-               </li>
-           </ul>
-         </div>
-       </div>
-
-      
        <div class="price-filter">
-         <div class="filter-title">Filter by Price</div>
+         <div class="filter-title">Sort by</div>
          <form id="price-filter-form">
-           <div class="price-options">
-             <a href=""><button type="button" class="price-button">Under ₹500</button></a>
-             <a href=""><button type="button" class="price-button">₹500 - ₹1000</button></a>
-             <a href=""><button type="button" class="price-button">₹1000- ₹1500</button></a>
-             <a href=""><button type="button" class="price-button">Above ₹1500</button></a>
-           </div>
-         </form>
+          <select id="price-filter" name="sort" class="price-dropdown">
+            <option value="popularity">Popularity</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+            <option value="new-arrivals">New arrivals</option>
+            <option value="a-z">A - Z</option>
+            <option value="z-a">Z - A</option>
+          </select>
+          <button type="submit" class="filter-button">Apply</button>
+        </form>
        </div>
      </aside>
 
@@ -281,7 +260,7 @@
              <p><%=Products[i].salePrice%></p>
              <p> <span class="text-muted"><strike>₹<%=Products[i].regularPrice%></strike></span></p>
            </a>
-          <a href="/addToCart?id=<%=Products[i]._id%>"> <button class="add-to-cart-btn" onclick="" >Add to Cart</button></a>
+
          </div>
          <%}%>
      </main>
@@ -294,6 +273,7 @@
  </section>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 <%- include("../../views/partials/user/footer") %>
 
 
@@ -322,3 +302,38 @@
 </body>
 
 </html>
+<script>
+
+
+  const searchForm = document.getElementById('searchForm');
+const searchInput = document.getElementById('searchInput');
+
+searchForm.addEventListener('submit', function (event) {
+  const query = searchInput.value.trim(); 
+  
+
+  if (query.length > 50) {
+    event.preventDefault();
+    alert('Search term is too long. Please enter fewer than 50 characters.');
+    return;
+  }
+  
+
+  window.location.href = `/shop?query=${query}`;
+});
+
+const filterForm = document.getElementById('price-filter-form');
+const filterDropdown = document.getElementById('price-filter');
+
+filterForm.addEventListener('submit', (event) => {
+  event.preventDefault(); 
+  const sort = filterDropdown.value;
+
+  window.location.href = `/shop?sort=${sort}`;
+});
+
+</script>
+
+<div id="cart-message" style="display:none; background-color:#d4edda; color:#155724; padding:10px; margin:10px 0; border:1px solid #c3e6cb; border-radius:5px;">
+  Item added to cart successfully!
+</div>

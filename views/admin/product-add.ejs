@@ -1,6 +1,7 @@
 <%- include("../../views/partials/admin/header") %>
 <head>
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
 </head>
 <style>
    .error-message{
@@ -35,20 +36,7 @@
                                    class="form-control border" id="product_name">
                                <div id="productName-error" class="error-message"></div>
                            </div>
-                           <div class="col-lg-4 mb-4">
-                               <label class="form-label">Brand</label>
-                               <select class="form-select border" name="brand">
-                            
-                                
-                                       <option value="">
-                                      
-                                         
-                                       </option>
-                                    
-                                     
-                               </select>
-                               <div id="brand-error" class="error-message"></div>
-                           </div>
+                           
                            <div class="mb-4">
                                <label class="form-label">Full description</label>
                                <textarea placeholder="Type here" id="descriptionid" name="description" class="form-control border"
@@ -59,7 +47,7 @@
                                <div class="col-lg-4">
                                    <div class="mb-4">
                                        <label class="form-label">Regular price</label>
-                                       <input placeholder="$" name="regularPrice" type="text"
+                                       <input placeholder="₹" id="regularPrice" name="regularPrice" type="text"
                                            class="form-control border">
                                            <div id="regularPrice-error" class="error-message"></div>
                                    </div>
@@ -67,50 +55,70 @@
                                <div class="col-lg-4">
                                    <div class="mb-4">
                                        <label class="form-label">Sale price</label>
-                                       <input placeholder="$" name="salePrice" type="text" class="form-control border">
-                                      
+                                       <input placeholder="₹" id="salePrice" name="salePrice" type="text"
+                                        class="form-control border"> 
+                                        <div id="salePrice-error" class="error-message"></div>
                                    </div>
-                                   <div id="salePrice-error" class="error-message"></div>
                                </div>
                                
                            </div>
                            <div class="row">
-                              
                                <div class="col-lg-4">
                                    <div class="mb-4">
                                        <label class="form-label">Color</label>
-                                       <input  name="color" type="text" class="form-control border">
-                                   </div>
-                                   <div id="color-error" class="error-message"></div>
-                               </div>
-                            
-                           </div>
-                           <div class="card mb-4">
-                               <div class="card-body">
-                                   <div class="row gx-2">
-                                       <div class="col-sm-6 mb-3">
-                                           <label class="form-label">Category</label>
-                                           <select class="form-select border" style="width: 150px;" name="category">
-                                               <%for(let i=0;i<cat.length;i++){%>
-
-                                              
-                                                   <option value="<%=cat[i].name%>">
-                                                    <%=cat[i].name%>
-                                                   </option>
-                                                  
-                                                 <%}%>
-                                                   
-                                           </select>
-                                           <div id="category-error" class="error-message"></div>
-                                       </div>
+                                       <input  id="color" name="color" type="text" class="form-control border">
+                                       <div id="color-error" class="error-message"></div>
                                    </div>
                                </div>
                            </div>
-                           <div class="col-lg-4">
-                            <div class="mb-4">
-                                <a href="/admin/variants" id="saveButton4" class="btn-sm btn-primary">Variants</a>
+                       
+                           <div class="row">
+                            <div class="col-lg-4">
+                              <div class="mb-4">
+                                <label class="form-label">Category</label>
+                                <select class="form-select border" id="category" name="category" style="width: 150px;" >
+                                  <% for (let i = 0; i < cat.length; i++) { %>
+                                    <option value="<%= cat[i].name %>">
+                                      <%= cat[i].name %>
+                                    </option>
+                                  <% } %>
+                                </select>
+                                <div id="category-error" class="error-message"></div>
+                              </div>
                             </div>
                           </div>
+                          
+                    
+                                   
+                                      
+                             
+                         
+                          
+                           <div class="col-lg-4">
+                            <div class="mb-4">
+                                <label class="form-label">Size-M</label>
+                                <input  name="M" id="sizeM" type="text" class="form-control" min="0">
+                                <div id="M-error" class="error-message"></div>
+                            </div>
+                         
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="mb-4">
+                                <label class="form-label">Size-L</label>
+                                <input  name="L" id="sizeL" type="text" class="form-control" min="0">
+                                <div id="L-error" class="error-message"></div>
+                            </div>
+                           
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="mb-4">
+                                <label class="form-label">Size-XL</label>
+                                <input  name="XL" id="sizeXL" type="text" class="form-control" min="0">
+                                <div id="XL-error" class="error-message"></div>
+                            </div>
+                           
+                        </div>
+                           
                            <div class="card mb-2">
                                <div class="card-header">
                                    <h4>Choose images</h4>
@@ -183,8 +191,7 @@
                            </div>
                            
                            <div>
-                               <button class="btn btn-md rounded font-sm hover-up"  type="submit" onclick="validateAndSubmit()
-                               ">Publish</button>
+                               <button class="btn btn-md rounded font-sm hover-up"  type="submit" >Publish</button>
                            </div>
                        </form>
                    </div>
@@ -196,63 +203,76 @@
 
 <script>
 
-    function validateAndSubmit() {
-    if (validateForm()) {
-       document.forms[0].submit();
+
+function validateForm() {
+    clearErrorMessages();
+    
+    const name = document.getElementById('product_name')?.value || '';
+    const description = document.getElementById('descriptionid')?.value || '';
+    const price = document.getElementById('regularPrice')?.value || '';
+    const saleprice = document.getElementById('salePrice')?.value || '';
+    const color = document.getElementById('color')?.value || '';
+    const category = document.getElementById('category');
+    const M = document.getElementById('sizeM')?.value || '';
+    const L = document.getElementById('sizeL')?.value || '';
+    const XL = document.getElementById('sizeXL')?.value || '';
+    const imageDatas = document.getElementsByName("images");
+
+    let isValid = true;
+
+    if (name.trim() === "") {
+        displayErrorMessage('productName-error', 'Please enter a product name.');
+        isValid = false;
     }
+
+    if (description.trim() === "") {
+        displayErrorMessage('description-error', 'Please enter a product description.');
+        isValid = false;
     }
-    
-    
-    function validateForm() {
-       let imageDatas = false
-               console.log("validate form");
-               clearErrorMessages();
-               const name = document.getElementsByName('productName')[0].value;
-               const description = document.getElementsByName('descriptionData')[0].value;
-               const brand = document.getElementsByName('brand')[0].value;
-               const price = document.getElementsByName('regularPrice')[0].value;
-               const saleprice = document.getElementsByName('salePrice')[0].value;
-               const color = document.getElementsByName('color')[0].value;
-               const category = document.getElementsByName('category')[0].value;
-               const images = document.getElementById('input1')
-               const quantity=document.getElementsByName('quantity')
-    imageDatas = document.getElementById("imageDatas")?.value;
-               let isValid = true;    
-               if (name.trim() === "") {
-       displayErrorMessage('productName-error', 'Please enter a product name.');
-       isValid = false;
+
+    if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+        displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative regular price.');
+        isValid = false;
     }
-              
-               if (description=== '') {
-                   displayErrorMessage('description-error', 'Please enter a product description.');
-                   isValid = false;
-               } 
-    
-               if ( parseInt(quantity) < 0) {
-                   displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
-                   isValid = false;
-               }
-    
-    
-               if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-                   displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
-                   isValid = false;
-               }
-              if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-                   displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
-                   isValid = false;
-               }
-              
-               if (color.trim() === "") {
-                   displayErrorMessage('color-error', 'Please enter a color.');
-                   isValid = false;
-               }
-               if (!imageDatas && images.files.length === 0) {
-                   displayErrorMessage("images-error",'Please select an image.');
-                   isValid = false;
-               }
-               return isValid;
-           }
+
+    if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+        displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');
+        isValid = false;
+    }
+
+    if (color.trim() === "") {
+        displayErrorMessage('color-error', 'Please enter a color.');
+        isValid = false;
+    }
+
+    if (category.trim() === "") {
+        displayErrorMessage('category-error', 'Please select a category.');
+        isValid = false;
+    }
+
+    if (M.trim() === "") {
+        displayErrorMessage('M-error', 'Please enter quantity of M size.');
+        isValid = false;
+    }
+
+    if (L.trim() === "") {
+        displayErrorMessage('L-error', 'Please enter quantity of L size.');
+        isValid = false;
+    }
+
+    if (XL.trim() === "") {
+        displayErrorMessage('XL-error', 'Please enter quantity of XL size.');
+        isValid = false;
+    }
+
+    if (!imageDatas) {
+        displayErrorMessage('images-error', 'Please select an image.');
+        isValid = false;
+    }
+
+    return isValid;
+}
+
           
            function displayErrorMessage(elementId, message) {
                var errorElement = document.getElementById(elementId);
@@ -265,7 +285,7 @@
                Array.from(errorElements).forEach(element => {
                    element.innerText = '';
                });
-               const errorMessage = document.getElementById('errorMessage');
+              
     
            }
     
@@ -357,9 +377,12 @@
                }
            };
            
+
+        
+
+
        </script>
     
     
      
 <%- include("../../views/partials/admin/footer") %>
-

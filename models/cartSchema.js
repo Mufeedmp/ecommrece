@@ -17,13 +17,13 @@ const cartSchema = new Schema({
       quantity: {
         type: Number,
         required: true,
-        default: 1
+        min: 1
       },
       size: {
-         type: Map,
-         of: String, 
+         type: String, 
          required: true
       },
+    
       productName: {
         type: String,
         required: true,

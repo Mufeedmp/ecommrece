@@ -97,7 +97,7 @@
                              <div class="col-lg-4">
                             <div class="mb-4">
                                 <label class="form-label">Size-M</label>
-                                <input  name="M" id="sizeM" type="text" class="form-control" min="0" value="<%=product.size.M%>">
+                                <input  name="M" id="sizeM" type="number" class="form-control" min="0" value="<%= product.size.find(s => s.sizeName === 'M')?.quantity || 0 %>">
                                 <div id="M-error" class="error-message"></div>
                             </div>
                          
@@ -105,7 +105,7 @@
                         <div class="col-lg-4">
                             <div class="mb-4">
                                 <label class="form-label">Size-L</label>
-                                <input  name="L" id="sizeL" type="text" class="form-control" min="0" value="<%=product.size.L%>">
+                                <input  name="L" id="sizeL" type="number" class="form-control" min="0" value="<%= product.size.find(s => s.sizeName === 'L')?.quantity || 0 %>">
                                 <div id="L-error" class="error-message"></div>
                             </div>
                            
@@ -113,7 +113,7 @@
                         <div class="col-lg-4">
                             <div class="mb-4">
                                 <label class="form-label">Size-XL</label>
-                                <input  name="XL" id="sizeXL" type="text" class="form-control" min="0" value="<%=product.size.XL%>">
+                                <input  name="XL" id="sizeXL" type="number" class="form-control" min="0" value="<%= product.size.find(s => s.sizeName === 'XL')?.quantity || 0 %>">
                                 <div id="XL-error" class="error-message"></div>
                             </div>
                            

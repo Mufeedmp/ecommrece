@@ -33,222 +33,324 @@
     
   </head>
 <body>
-  
-<%- include("../../views/partials/user/header") %>
-<style>
+ 
+
+  <body>
+    <style>
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        right: 0;
+      }
+      .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+      }
+      .dropdown-content a:hover {
+        background-color: #f1f1f1;
+      }
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
+      .header {
+        position: relative;
+        z-index: 500;
+      }
 
 
-  .stock-status {
-    margin-top: 10px;
-    font-size: 14px;
-    font-weight: bold;
-  }
+    .stock-status {
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: bold;
+    }
 
-  .out-of-stock {
-    color: red;
-  }
-
-  .in-stock {
+    .in-stock {
     color: green;
-  }
+    }
+
+    .out-of-stock {
+    color: red;
+    }
+
+    .main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    }
+    .shop-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    }
+
+    .search-form {
+    display: flex;
+    align-items: center;
+    background-color: #f1f1f1;
+    border-radius: 25px;
+    overflow: hidden;
+    max-width: 250px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-input {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 14px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    }
+
+    .search-button {
+    padding: 8px 15px;
+    background-color: #1e918b;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 15px;
+    margin-right: 5px;
+    transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .search-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+    }
+    .sidebar {
+    padding: 20px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    width: 250px;
+    text-align: center;
+    }
+
+    .filter-section {
+    margin-bottom: 20px;
+    }
+
+    .filter-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+    }
+
+    .filter-item {
+    margin: 5px 0;
+    }
+
+    .filter-item a {
+    text-decoration: none;
+    color: #333;
+    }
+
+    .filter-item a:hover {
+    color: #007bff;
+    }
+
+    .product-list-container {
+    display: flex;
+    gap: 20px;
+    }
+
+    .product-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: calc(100% - 270px);
+    }
+
+    .product-card {
+    width: calc(33.333% - 20px);
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+    }
+
+    .product-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    }
+
+    .wishlist-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: rgba(237, 247, 247, 0.8);
+    color: #fff;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    }
+
+    .add-to-cart-btn {
+    background-color: #46698f;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    }
+
+    .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    }
+
+    .pagination a {
+    padding: 8px 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    color: #333;
+    text-decoration: none;
+    }
+
+    .pagination .active {
+    background-color: #007bff;
+    color: #fff;
+    }
+
+    .price-filter {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 20px;
+    }
+
+    .price-filter .price-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    }
+
+    .price-button {
+    padding: 12px 20px;
+    background-color: #f1f1f1;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    text-align: center;
+    font-size: 14px;
+    }
+
+    .price-button:hover {
+    background-color: #007bff;
+    color: white;
+    transform: scale(1.05);
+    }
+
+    .price-button:active {
+    transform: scale(0.95);
+    }
+
+    .category-brand-container {
+    text-align: center;
+    }
+    .details__img {
+    transition: transform 0.3s ease;
+    cursor: zoom-in; 
+    }
 
 
 
- .main-container {
-   max-width: 1200px;
-   margin: 0 auto;
-   padding: 20px;
- }
- .shop-topbar {
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   margin-bottom: 20px;
- }
+     </style>
+    <!-- Page Preloder -->
+    <div id="preloder">
+      <div class="loader"></div>
+    </div>
 
- .search-form {
-   display: flex;
-   align-items: center;
-   background-color: #f1f1f1;
-   border-radius: 25px;
-   overflow: hidden;
-   max-width: 250px;
-   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
- }
+    <!-- Header Section Begin -->
+    <header class="header">
+      <div class="header__top">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-6 col-md-7">
+              <div class="header__top__left">
+                <p>Free shipping, 10-day return or refund guarantee.</p>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-5">
+              <div class="header__top__right">
+                <div class="header__top__links"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-3 col-md-3">
+            <div class="header__logo">
+              <a href="./index.html"><img src="/img/logo.png" alt="" /></a>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6">
+            <nav class="header__menu mobile-menu">
+              <ul>
+                <li class=""><a href="/">Home</a></li>
+                <li class=""><a href="/shop">Shop</a></li>
+               
 
- .search-input {
-   flex: 1;
-   padding: 8px 10px;
-   font-size: 14px;
-   border: none;
-   outline: none;
-   background-color: transparent;
- }
+                <li><a href="./contact.html">Contacts</a></li>
+              </ul>
+            </nav>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="header__nav__option">
+              <%if(locals.user){%>
+              <div class="dropdown">
+                <a href="#" class="sign-in-link"><%=locals.user.name%></a>
+                <div class="dropdown-content">
+                  <a href="/profile">Profile</a>
+                  <a href="/logout">Logout</a>
+                </div>
+              </div>
+              <%}else{%>
+              <a href="/login" class="sign-in-link">Log in</a>
+              <a href="/signup" class="sign-in-link">Sign up</a>
+              <%}%>
+              <a href="#" class="search-switch"
+                ><img src="/img/icon/search.png" alt=""
+              /></a>
+              <a href="/wishlist"><img src="/img/icon/heart.png" alt="" /></a>
+              <a href="/cart"><img src="/img/icon/cart.png" alt="Cart" /> </a>
+            </div>
+          </div>
+        </div>
+        <div class="canvas__open"><i class="fa fa-bars"></i></div>
+      </div>
+    </header>
+    <!-- Header Section End -->
+  </body>
 
- .search-button {
-   padding: 8px 15px;
-   background-color: #1e918b;
-   color: #fff;
-   border: none;
-   cursor: pointer;
-   font-size: 14px;
-   border-radius: 15px;
-   margin-right: 5px;
-   transition: background-color 0.3s, transform 0.2s;
- }
-
- .search-button:hover {
-   background-color: #0056b3;
-   transform: scale(1.05);
- }
- .sidebar {
-   padding: 20px;
-   border: 1px solid #ddd;
-   background-color: #f9f9f9;
-   border-radius: 8px;
-   margin-bottom: 20px;
-   width: 250px;
-   text-align: center;
- }
-
- .filter-section {
-   margin-bottom: 20px;
- }
-
- .filter-title {
-   font-weight: bold;
-   margin-bottom: 10px;
-   font-size: 16px;
-   color: #333;
- }
-
- .filter-item {
-   margin: 5px 0;
- }
-
- .filter-item a {
-   text-decoration: none;
-   color: #333;
- }
-
- .filter-item a:hover {
-   color: #007bff;
- }
-
- .product-list-container {
-   display: flex;
-   gap: 20px;
- }
-
- .product-grid {
-   display: flex;
-   flex-wrap: wrap;
-   gap: 20px;
-   width: calc(100% - 270px);
- }
-
- .product-card {
-   width: calc(33.333% - 20px);
-   border: 1px solid #ddd;
-   padding: 15px;
-   border-radius: 8px;
-   text-align: center;
-   position: relative;
- }
-
- .product-card img {
-   max-width: 100%;
-   height: auto;
-   border-radius: 5px;
- }
-
- .wishlist-btn {
-   position: absolute;
-   top: 8px;
-   right: 8px;
-   background-color: rgba(237, 247, 247, 0.8);
-   color: #fff;
-   padding: 8px;
-   border-radius: 50%;
-   cursor: pointer;
- }
-
- .add-to-cart-btn {
-   background-color: #46698f;
-   color: #fff;
-   padding: 10px;
-   border: none;
-   border-radius: 5px;
-   cursor: pointer;
-   width: 100%;
-   margin-top: 10px;
- }
-
- .pagination {
-   display: flex;
-   justify-content: center;
-   gap: 10px;
-   margin: 20px 0;
- }
-
- .pagination a {
-   padding: 8px 12px;
-   background-color: #f0f0f0;
-   border: 1px solid #ddd;
-   color: #333;
-   text-decoration: none;
- }
-
- .pagination .active {
-   background-color: #007bff;
-   color: #fff;
- }
-
- .price-filter {
-   padding: 10px;
-   background-color: #f9f9f9;
-   border-radius: 8px;
-   margin-top: 20px;
- }
-
- .price-filter .price-options {
-   display: flex;
-   flex-direction: column;
-   gap: 10px;
- }
-
- .price-button {
-   padding: 12px 20px;
-   background-color: #f1f1f1;
-   color: #333;
-   border: 1px solid #ddd;
-   border-radius: 30px;
-   cursor: pointer;
-   transition: background-color 0.3s, transform 0.2s;
-   text-align: center;
-   font-size: 14px;
- }
-
- .price-button:hover {
-   background-color: #007bff;
-   color: white;
-   transform: scale(1.05);
- }
-
- .price-button:active {
-   transform: scale(0.95);
- }
-
- .category-brand-container {
-   text-align: center;
- }
- .details__img {
-  transition: transform 0.3s ease; /* Smooth transition effect */
-  cursor: zoom-in; /* Changes cursor to indicate zoom functionality */
-}
+ 
 
 
-</style>
 <main class="main">
     <!--=============== BREADCRUMB ===============-->
     <section class="breadcrumb">
@@ -317,13 +419,13 @@
             <span class="details__size-title">Size</span>
             <ul class="size__list" id="size-list">
               <li>
-                <a href="#" id="size-M" class="size__link size-active" data-stock="<%= Products.size.M %>" data-size="M">M</a>
+                <a href="#" id="size-M" class="size__link size-active" data-stock="<%= Products.size.find(s => s.sizeName === 'M')?.quantity || 0 %>" data-size="M">M</a>
               </li>
               <li>
-                <a href="#" id="size-L" class="size__link" data-stock="<%= Products.size.L %>" data-size="L">L</a>
+                <a href="#" id="size-L" class="size__link" data-stock="<%= Products.size.find(s=>s.sizeName==='L')?.quantity || 0 %>" data-size="L">L</a>
               </li>
               <li>
-                <a href="#" id="size-XL" class="size__link" data-stock="<%= Products.size.XL %>" data-size="XL">XL</a>
+                <a href="#" id="size-XL" class="size__link" data-stock="<%= Products.size.find(s => s.sizeName === 'XL')?.quantity || 0 %>" data-size="XL">XL</a>
               </li>
             </ul>
           </div>
@@ -343,10 +445,6 @@
             </a>
           </div>
           
-          
-          <div id="cart-message" style="display:none; background-color:#d4edda; color:#155724; padding:10px; margin:10px 0; border:1px solid #c3e6cb; border-radius:5px;">
-            Item added to cart successfully!
-          </div>
           <ul class="details__meta">
             <li class="meta__list flex"><span>SKU:</span>FWM15VKT</li>
             <li class="meta__list flex">
@@ -412,6 +510,7 @@
               </div>
           </div>
           </div>
+          <input type="hidden" id="cart-quantity" value="<%= cartQuantity %>">
         </section>
 
     <!--=============== PRODUCTS ===============-->
@@ -444,44 +543,54 @@
    <script src="/js/mixitup.min.js"></script>
    <script src="/js/owl.carousel.min.js"></script>
    <script src="/js/main.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
 
    <script>
  
- document.addEventListener('DOMContentLoaded', () => {
+ document.addEventListener('DOMContentLoaded', () => { 
   const sizeLinks = document.querySelectorAll('.size__link');
   const stockStatus = document.getElementById('stock-status');
   const quantityInput = document.getElementById('quantity-input');
   const addToCartBtn = document.getElementById('add-to-cart-btn');
-
-  let selectedSize = 'M'; // Default size
+  const increaseBtn = document.getElementById('increase-btn');
+  const decreaseBtn = document.getElementById('decrease-btn');
+  let selectedSize = 'M'; 
   let availableStock = parseInt(document.querySelector('.size__link.size-active').dataset.stock);
 
-  // Update stock status initially
-  stockStatus.textContent = availableStock > 0 ? `${availableStock} in stock` : 'Out of Stock';
-
-  // Handle size selection
+  updateStockStatus(availableStock);
+  
   sizeLinks.forEach((link) => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
 
-      // Remove active class from all links
       sizeLinks.forEach((l) => l.classList.remove('size-active'));
 
-      // Add active class to clicked link
       link.classList.add('size-active');
 
-      // Update selected size and stock status
       selectedSize = link.dataset.size;
       availableStock = parseInt(link.dataset.stock);
-      stockStatus.textContent = availableStock > 0 ? `${availableStock} in stock` : 'Out of Stock';
-
-      // Update max quantity based on stock
+      
+      updateStockStatus(availableStock);
       quantityInput.max = availableStock;
     });
   });
 
-  // Handle quantity increase/decrease
+  function updateStockStatus(stock) {
+    if (stock > 0) {
+      stockStatus.textContent = `${stock} in stock`;
+      stockStatus.classList.remove('out-of-stock');
+      stockStatus.classList.add('in-stock');
+     
+    } else {
+      stockStatus.textContent = 'Out of Stock';
+      stockStatus.classList.remove('in-stock');
+      stockStatus.classList.add('out-of-stock');
+    
+    }
+  }
+
+
   document.getElementById('increase-btn').addEventListener('click', (e) => {
     e.preventDefault();
     if (quantityInput.value < availableStock) {
@@ -496,14 +605,44 @@
     }
   });
 
-  // Handle "Add to Cart" button click
+  
+
+
   addToCartBtn.addEventListener('click', async () => {
     const productId = addToCartBtn.dataset.productId;
     const quantity = parseInt(quantityInput.value);
+    const cartQuantity = parseInt(document.getElementById('cart-quantity').value) || 0;
+  const availablestock = parseInt(stockStatus.textContent);
+    
+    console.log('Cart Quantity:', cartQuantity);
+    console.log('Available Stock:', availablestock);
 
-    if (quantity > availableStock) {
-      alert('Quantity exceeds available stock');
+    if(quantity+cartQuantity>= availablestock) {
+      Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'Quantity exceeds available stock',
+                    confirmButtonText: 'OK',
+      })
       return;
+    }
+
+    if(stockStatus.textContent === 'Out of Stock') {
+      Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'Product is out of stock',
+                    confirmButtonText: 'OK',
+      })
+    }
+
+    if (quantity > availablestock&& stockStatus.textContent === 'In Stock') {
+      Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'Quantity exceeds available stock',
+                    confirmButtonText: 'OK',
+      })
     }
 
     try {
@@ -520,56 +659,63 @@
       });
 
       if (response.ok) {
-        alert('Product added to cart successfully!');
-        // Optionally, update cart icon or redirect
+        Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Product added to cart successfully!',
+                    showConfirmButton:false,
+      })
+       
       } else {
         const error = await response.json();
-        alert(error.message || 'Failed to add product to cart');
+        Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'Failed to add product to cart',
+                    confirmButtonText: 'OK',
+      })
       }
     } catch (err) {
       console.error('Error adding to cart:', err);
-      alert('An error occurred. Please try again.');
+      Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'An error occurred. Please try again.',
+                    confirmButtonText: 'OK',
+      })
     }
   });
 });
 
-  // Handle zoom effect on the main image
-
     document.addEventListener("DOMContentLoaded", function () {
-      // Select the main image and the small images
+ 
       const mainImage = document.querySelector(".details__img");
       const smallImages = document.querySelectorAll(".details__small-img");
   
-      // Add click event listeners to each small image
       smallImages.forEach((smallImg) => {
         smallImg.addEventListener("click", function () {
-          // Change the main image's source to the clicked image's source
+          
           mainImage.src = smallImg.src;
         });
       });
-  
-      // Handle zoom effect on the main image
+ 
       mainImage.addEventListener("mousemove", (e) => {
-        // Get the image's natural width and height
+      
         const imgWidth = mainImage.naturalWidth;
         const imgHeight = mainImage.naturalHeight;
   
-        // Get the mouse position relative to the image
         const x = e.offsetX;
         const y = e.offsetY;
   
-        // Calculate zoomed area
         const zoomX = (x / mainImage.offsetWidth) * imgWidth;
         const zoomY = (y / mainImage.offsetHeight) * imgHeight;
   
-        // Apply the zoom effect by setting background position and scale
         mainImage.style.transformOrigin = `${(x / mainImage.offsetWidth) * 100}% ${(y / mainImage.offsetHeight) * 100}%`;
-        mainImage.style.transform = "scale(1.5)"; // Correct syntax for scaling
+        mainImage.style.transform = "scale(1.5)"; 
       });
   
-      // Reset zoom when mouse leaves the image
       mainImage.addEventListener("mouseleave", () => {
-        mainImage.style.transform = "scale(1)"; // Reset zoom level
+        mainImage.style.transform = "scale(1)"; 
       });
     });
   </script>

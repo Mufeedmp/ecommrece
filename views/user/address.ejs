@@ -53,9 +53,9 @@
             </p>
             <div class="d-flex justify-content-between">
               <a href="/edit-address/<%= address._id %>" class="btn btn-sm btn-warning">Edit</a>
-              <form action="/deleteAddress/<%= address._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this address?');">
+              <form action="/deleteAddress/<%= address._id %>" method="POST" id="deleteAddressForm-<%= address._id %>">
                 <input type="hidden" name="id" value="<%= address._id %>" />
-                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                <button type="submit" class="btn btn-danger delete-address-btn"  data-id="<%= address._id %>">Delete</button>
               </form>
             </div>
           </div>
@@ -99,6 +99,36 @@
 <script src="/js/mixitup.min.js"></script>
 <script src="/js/owl.carousel.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
 </html>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButtons = document.querySelectorAll('.delete-address-btn');
+
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault(); 
+
+        const addressId = button.dataset.id;
+        const form = document.getElementById(`deleteAddressForm-${addressId}`);
+
+        Swal.fire({
+          title: 'Are you sure?',
+          text: 'You won\'t be able to revert this!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!',
+          cancelButtonText: 'Cancel',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit(); 
+          }
+        });
+      });
+    });
+  });
+</script>

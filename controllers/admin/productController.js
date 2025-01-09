@@ -6,6 +6,7 @@ const path = require("path");
 const sharp = require("sharp");
 const { category } = require("./categoryController");
 const { error } = require("console");
+const { isArgumentsObject } = require("util/types");
 
 
 
@@ -23,7 +24,8 @@ const getProductAddPage = async (req, res) => {
 const addProducts = async (req, res) => {
   try {
     const products = req.body;
-
+ console.log('req.body:', products);
+ 
     const images = [];
 
     
@@ -58,8 +60,18 @@ const addProducts = async (req, res) => {
       return res.status(400).json({ error: "Invalid category name" });
     }
 
-    
-     
+    const sizes = [];
+    if (products.M) sizes.push({ sizeName: "M", quantity: parseInt(products.M, 10) || 0 });
+    if (products.L) sizes.push({ sizeName: "L", quantity: parseInt(products.L, 10) || 0 });
+    if (products.XL) sizes.push({ sizeName: "XL", quantity: parseInt(products.XL, 10) || 0 });
+
+    // Ensure at least one size has a positive quantity
+    const totalQuantity = sizes.reduce((sum, size) => sum + size.quantity, 0);
+    if (totalQuantity === 0) {
+      return res
+        .status(400)
+        .json({ error: "At least one size must have a positive quantity." });
+    }
     
 
     
@@ -74,17 +86,13 @@ const addProducts = async (req, res) => {
       color: products.color,
       productImage: images,
       status: "Available",
-      size: {
-        M: parseInt(products.M, 10) || 0,
-        L: parseInt(products.L, 10) || 0,
-        XL: parseInt(products.XL, 10) || 0,
-      },
+      size: sizes
 
     });
 
     await newProduct.save();
 
-    return res.redirect("/admin/addProducts");
+    return res.redirect("/admin/products");
   } catch (error) {
     console.error("error saving product", error);
     return res.redirect("/admin/pageerror");
@@ -171,8 +179,6 @@ const editProduct = async (req, res) => {
     const product = await Product.findOne({ _id: id });
     const data = req.body;
 
-
-
     const images = [];
 
  
@@ -192,14 +198,20 @@ const editProduct = async (req, res) => {
   
     const updatedImages = [...existingImages, ...images];
 
-    const updatedSize = {
-      M: parseInt(data.M, 10) || product.size.M || 0,
-      L: parseInt(data.L, 10) || product.size.L || 0,
-      XL: parseInt(data.XL, 10) || product.size.XL || 0,
-    };
-    if (Object.values(updatedSize).some((stock) => stock < 0)) {
-      return res.status(400).json({ error: "Stock values cannot be negative" });
+    const sizes = [];
+    if (data.M) sizes.push({ sizeName: "M", quantity: parseInt(data.M, 10) || 0 });
+    if (data.L) sizes.push({ sizeName: "L", quantity: parseInt(data.L, 10) || 0 });
+    if (data.XL) sizes.push({ sizeName: "XL", quantity: parseInt(data.XL, 10) || 0 });
+
+    // Ensure at least one size has a positive quantity
+    const totalQuantity = sizes.reduce((sum, size) => sum + size.quantity, 0);
+    if (totalQuantity === 0) {
+      return res
+        .status(400)
+        .json({ error: "At least one size must have a positive quantity." });
     }
+    
+    
     
     const updateFields = {
       productName: data.productName,
@@ -211,7 +223,7 @@ const editProduct = async (req, res) => {
       quantity: data.quantity,
       color: data.color,
       productImage: updatedImages, 
-      size: updatedSize,
+      size: sizes,
     };
 
  
@@ -252,6 +264,7 @@ const deleteSingleImage = async (req, res) => {
 };
 
 
+
 module.exports = {
   getProductAddPage,
   addProducts,
@@ -261,5 +274,5 @@ module.exports = {
   getEditProduct,
   editProduct,
   deleteSingleImage,
- 
+  
 };

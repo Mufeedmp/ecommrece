@@ -111,19 +111,21 @@
                       </td>
                       <td class="quantity__item">
                         <div class="quantity">
-                          <button class="qty-btn minus" data-id="<%= item.productId._id %>" data-action="decrease">-</button>
+                          <button class="qty-btn minus" data-size="<%= item.size %>" data-id="<%= item.productId._id %>" data-action="decrease">-</button>
                           <input type="text" class="qty-input" data-id="<%= item.productId._id %>" value="<%= item.quantity %>" min="1" max="5" readonly>
-                          <button class="qty-btn plus" data-id="<%= item.productId._id %>" data-action="increase">+</button>
+                         
+                          <button class="qty-btn plus" data-size="<%= item.size %>" data-id="<%= item.productId._id %>" data-stock="<%= item.availableStock %>" data-action="increase">+</button>
                         </div>
+                       
                       </td>
                       <td class="cart__price">₹<%= item.totalPrice %></td>
                       <td class="cart__close">
                         <i class="fa fa-close" data-size="<%= item.size %>" data-id="<%= item.productId._id %>" ></i>
                       </td>
                     </tr>
+                    
                   <% }); %>
                 </tbody>
-                
               </table>
             </div>
             <div class="row">
@@ -187,6 +189,7 @@
     <script src="/js/mixitup.min.js"></script>
     <script src="/js/owl.carousel.min.js"></script>
     <script src="/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </body>
 </html>
 
@@ -206,24 +209,43 @@
       const cartPriceElement = row.querySelector('.cart__price');
       const salePrice = parseFloat(row.querySelector('.product__cart__item__text h5').innerText.replace('₹', ''));
       const productId = button.getAttribute('data-id');
+      const size = button.getAttribute('data-size');
+      const stock = parseInt(button.getAttribute('data-stock'));
 
       let quantity = parseInt(qtyInput.value);
       const minValue = parseInt(qtyInput.getAttribute('min'));
       const maxValue = parseInt(qtyInput.getAttribute('max'));
 
       // Adjust quantity based on the button clicked
-      if (button.classList.contains('plus') && quantity < maxValue) {
+      if (button.classList.contains('plus') && quantity < maxValue&&quantity<stock) {
         quantity++;
-      } else if (button.classList.contains('minus') && quantity > minValue) {
+      }else if(button.classList.contains('plus') && quantity < maxValue&&quantity>=stock){
+        Swal.fire({
+                    icon: 'error',
+                    title: 'Sorry',
+                    text: 'You Reached Maximum Stock',
+                    confirmButtonText: 'OK',
+      })
+  
+      }else if(button.classList.contains('plus') && quantity >= maxValue){
+        Swal.fire({
+                    icon: 'error',
+                    title: 'Sorry',
+                    text: 'You Reached Maximum Quantity',
+                    confirmButtonText: 'OK',
+      })
+      }else if (button.classList.contains('minus') && quantity > minValue) {
         quantity--;
       }
+
+      
 
       // Update quantity input and price
       qtyInput.value = quantity;
       cartPriceElement.innerText = `₹${(salePrice * quantity).toFixed(2)}`;
 
       // Send updated quantity to the server
-      updateQuantityInDatabase(productId, quantity);
+      updateQuantityInDatabase(productId,size, quantity);
 
       // Recalculate and update the cart totals
       updateCartTotal();
@@ -231,12 +253,12 @@
   });
 
   // Function to send updated quantity to the server
-  function updateQuantityInDatabase(productId, quantity) {
-    console.log('Sending productId:', productId, 'with quantity:', quantity );
+  function updateQuantityInDatabase(productId,size, quantity) {
+    console.log('Sending productId:', productId, 'with quantity:', quantity,'with size:',size);
     fetch('/updateCart', {
       method: 'put',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, quantity })
+      body: JSON.stringify({ productId,size, quantity })
     })
     .then(response => response.json())
     .then(data => console.log('Quantity updated successfully:', data))
@@ -265,31 +287,53 @@
   deleteButtons.forEach(button => {
     button.addEventListener('click', async (event) => {
       const productId = event.target.dataset.id;
-   
+      const size = event.target.dataset.size;
 
-      if (confirm('Are you sure you want to delete this item from the cart?')) {
+      const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want to remove this item from your cart?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+   
+      if (result.isConfirmed) {
         try {
-          const response = await fetch(`/removeItem/${productId}`, {
+          const response = await fetch(`/removeItem`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ size ,productId })
           });
 
           if (response.ok) {
-            // Remove the row from the table
             const row = event.target.closest('tr');
             row.remove();
 
-            
-            // Recalculate and update the cart total
             updateCartTotal();
 
+            Swal.fire(
+            'Deleted!',
+            'The item has been removed from your cart.',
+            'success'
+          );
            
           } else {
-            alert('Failed to delete the item. Please try again.');
+            Swal.fire(
+            'Failed!',
+            'Failed to delete the item. Please try again.',
+            'error'
+          );
           }
         } catch (error) {
           console.error('Error deleting cart item:', error);
-          alert('An error occurred. Please try again.');
+          Swal.fire(
+          'Error!',
+          'An error occurred. Please try again.',
+          'error'
+        );
         }
       }
     });

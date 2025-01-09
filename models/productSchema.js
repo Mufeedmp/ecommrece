@@ -51,12 +51,12 @@ const productSchema=new Schema({
         default:"Available"
     },
 
-    size: {
-        M: { type: Number, required: true, min: 0, default: 0 },
-        L: { type: Number, required: true, min: 0, default: 0 },
-        XL: { type: Number, required: true, min: 0, default: 0 },
-      },
-    
+    size: [
+        {
+            sizeName: { type: String, required: true },
+            quantity: { type: Number, required: true, min: 0, default: 0 },
+        },
+    ]
 
 
    

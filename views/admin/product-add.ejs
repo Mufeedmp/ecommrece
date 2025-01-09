@@ -234,6 +234,10 @@ function validateForm() {
         displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative regular price.');
         isValid = false;
     }
+    if(saleprice>price){
+        displayErrorMessage('salePrice-error', 'Sale Price not grater than regular price.');
+        isValid = false;
+    }
 
     if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
         displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');

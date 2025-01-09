@@ -13,6 +13,12 @@
             <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search">
             <button class="btn  border-0" type="submit">Search</button>
         </div>
+        <a href="/admin/addProducts" 
+       class="btn btn-primary btn-sm" 
+       style="position: absolute; top: 170px; right: 10px;">
+       Add Product
+    </a>
+    </form>
     </form>
 </header>
 <div class="right mt-5">
@@ -24,8 +30,6 @@
                 <th scope="col"><b>Image</b></th>
                 <th scope="col"><b>Regular Price</b></th>
                 <th scope="col"><b>Sale Price</b></th>
-                <th scope="col"><b>Offer</b></th>
-                <th scope="col"><b>Quantity</b></th>
                 <th scope="col"><b>Action</b></th>
                 <th scope="col"><b>Edit</b></th>
             </tr>
@@ -40,7 +44,7 @@
                 <td><img src="/uploads/product-images/<%=product.productImage[0] %>" alt="Product Image" style="width: 50px; height: 50px; object-fit: cover;"></td>
                 <td><%=product.regularPrice%></td>
                 <td><%=product.salePrice%></td>
-                <td>
+                <!-- <td>
                     
 
                     <button class="btn btn-info" onclick="" style="width: 100px;">
@@ -51,8 +55,8 @@
                         <a href="#" class="text-white">Remove</a>
                     </button>
                 
-                </td>
-                <td></td>
+                </td> -->
+                
                 <td>
                 <%if(product.isBlocked===false){%>
                     <button class="btn btn-danger" style="width: 80px;">

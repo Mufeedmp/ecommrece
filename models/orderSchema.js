@@ -45,10 +45,9 @@ const orderSchema=new Schema({
             default: 1
           },
           size: {
-            type: Map,
-            of: Number, 
+            type: String, 
             required: true
-          },
+         },
         price:{
             type:String,
             required:true

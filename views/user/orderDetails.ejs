@@ -291,14 +291,20 @@
         <% }); %>
         
 
-        <hr>
-
         
-            <form action="/cancel-order/<%= order._id %>" method="POST">
-                <button type="submit" id="cancel-button">Cancel Order</button>
-            </form>
-      
-            <p style="text-align: center; color: #555;">Order has been canceled.</p>
+       
+        <% if (order.status !== 'Cancelled' && order.status !== 'Delivered') { %>
+          <form id="cancel" action="/cancelOrder/<%= order._id %>" method="POST">
+            <button id="cancel-button" data-id="<%= order._id %>">Cancel Order</button>
+          </form>
+        <% } %>
+        
+        <% if (order.status === 'Delivered') { %>
+          <form action="/returnOrder/<%= order._id %>" method="POST">
+            <button onclick="returnOrder('<%= order._id %>')">Return Order</button>
+          </form>
+        <% } %>
+            
        
         
     </div>
@@ -326,8 +332,74 @@
     <script src="/js/mixitup.min.js"></script>
     <script src="/js/owl.carousel.min.js"></script>
     <script src="/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </body>
     
     </html>
-    
+   
+    <script>
+      const cancelOrderButton = document.getElementById('cancel-button');
+
+      cancelOrderButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const orderId = e.target.getAttribute('data-id');
+        const orderStatus = '<%= order.status %>';
+
+
+        
+
+        const { isConfirmed } = await Swal.fire({
+          title: 'Are you sure?',
+          text: 'Do you want to cancel this order?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#007bff',
+          cancelButtonColor: '#dc3545',
+          confirmButtonText: 'Yes, cancel it!',
+        });
+
+        if (isConfirmed) {
+          document.getElementById('cancel').submit();
+        }
+      });
+
+      async function returnOrder(orderId) {
+
+        try {
+          Response = await fetch(`/returnOrder/${orderId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ orderId }),
+          });
+
+          const data = await response.json();
+
+          if(Response.ok){
+            Swal.fire({
+              icon: 'success',
+              title: 'Order returned successfully!',
+              text: data.message,
+              confirmButtonText: 'OK',
+            });
+          }else{
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: data.message || 'Something went wrong!',
+            });
+          }
+        
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to return order!',
+          });
+        }
+        
+      }
+    </script>
     

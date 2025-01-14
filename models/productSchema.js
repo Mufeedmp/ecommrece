@@ -32,6 +32,10 @@ const productSchema=new Schema({
         type:Number,
         default:0
     },
+    categoryOffer:{
+        type:Number,
+        default:0
+    },
     color:{
         type:String,
         required:true

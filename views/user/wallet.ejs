@@ -100,6 +100,33 @@
         .wallet-actions button:hover {
           background: #0056b3;
         }
+
+        .transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.transaction-table th, 
+.transaction-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.transaction-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.transaction-table .credit {
+  color: green;
+}
+
+.transaction-table .debit {
+  color: red;
+}
+
       </style>
    
 </head>
@@ -115,25 +142,43 @@
       <h1>My Wallet</h1>
     </div>
     <div class="balance">
-      $500.00
+      <%=wallet.balance%>
     </div>
     <div class="transaction-history">
       <h2>Transaction History</h2>
-      <ul class="transaction-list">
-        <li>
-          <span>Added Money</span>
-          <span class="credit">+ $200</span>
-        </li>
-        <li>
-          <span>Purchased Item</span>
-          <span class="debit">- $50</span>
-        </li>
-        <li>
-          <span>Refund</span>
-          <span class="credit">+ $30</span>
-        </li>
-      </ul>
+      <table class="transaction-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (wallet.transactions && wallet.transactions.length > 0) { %>
+            <% wallet.transactions.forEach(transaction => { %>
+              <tr>
+                <td><%= transaction.description %></td>
+                <td><%= new Date(transaction.date).toLocaleDateString() %></td>
+                <td class="<%= transaction.type === 'credit' ? 'credit' : 'debit' %>">
+                  <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %>
+                </td>
+                <td class="<%= transaction.type === 'credit' ? 'credit' : 'debit' %>">
+                  ₹<%= transaction.amount.toFixed(2) %>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="4">No transactions found.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
     </div>
+    
+    
     
   </div>
 

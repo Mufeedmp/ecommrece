@@ -63,6 +63,9 @@ router.delete('/removeItem', shopProductController.removeItem);
 // Checkout Routes
 router.get('/checkout', shopProductController.loadCheckout);
 router.post('/checkout', shopProductController.placeOrder);
+router.post('/applyCoupon',shopProductController.applyCoupon)
+router.post('/create-order',shopProductController.createOrder)
+router.post('/verify-payment',shopProductController.verifyPayment)
 
 // Wishlist Routes
 router.get('/wishlist', shopProductController.loadWishlist);
@@ -74,7 +77,7 @@ router.get('/orderSuccess', orderController.orderSuccess);
 router.get('/orders', orderController.loadOrders);
 router.get('/orderDetails/:id', orderController.orderDetails);
 router.post('/cancelOrder/:id', orderController.cancelOrder);
-router.post('/returnOrder/:id', orderController.returnOrder);
+router.post('/returnOrder', orderController.returnOrder);
 
 module.exports = router;
 

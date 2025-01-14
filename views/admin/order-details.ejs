@@ -5,28 +5,28 @@
 
 <style>
     .table-responsive {
-    overflow-x: auto; /* Enables horizontal scrolling for larger tables */
+    overflow-x: auto; 
 }
 
 .table {
-    width: 100%; /* Ensures the table takes full width */
-    table-layout: fixed; /* Prevents columns from adjusting their width */
+    width: 100%; 
+    table-layout: fixed; 
 }
 
 .table th,
 .table td {
-    padding: 12px; /* Padding for cells to provide spacing */
-    vertical-align: middle; /* Align text and image vertically */
+    padding: 12px; 
+    vertical-align: middle;
 }
 
 .table th {
-    text-align: left; /* Align column headers to the left */
+    text-align: left; 
 }
 
 .table img.img-xs {
-    width: 80px; /* Product image size */
-    height: 80px; /* Product image size */
-    object-fit: cover; /* Ensure image is fully covered */
+    width: 80px; 
+    height: 80px; 
+    object-fit: cover;
 }
 
 </style>
@@ -144,13 +144,13 @@
                 </div>
                 <div class="col-lg-1"></div>
                 <div class="col-lg-4">
-                    <!-- Add additional content if needed -->
+                  
                 </div>
             </div>
         </div>
     </div>
 </section>
-           <!-- content-main end// -->
+       
             <footer class="main-footer font-xs">
                 <div class="row pb-30 pt-15">
                     <div class="col-sm-6">
@@ -170,7 +170,6 @@
         <script src="assets/js/vendors/select2.min.js"></script>
         <script src="assets/js/vendors/perfect-scrollbar.js"></script>
         <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
-        <!-- Main Script -->
         <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -196,7 +195,7 @@ function orderStatus(event, orderId) {
         .then((response) => {
             if (!response.ok) {
                 if (response.status === 403) {
-                    // Handle the forbidden status for immutable states
+                   
                     Swal.fire({
                         icon: 'warning',
                         title: 'Action Not Allowed',
@@ -218,7 +217,7 @@ function orderStatus(event, orderId) {
                     text: 'Order status updated successfully!',
                     confirmButtonText: 'OK',
                 }).then(() => {
-                    // Update the UI to reflect the new status
+               
                     document.getElementById('order-status-cont').innerHTML = `Status: ${data.newStatus}`;
                 });
             } else if (data && !data.success) {

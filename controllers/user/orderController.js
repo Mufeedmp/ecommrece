@@ -1,6 +1,7 @@
 const Product=require('../../models/productSchema')
 const User=require('../../models/userSchema')
 const Order=require('../../models/orderSchema')
+const Wallet=require('../../models/walletSchema')
 
 
 const orderSuccess=async (req,res) => {
@@ -18,7 +19,10 @@ const orderSuccess=async (req,res) => {
     try {
         const userId = req.session.user;
         const userData = await User.findById(userId);
-        const orders = await Order.find({ userId }).sort({ orderDate: -1 });
+        const page = req.query.page || 1;
+        const limit = 4;
+        const orders = await Order.find({ userId })
+        .sort({ orderDate: -1 });
 
         res.render('orders', { orders,user:userData });
     } catch (error) {
@@ -92,32 +96,52 @@ const cancelOrder = async (req, res) => {
     }
 
    
-const returnOrder=async(req,res)=>{
-    
-    try{
-        const {orderId}=req.body
-        const order = await Order.findOne({ orderId }).populate('items.productId', 'name  size quantity ');
-        
-        if(!order){
-            return res.status(404).json({ message: 'Order not found' });
+
+
+const returnOrder = async (req, res) => {
+    try {
+      const { orderId } = req.body;
+  
+      const order = await Order.findOne({ _id: orderId }).populate('items.productId', 'name size quantity');
+  
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+  
+      if (order.status === 'Delivered') {
+
+        order.status = 'Returned';
+        await order.save();
+  
+        const userId = order.userId;
+        const returnAmount = order.totalAmount; 
+  
+        let wallet = await Wallet.findOne({ userId });
+        if (!wallet) {
+          wallet = new Wallet({ userId, balance: 0, transactions: [] });
         }
-        if(order.status=='Delivered'){
-            order.status='Returned'
-            order.save()
-            res.redirect('/orders')
-            return res.status(200).json({message:'Order returned successfully'})
-        }
-        else{
-            res.redirect('/orders')
-             res.status(400).json({message:'Order cannot be returned'})
-        }
+  
+        wallet.balance += returnAmount;
+        wallet.transactions.push({
+          amount: returnAmount,
+          type: 'credit',
+          description: `Refund for order ${orderId}`,
+        });
+  
+        await wallet.save();
+  
+        return res.status(200).json({
+          message: 'Order returned successfully. Refund credited to wallet.'
+        });
+      } else {
+        return res.status(400).json({ message: 'Order cannot be returned' });
+      }
+    } catch (error) {
+      console.error('Error in returnOrder:', error.message);
+      return res.status(500).json({ message: 'Internal server error' });
     }
-    catch(error){
-        console.error('error return order',error.message)
-        res.status(500).json({message:'internal server error'})
-        
-    }
-}
+  };
+
 
 module.exports={
     returnOrder,

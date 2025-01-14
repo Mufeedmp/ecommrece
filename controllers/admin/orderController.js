@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Order=require('../../models/orderSchema') 
 const User=require('../../models/userSchema')
+const xlsx = require('xlsx');
+const PDFDocument = require('pdfkit');
 
 const orderList=async (req,res) => {
     try {
@@ -76,9 +78,37 @@ const updateOrderStatus = async (req, res) => {
       res.status(500).json({ success: false, message: "Server error" });
     }
   };
+
+  const loadExcel=async (req,res) => {
+    try {
+      const orders = await Order.find().lean();
+
+      const data = orders.map((order) => ({
+        ID: order.orderId,
+        Name: order.userId?.name || 'N/A',
+        Email: order.userId?.email || 'N/A',
+        Total: `$${order.totalAmount}`,
+        Status: order.status,
+        Date: new Date(order.createdAt).toLocaleDateString(),
+      }));
+  
+      const workbook = xlsx.utils.book_new();
+      const worksheet = xlsx.utils.json_to_sheet(data);
+      xlsx.utils.book_append_sheet(workbook, worksheet, 'Orders');
+
+      const excelBuffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      res.setHeader('Content-Disposition', 'attachment; filename=orders.xlsx');
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.send(excelBuffer);
+    } catch (error) {
+      console.error('Error generating Excel file:', error);
+      res.status(500).send('Could not generate Excel file');
+    }
+  }
   
   module.exports={
     orderList,
     orderDetails,
-    updateOrderStatus
+    updateOrderStatus,
+    loadExcel 
   }

@@ -36,6 +36,10 @@ const cartSchema = new Schema({
         type: Number,
         required: true,
       },
+      regularPrice: {
+        type: Number,
+        required: true,
+      },
       isBlocked: {
         type: Boolean,
         default: false,
@@ -44,6 +48,14 @@ const cartSchema = new Schema({
         type: Number,
         required: false,
       },
+      categoryOffer:{
+        type:Number,
+        default:0
+      },
+      productOffer:{
+      type:Number,
+      default:0
+     }
      
     },
   ],
@@ -55,6 +67,10 @@ const cartSchema = new Schema({
         type: Number,
         required: false,
       },
+      totalOffer:{
+        type:Number,
+      default:0
+      }
 });
 
 

@@ -31,7 +31,10 @@ const category=async (req,res) => {
 }
 
 const addCategory=async (req,res) => {
-    const {name,description}=req.body
+    const {name,description,categoryOffer}=req.body
+
+    console.log('req.body',req.body);
+    
     try {
         const existingCategory=await Category.findOne({name})
         if(existingCategory){
@@ -43,6 +46,7 @@ const addCategory=async (req,res) => {
         const newCategory=new Category({
             name,
             description,
+            categoryOffer,
             imagePath
         })
         await newCategory.save()
@@ -87,7 +91,7 @@ const getEditCategory=async (req,res) => {
 const editCategory=async (req,res) => {
     try {
         const id=req.params.id
-        const {categoryname,description}=req.body
+        const {categoryname,description,categoryOffer}=req.body
        const existingCategory=await Category.findOne({
         name:categoryname,
         _id:{$ne:id}
@@ -116,6 +120,7 @@ const editCategory=async (req,res) => {
       const updateCategory=await Category.findByIdAndUpdate(id,{
         name:categoryname,
         description,
+        categoryOffer,
         imagePath
     },
         {new:true})

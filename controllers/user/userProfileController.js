@@ -1,4 +1,5 @@
 const User = require('../../models/userSchema');
+const Wallet=require('../../models/walletSchema')
 const bcrypt = require('bcrypt');
 
 
@@ -12,7 +13,7 @@ const loadProfile=async (req,res) => {
             const userData=await User.findOne({_id:req.session.user}) 
             res.render('profile',{user:userData})
         }else{
-            res.redirect('/home')
+            res.redirect('/')
         }
     } catch (error) {
         console.log('error',error);
@@ -66,7 +67,15 @@ const loadProfile=async (req,res) => {
             return res.redirect('/login');
         }
 
-        res.render('wallet',{user:userData})
+        const wallet = await Wallet.findOne({ userId });
+
+        if (!wallet) {
+            return res.render('wallet', {
+              user: userData,
+              wallet: { balance: 0, transactions: [] },
+            });
+          }
+          res.render('wallet', { user: userData, wallet });
     } catch (error) {
         
     }

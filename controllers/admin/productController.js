@@ -65,7 +65,6 @@ const addProducts = async (req, res) => {
     if (products.L) sizes.push({ sizeName: "L", quantity: parseInt(products.L, 10) || 0 });
     if (products.XL) sizes.push({ sizeName: "XL", quantity: parseInt(products.XL, 10) || 0 });
 
-    // Ensure at least one size has a positive quantity
     const totalQuantity = sizes.reduce((sum, size) => sum + size.quantity, 0);
     if (totalQuantity === 0) {
       return res
@@ -74,19 +73,20 @@ const addProducts = async (req, res) => {
     }
     
 
-    
     const newProduct = new Product({
       productName: products.productName,
       description: products.description,
       brand: products.brand,
       category: category._id,
       regularPrice: products.regularPrice,
-      salePrice: products.salePrice,
       createdAt: new Date(),
       color: products.color,
       productImage: images,
       status: "Available",
-      size: sizes
+      size: sizes,
+      productOffer:products.regularPrice-products.salePrice,
+      categoryOffer:(products.regularPrice*category.categoryOffer)/100,
+      salePrice: products.salePrice-(products.regularPrice*category.categoryOffer)/100,
 
     });
 
@@ -180,7 +180,11 @@ const editProduct = async (req, res) => {
     const data = req.body;
 
     const images = [];
-
+    
+    const category = await Category.findById(product.category); // Fetch category
+    if (!category) {
+      throw new Error("Category not found");
+    }
  
     if (req.files && req.files.length > 0) {
       for (let i = 0; i < req.files.length; i++) {
@@ -203,7 +207,6 @@ const editProduct = async (req, res) => {
     if (data.L) sizes.push({ sizeName: "L", quantity: parseInt(data.L, 10) || 0 });
     if (data.XL) sizes.push({ sizeName: "XL", quantity: parseInt(data.XL, 10) || 0 });
 
-    // Ensure at least one size has a positive quantity
     const totalQuantity = sizes.reduce((sum, size) => sum + size.quantity, 0);
     if (totalQuantity === 0) {
       return res
@@ -219,11 +222,13 @@ const editProduct = async (req, res) => {
       brand: data.brand,
       category: product.category, 
       regularPrice: data.regularPrice,
-      salePrice: data.salePrice,
       quantity: data.quantity,
       color: data.color,
       productImage: updatedImages, 
       size: sizes,
+      productOffer:data.regularPrice-data.salePrice,
+      categoryOffer:(data.regularPrice*category.categoryOffer)/100,
+      salePrice: data.salePrice-(data.regularPrice*category.categoryOffer)/100,
     };
 
  

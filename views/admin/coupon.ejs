@@ -1,0 +1,180 @@
+<%- include("../../views/partials/admin/header") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coupon Management</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+<style>
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+</style>
+  
+  
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center">Coupon Management</h1>
+
+    <!-- Create Coupon Form -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h4>Create Coupon</h4>
+      </div>
+      <div class="card-body">
+        <form id="createCouponForm" action="/admin/createCoupon" method="post" >
+          <div class="mb-3">
+            <label for="couponCode" class="form-label">Coupon Code</label>
+            <input type="text" class="form-control" id="couponCode" name="couponCode" required placeholder="Enter coupon code">
+            <div id="couponCodeError" class="error-message"></div>
+          </div>
+          <div class="mb-3">
+            <label for="discount" class="form-label">Discount </label>
+            <input type="number" class="form-control" id="discount" name="discount" required placeholder="Enter discount Amount">
+            <div id="discountError" class="error-message"></div>
+          </div>
+          <div class="mb-3">
+            <label for="minPrice" class="form-label">Min Price</label>
+            <input type="number" class="form-control" id="minPrice" name="minPrice" required placeholder="Enter Min Purchase Amount">
+            <div id="minPriceError" class="error-message"></div>
+          </div>
+          <div class="mb-3">
+            <label for="expiryDate" class="form-label">Expiry Date</label>
+            <input type="date" class="form-control" id="expiryDate" name="expiryDate" required>
+            <div id="expiryDateError" class="error-message"></div>
+          </div>
+          <button type="button" class="btn btn-success" onclick="createCoupon()">Create Coupon</button>
+        </form>
+      </div>
+    </div>
+
+
+    <div class="card mt-4">
+      <div class="card-header">
+        <h4>Available Coupons</h4>
+      </div>
+      <div class="card-body">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Coupon Code</th>
+              <th>Discount </th>
+              <th>Expiry Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="couponTableBody">
+            <tr>
+              <% coupon.forEach(coupon => { %>
+                <tr>
+                  <td><%= coupon.name %></td>
+                  <td>₹<%= coupon.offerPrice %></td>
+                  <td><%= coupon.expireOn %></td>
+                  <td>
+                    <form action="/admin/deleteCoupon" method="post" style="display: inline;">
+                      <input type="hidden" name="couponId" value="<%= coupon.id %>">
+                      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+           
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</body>
+</html>
+<script>
+  const createCoupon = async () => {
+
+  const couponData = {
+    couponCode: document.getElementById('couponCode').value,
+    discount: document.getElementById('discount').value,
+    minPrice: document.getElementById('minPrice').value,
+    expiryDate: document.getElementById('expiryDate').value,
+  };
+
+
+  document.getElementById('couponCodeError').innerHTML = '';
+  document.getElementById('discountError').innerHTML = '';
+  document.getElementById('minPriceError').innerHTML = '';
+  document.getElementById('expiryDateError').innerHTML = '';
+
+  let isValid = true;
+
+  
+  if (!couponData.couponCode || couponData.couponCode.trim() === '') {
+    document.getElementById('couponCodeError').innerHTML = 'Coupon code is required.';
+    isValid = false;
+  }
+
+
+  if (!couponData.discount || couponData.discount <= 0) {
+    document.getElementById('discountError').innerHTML = 'Discount value should be greater than 0.';
+    isValid = false;
+  }
+
+  
+  if (!couponData.minPrice || couponData.minPrice <= 0) {
+    document.getElementById('minPriceError').innerHTML = 'Minimum price should be greater than 0.';
+    isValid = false;
+  }
+
+
+  if (!couponData.expiryDate) {
+    document.getElementById('expiryDateError').innerHTML = 'Expiry date is required.';
+    isValid = false;
+  }
+
+
+  if (!isValid) return;
+
+  try {
+    const response = await fetch('/admin/createCoupon', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(couponData),
+    });
+
+    const result = await response.json();
+    console.log(result);
+    if (response.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Coupon Created!',
+        text: result.message || 'Your coupon has been created successfully.',
+      }).then(() => {
+
+        window.location.href = "/admin/coupons";  
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: result.message || 'Something went wrong. Please try again.',
+      });
+    }
+  } catch (error) {
+    console.error('Error creating coupon:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Network Error',
+      text: 'Could not connect to the server. Please check your connection.',
+    });
+  }
+};
+
+</script>

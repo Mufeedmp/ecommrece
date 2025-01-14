@@ -138,21 +138,16 @@
           </div>
     
           <div class="col-lg-4">
-            <div class="cart__discount">
-              <h6>Discount codes</h6>
-              <form action="#">
-                <input type="text" placeholder="Coupon code">
-                <button type="submit">Apply</button>
-              </form>
-            </div>
+          
             
-            <% let cartTotal = cartItems.reduce((acc, item) => acc + (item.salePrice * item.quantity), 0); %>
             
             <div class="cart__total">
               <h6>Cart total</h6>
               <ul>
-                <li>Subtotal <span>₹<%= cartTotal.toFixed(2) %></span></li>
-                <li>Total <span>₹<%= cartTotal.toFixed(2) %></span></li>
+                <li>Price <span>₹<%= cartSubtotal %></span></li>
+              
+                <li>Total Amount<span name="cartTotal"  >₹<%= cartTotal %></span></li>
+        
               </ul>
               <a href="/checkout" class="primary-btn">Proceed to checkout</a>
             </div>
@@ -199,7 +194,7 @@
   const cartSubtotalElement = document.querySelector('.cart__total ul li:first-child span');
   const cartTotalElement = document.querySelector('.cart__total ul li:last-child span');
 
-  // Handle cart updates when quantity buttons are clicked
+ 
   cartTable.addEventListener('click', (event) => {
     const button = event.target;
 
@@ -216,7 +211,7 @@
       const minValue = parseInt(qtyInput.getAttribute('min'));
       const maxValue = parseInt(qtyInput.getAttribute('max'));
 
-      // Adjust quantity based on the button clicked
+    
       if (button.classList.contains('plus') && quantity < maxValue&&quantity<stock) {
         quantity++;
       }else if(button.classList.contains('plus') && quantity < maxValue&&quantity>=stock){
@@ -240,19 +235,18 @@
 
       
 
-      // Update quantity input and price
+    
       qtyInput.value = quantity;
       cartPriceElement.innerText = `₹${(salePrice * quantity).toFixed(2)}`;
 
-      // Send updated quantity to the server
+
       updateQuantityInDatabase(productId,size, quantity);
 
-      // Recalculate and update the cart totals
       updateCartTotal();
     }
   });
 
-  // Function to send updated quantity to the server
+  
   function updateQuantityInDatabase(productId,size, quantity) {
     console.log('Sending productId:', productId, 'with quantity:', quantity,'with size:',size);
     fetch('/updateCart', {
@@ -265,23 +259,20 @@
     .catch(error => console.error('Error updating quantity:', error));
   }
 
-  // Function to update cart totals
+
   function updateCartTotal() {
     let subtotal = 0;
 
-    // Loop through each row to calculate the subtotal
     document.querySelectorAll('.shopping__cart__table tbody tr').forEach(row => {
       const cartPriceElement = row.querySelector('.cart__price');
       const price = parseFloat(cartPriceElement.innerText.replace('₹', ''));
       subtotal += price;
     });
 
-    // Update the total elements
     cartSubtotalElement.innerText = `₹${subtotal.toFixed(2)}`;
     cartTotalElement.innerText = `₹${subtotal.toFixed(2)}`;
   }
 
-  // Handle item removal from the cart
   const deleteButtons = document.querySelectorAll('.cart__close i');
 
   deleteButtons.forEach(button => {
@@ -339,7 +330,6 @@
     });
   });
 
-  // Update the cart totals on page load in case there are any pre-existing items
   updateCartTotal();
 
 });

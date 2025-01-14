@@ -300,9 +300,7 @@
         <% } %>
         
         <% if (order.status === 'Delivered') { %>
-          <form action="/returnOrder/<%= order._id %>" method="POST">
-            <button onclick="returnOrder('<%= order._id %>')">Return Order</button>
-          </form>
+            <button type="button"  onclick="returnOrder('<%= order._id %>')">Return Order</button>
         <% } %>
             
        
@@ -367,7 +365,7 @@
       async function returnOrder(orderId) {
 
         try {
-          Response = await fetch(`/returnOrder/${orderId}`, {
+          Response = await fetch(`/returnOrder`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -376,6 +374,7 @@
           });
 
           const data = await response.json();
+console.log('data',data);
 
           if(Response.ok){
             Swal.fire({
@@ -384,6 +383,7 @@
               text: data.message,
               confirmButtonText: 'OK',
             });
+           
           }else{
             Swal.fire({
               icon: 'error',
@@ -393,13 +393,9 @@
           }
         
         } catch (error) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to return order!',
-          });
+         
         }
-        
+        window.location.reload();
       }
     </script>
     

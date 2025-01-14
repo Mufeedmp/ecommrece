@@ -98,6 +98,11 @@
                 <div id="description-error" class="error-message"></div>
               </div>
               <div class="mb-4">
+                <label for="category_offer" class="form-label">Offer %</label>
+                <input type="text" name="categoryOffer" placeholder="Type here" class="form-control" id="categoryOffer" required />
+                <div id="offer-error" class="error-message"></div>
+              </div>
+              <div class="mb-4">
                 <label for="category_image" class="form-label">Image</label>
                 <input type="file" name="images" class="form-control" id="category_image" accept="image/*" required />
                 <div id="image-error" class="error-message"></div>
@@ -119,7 +124,6 @@
                     <th>Name</th>
                     <th>Description</th>
                     <th>Image</th>
-                    <th>Offer</th>
                     <th>Status</th>
                     <th>List/Unlist</th>
                     <th>Edit</th>
@@ -138,12 +142,7 @@
                           <span>No Image</span>
                         <% } %>
                         </td>
-                      <td>
-                        <div class="d-flex justify-content-around">
-                          <a href="#" class="btn btn-info btn-sm text-white">Add Offer</a>
-                          <a href="#" class="btn btn-danger btn-sm text-white">Remove</a>
-                        </div>
-                      </td>
+                     
                       <td>
                         <% if (category.isListed) { %>
                           <span class="badge bg-success">Listed</span>

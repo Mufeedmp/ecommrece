@@ -43,11 +43,11 @@ const orderSchema=new Schema({
         quantity: {
             type: Number, 
             default: 1
-          },
-          size: {
+        },
+        size: {
             type: String, 
             required: true
-         },
+        },
         price:{
             type:String,
             required:true
@@ -59,6 +59,14 @@ const orderSchema=new Schema({
         image:{
             type:[String],
             required:true
+        },
+        categoryOffer:{
+            type:Number,
+            default:0
+        },
+        productOffer:{
+          type:Number,
+          default:0
         }
     }],
 

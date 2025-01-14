@@ -83,6 +83,10 @@
     color: red;
     }
 
+    .save__price{
+      color: green;
+    }
+
     .main-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -397,9 +401,14 @@
           <p class="details__brand"> <span></span></p>
           <div class="details__price flex">
             <span class="new__price">₹<%=Products.salePrice%></span>
-            <span class="old__price"><%=Products.regularPrice%></span>
-            <span class="save__price"></span>
+            <span class="old__price">₹<%=Products.regularPrice%></span>
+            <span class="save__price"><%= Math.round(((Products.regularPrice - Products.salePrice) / Products.regularPrice) * 100) %>% Off</span>
           </div>
+          <p class="save__price">
+            Product Offer ₹<%=Products.productOffer%><br>
+            category Offer ₹<%=Products.categoryOffer%>
+           </p>
+         
           <p class="short__description">
            <%=Products.description%>
           </p>
@@ -621,7 +630,7 @@
       Swal.fire({
                     icon: 'error',
                     title: 'Failed',
-                    text: 'Quantity exceeds available stock',
+                    text: 'Quantity exceeds available stockhjgjht',
                     confirmButtonText: 'OK',
       })
       return;
@@ -664,6 +673,7 @@
                     title: 'Success',
                     text: 'Product added to cart successfully!',
                     showConfirmButton:false,
+                    timer: 2000
       })
        
       } else {

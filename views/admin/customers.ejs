@@ -19,6 +19,7 @@
                 <table class="table table-striped">
                     <thead>
                       <tr>
+                        <th scope="col"><b>#</b></th>
                         <th scope="col"><b>Name</b></th>
                         <th scope="col"><b>Email</b></th>
                         <th scope="col"><b>Phone No</b></th>
@@ -28,6 +29,7 @@
                     <tbody>
                         <% for(let i=0;i<data.length;i++){%>
                             <tr>
+                                <td><%= i+1 %></td>
                                 <td><%=data[i].name%></td>
                                 <td><%=data[i].email%></td>
                                 <td><%=data[i].phone%></td>
@@ -52,8 +54,8 @@
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center mb-20" style="margin-right: 200px;">
                 <%for(let i=1;i<=totalpages;i++){%>
-                    <li class="page-item <%= (i==currentPage) ? 'active' : '' %>">
-                       <a class="page-link" href="?page=<%= i %><%= i %>"></a>
+                    <li class="page-item <%= (i===currentPage) ? 'active' : '' %>">
+                       <a class="page-link" href="?page=<%= i %>"><%= i %></a>
                     </li>
                     <%}%>
                 </ul>

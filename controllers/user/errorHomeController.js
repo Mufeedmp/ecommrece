@@ -10,10 +10,12 @@ const loadHomepage = async (req, res) => {
         }
         
         const categories=await Category.find({isListed:true})
+        const listedCategoryIds = categories.map(category => category._id);
     
        
         let productData=await Product.find({
             isBlocked:false,
+            category: { $in: listedCategoryIds } 
             
         }).populate('category')
         

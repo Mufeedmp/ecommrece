@@ -5,7 +5,7 @@ const customerController=require('../controllers/admin/customerController')
 const categoryController=require('../controllers/admin/categoryController')
 const productController=require('../controllers/admin/productController')
 const orderController=require('../controllers/admin/orderController')
-const offerController=require('../controllers/admin/offerController')
+const couponController=require('../controllers/admin/couponController')
 const {adminAuth}=require('../middlewares/auth')
 const {uploadCategoryImage,uploadProductImage}=require('../utils/multer')
 const path = require('path')
@@ -43,8 +43,14 @@ router.delete('/deleteImage/:productId/:imageName', adminAuth, productController
 router.get('/orderList', adminAuth,orderController.orderList)
 router.get('/order-details/:id', adminAuth, orderController.orderDetails)
 router.post('/update-status', adminAuth, orderController.updateOrderStatus)
+router.get('/download-excel',adminAuth,orderController.loadExcel)
 
-router.get('/offers', adminAuth, offerController.loadOffer)
+
+router.get('/coupons', adminAuth, couponController.loadCoupon)
+router.post('/createCoupon', adminAuth, couponController.createCoupon)
+router.post('/deleteCoupon',adminAuth,couponController.deleteCoupon)
+
+
 
 module.exports=router
 

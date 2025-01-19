@@ -8,7 +8,9 @@ const mongoose=require('mongoose')
 const Wishlist=require('../../models/wishlistSchema')
 const Coupon=require('../../models/couponSchema')
 const Razorpay = require('razorpay')
-const crypto = require("crypto");
+const crypto = require('crypto');
+const { validateWebhookSignature } = require('razorpay/dist/utils/razorpay-utils');
+
 
 
 
@@ -202,6 +204,10 @@ const addToCart = async (req, res) => {
             return res.status(400).json({ success: false, message: `Not enough stock for size ${size}` });
         }
 
+        if (quantity > CART_LIMIT) {
+          return res.status(400).json({ success: false, message: `You can only add up to ${CART_LIMIT} of this item.` });
+        }
+
 
         const productImage = product.productImage && product.productImage.length > 0 ? product.productImage[0] : null;
         if (!productImage) {
@@ -231,6 +237,8 @@ const addToCart = async (req, res) => {
                 totalOffer: totalOfferForProduct,
                 cartTotal: product.salePrice * effectiveQuantity 
             });
+
+            
        
             await cart.save();
             return res.status(200).json({ success: true, message: 'Item added to cart successfully!' });
@@ -239,10 +247,10 @@ const addToCart = async (req, res) => {
             const existingProduct = cart.items.find(item => item.productId.toString() === productId && item.size === size);
             if (existingProduct) {
                 const newQuantity = existingProduct.quantity + quantity; 
-                if (newQuantity > CART_LIMIT) {
+                if (newQuantity > CART_LIMIT ) {
                     return res.status(400).json({ success: false, message: `You can only add up to ${CART_LIMIT} of this item.` });
                 }
-                if (newQuantity > sizeObject.availableStock) {
+                if (newQuantity > availableStock) {
                     return res.status(400).json({ success: false, message: 'Not enough stock available for this size' });
                 }
                 existingProduct.quantity = newQuantity;
@@ -434,7 +442,7 @@ const removeItem = async (req, res) => {
       }
 
       const currentDate = new Date();
-    if (coupon.expiryDate < currentDate) {
+    if (coupon.expireOn < currentDate) {
       return res.status(400).json({ message: 'Coupon has expired.' });
     }
 
@@ -462,23 +470,30 @@ const removeItem = async (req, res) => {
   const placeOrder = async (req, res) => {
     try {
       const userId = req.session.user;
-      const { amount,savedAddress,paymentMethod, ...newAddress } = req.body;
+      const { amount,savedAddress,paymentMethod,discount, ...newAddress } = req.body;
 
-      console.log('bodyy',req.body);
 
       const items = await Cart.findOne({ userId }).populate('items.productId', 'productName productImage size quantity salePrice');
-      const totalAmount = items.cartTotal;  
-    
-      const orderItems = items.items.map(item => ({
+      const totalAmount = items.cartTotal;
+      const totalQuantity = items.items.reduce((acc, item) => acc + item.quantity, 0);
+      const discountPerQty = discount / totalQuantity;
+   
+   
+      const orderItems = items.items.map(item => {
+        const itemDiscount = discountPerQty * item.quantity;
+        return {
         productId: item.productId._id, 
         name: item.productId.productName,  
         price: item.productId.salePrice,
         size:item.size,
         quantity: item.quantity,
         image:item.productId.productImage[0],  
-        total: item.quantity * item.productId.salePrice,  
-      }));
-  
+        total: item.quantity * item.productId.salePrice,
+        couponDiscount:Number(itemDiscount.toFixed(2)),
+        netTotal:Number((item.quantity * item.productId.salePrice-itemDiscount).toFixed(2)),
+        
+      }
+      });
 
     let selectedAddress;
         if (savedAddress) {
@@ -495,15 +510,16 @@ const removeItem = async (req, res) => {
         selectedAddress = { ...newAddress };
       }
 
-     
   
       const order = new Order({
         userId,
         address: selectedAddress,
         items: orderItems,
-        totalAmount,
+        totalAmount:totalAmount-discount,
         paymentMethod: req.body.paymentMethod,
-    
+        discount:discount,
+        totalQuantity:totalQuantity,
+        status:'Confirmed'
    
       });
   
@@ -548,22 +564,29 @@ const removeItem = async (req, res) => {
   const createOrder = async (req, res) => {
     let order = null;
     try {
-      const { amount, savedAddress, paymentMethod, ...newAddress } = req.body;
+      const { amount, savedAddress, paymentMethod,discount, ...newAddress } = req.body;
       console.log('Request Body:', req.body);
   
       const userId = req.session.user;
       const items = await Cart.findOne({ userId }).populate('items.productId', 'productName productImage size quantity salePrice');
       const totalAmount = items.cartTotal
+      const totalQuantity = items.items.reduce((acc, item) => acc + item.quantity, 0);
+      const discountPerQty = discount / totalQuantity;
   
-      const orderItems = items.items.map(item => ({
-        productId: item.productId._id,
-        name: item.productId.productName,
+      const orderItems = items.items.map(item => {
+        const itemDiscount = discountPerQty * item.quantity;
+        return {
+        productId: item.productId._id, 
+        name: item.productId.productName,  
         price: item.productId.salePrice,
-        size: item.size,
+        size:item.size,
         quantity: item.quantity,
-        image: item.productId.productImage[0],
+        image:item.productId.productImage[0],  
         total: item.quantity * item.productId.salePrice,
-      }));
+        couponDiscount:Number(itemDiscount.toFixed(2)),
+        netTotal:Number((item.quantity * item.productId.salePrice-itemDiscount).toFixed(2))
+      }
+      });
   
       let selectedAddress;
       if (savedAddress) {
@@ -584,9 +607,11 @@ const removeItem = async (req, res) => {
         userId,
         address: selectedAddress,
         items: orderItems,
-        totalAmount,
+        totalAmount:totalAmount-discount,
         paymentMethod,
-        status: 'Pending', 
+        paymentStatus: 'Failed',
+        discount:discount,
+        totalQuantity:totalQuantity 
       });
   
       await order.save();
@@ -612,13 +637,13 @@ const removeItem = async (req, res) => {
   
   
       const options = {
-        amount: amount,
+        amount: amount-(discount*100),
         currency: "INR",
         receipt: `order_rcptid_${Date.now()}`,
       };
   
       const razorPayOrder = await razorpay.orders.create(options);
-  
+      console.log(razorPayOrder)
     
       order.paymentOrderId = razorPayOrder.id;
       await order.save();
@@ -627,13 +652,6 @@ const removeItem = async (req, res) => {
   
     } catch (error) {
       console.error(error);
-  
-      
-      if (order) {
-        order.status = 'failed';
-        await order.save();
-      }
-  
       res.status(500).send("Error creating Razorpay order");
     }
   };
@@ -641,48 +659,52 @@ const removeItem = async (req, res) => {
 
   
 
-const verifyPayment=async (req,res) => {
-    
-
+  const verifyPayment = async (req, res) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body.response;
+      
+      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return res.status(400).send({ status: "failure", message: "Invalid payment data" });
+      }
+      
+      const hmac = crypto.createHmac("sha256", razorpay.key_secret);
+      hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+      const generatedSignature = hmac.digest("hex");
 
-        console.log('body',req.body);
-
-        
-    
-        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature|| !order_id) {
-          return res.status(400).send({ status: "failure", message: "Invalid payment data" });
+      console.log('generatedSignature',generatedSignature);
+      console.log('razorpay_signature',razorpay_signature);
+      
+  
+      if (generatedSignature === razorpay_signature) {
+        const updatedOrder = await Order.findOneAndUpdate(
+          { paymentOrderId: razorpay_order_id },
+          {
+            $set: {
+              paymentStatus: "Successful",
+              status: "Confirmed"
+            }
+          },
+          { new: true }
+        );
+  
+        if (!updatedOrder) {
+          console.error('Order not found:', razorpay_order_id);
+          return res.status(404).send({
+            status: "failure",
+            message: "Order not found"
+          });
         }
   
-        const hmac = crypto.createHmac("sha256", "YOUR_KEY_SECRET");
-        hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-        const generatedSignature = hmac.digest("hex");
-    
-        if (generatedSignature === razorpay_signature) {
-          
-          res.status(200).send({ status: "success", message: "Payment verified successfully" });
-          await Order.findOneAndUpdate(
-            { orderId: order_id },
-            {
-              $set:{
-                paymentStatus: "Successful"
-              }
-            },
-            { new: true }
-          );
-      
-        } else {
-          res.status(400).send({ status: "failure", message: "Invalid signature" });
-        }
-
-
-      } catch (error) {
-        console.error("Error verifying payment:", error);
-        res.status(500).send({ status: "failure", message: "Internal server error" });
+        res.status(200).send({ status: "success", message: "Payment verified successfully" });
+      } else {
+        console.error('Invalid signature');
+        res.status(400).send({ status: "failure", message: "Invalid signature" });
       }
-};
-
+    } catch (error) {
+      console.error("Error verifying payment:", error);
+      res.status(500).send({ status: "failure", message: "Internal server error" });
+    }
+  };
 
   const loadWishlist = async (req, res) => {
     try {

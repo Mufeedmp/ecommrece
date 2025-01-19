@@ -623,36 +623,6 @@
     const cartQuantity = parseInt(document.getElementById('cart-quantity').value) || 0;
   const availablestock = parseInt(stockStatus.textContent);
     
-    console.log('Cart Quantity:', cartQuantity);
-    console.log('Available Stock:', availablestock);
-
-    if(quantity+cartQuantity>= availablestock) {
-      Swal.fire({
-                    icon: 'error',
-                    title: 'Failed',
-                    text: 'Quantity exceeds available stockhjgjht',
-                    confirmButtonText: 'OK',
-      })
-      return;
-    }
-
-    if(stockStatus.textContent === 'Out of Stock') {
-      Swal.fire({
-                    icon: 'error',
-                    title: 'Failed',
-                    text: 'Product is out of stock',
-                    confirmButtonText: 'OK',
-      })
-    }
-
-    if (quantity > availablestock&& stockStatus.textContent === 'In Stock') {
-      Swal.fire({
-                    icon: 'error',
-                    title: 'Failed',
-                    text: 'Quantity exceeds available stock',
-                    confirmButtonText: 'OK',
-      })
-    }
 
     try {
       const response = await fetch('/addToCart', {
@@ -668,10 +638,11 @@
       });
 
       if (response.ok) {
+        const data = await response.json()
         Swal.fire({
                     icon: 'success',
                     title: 'Success',
-                    text: 'Product added to cart successfully!',
+                    text: data.message,
                     showConfirmButton:false,
                     timer: 2000
       })
@@ -681,7 +652,7 @@
         Swal.fire({
                     icon: 'error',
                     title: 'Failed',
-                    text: 'Failed to add product to cart',
+                    text:  error.message ,
                     confirmButtonText: 'OK',
       })
       }

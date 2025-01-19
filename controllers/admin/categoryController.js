@@ -25,7 +25,7 @@ const category=async (req,res) => {
 
     } catch (error) {
         console.error(error)
-        res.redirect('/pageerror')
+        res.redirect('/admin/pageerror')
         
     }
 }

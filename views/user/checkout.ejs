@@ -236,9 +236,11 @@
                   <% }) %>
                   <ul class="checkout__total__all">
                     <li>Subtotal <span>₹<%= cart.cartTotal %></span></li>
-                    <li>Discount <span id="total-discount"></span></li>
+                    <li>Discount <span id="total-discount" name="discount"></span></li>
                     <li>Total <span id="cart-total-display">₹<%= cart.cartTotal %></span></li>
                   </ul>
+                  <input type="hidden" id="discount-amount" name="discount">
+
                   <div class="checkout__input__checkbox">
                     <label for="cod">
                       Cash On Delivery
@@ -349,15 +351,17 @@ const userName = '<%= user.name %>';
 
     
     const { savedAddress, paymentMethod } = data;
-      
+    const discount = document.getElementById('discount-amount')?.value || 0;
       const orderResponse = await fetch("/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: cartTotal,savedAddress, paymentMethod }),
+        body: JSON.stringify({ amount: cartTotal,savedAddress, paymentMethod,discount }),
       });
+console.log('discount',discount);
 
     const orderData = await orderResponse.json();
-
+    console.log(orderData.id)
+    console.log(orderData.razorPayOrder)
     const options = {
       key: "rzp_test_NwltbJ8WRRxJmi", 
       amount: orderData.amount, 
@@ -367,9 +371,23 @@ const userName = '<%= user.name %>';
       image: "/img/logo.png",
       order_id: orderData.id, 
       handler: function (response) {
-        Swal.fire({
+       
+        
+        fetch("/verify-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({response}),
+        })
+        .then(response => {
+          if(!response.ok) {
+            throw new Error('razorpay error')
+          }
+          return response.json()
+        })
+        .then(data => {
+          Swal.fire({
         title: 'Payment Successful!',
-        text: 'Your payment has been processed successfully.',
+        text: data.message || 'Your payment has been processed successfully.',
         icon: 'success',
         confirmButtonText: 'Go to Orders',
       }).then((result) => {
@@ -378,12 +396,15 @@ const userName = '<%= user.name %>';
           window.location.href = "/orderSuccess"; 
         }
       });
-        
-        fetch("/verify-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({response,order_id: orderData.id}),
-        });
+        })
+        .catch(error => {
+          Swal.fire({
+      title: 'Payment Failed',
+      text: error.message || 'Something went wrong during payment verification.',
+      icon: 'error',
+      confirmButtonText: 'Try Again',
+    });
+        })
       },
       prefill: {
         name: userName,
@@ -409,7 +430,7 @@ async function applyCoupon() {
     Swal.fire('Error', 'Please enter a coupon code.', 'error');
     return;
   }
-
+  
   try {
     const response = await fetch('/applyCoupon', {
       method: 'POST',
@@ -425,6 +446,9 @@ async function applyCoupon() {
       Swal.fire('Success', result.message, 'success');
       document.getElementById('total-discount').textContent = `₹${result.discount}`;
       document.getElementById('cart-total-display').textContent = `₹${result.newTotal}`;
+
+      document.getElementById('discount-amount').value = result.discount;
+
     } else {
       Swal.fire('Error', result.message, 'error');
     }

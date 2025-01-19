@@ -2,8 +2,33 @@ const Coupon=require('../../models/couponSchema')
 
 const loadCoupon=async (req,res) => {
     try {
+
+      const page=parseInt(req.query.page)||1
+        const limit=6
+        const skip=(page-1)*limit
+
       const coupon=await Coupon.find()
-      res.render('coupon',{coupon})
+      .sort({createdAt:-1})
+      .limit(limit)
+      .skip(skip)
+
+      const count=await Coupon.find().countDocuments()
+      const totalPages=Math.ceil(count/limit)
+      res.render('coupon',{
+        coupon,
+        totalPages:totalPages,
+        currentPage: page  
+      })
+
+    } catch (error) {
+      console.error('Error loading coupons:', error);
+   res.status(500).render('error', { message: 'An error occurred while fetching coupons.' });
+    
+    }
+  }
+  const loadAddCoupon=async (req,res) => {
+    try {
+      res.render('addCoupon')
     } catch (error) {
       console.error('Error loading coupons:', error);
    res.status(500).render('error', { message: 'An error occurred while fetching coupons.' });
@@ -63,5 +88,6 @@ res.status(500).json({message:  'Internal server error.' });
   module.exports={ 
     loadCoupon,
     createCoupon,
-    deleteCoupon
+    deleteCoupon,
+    loadAddCoupon
   }

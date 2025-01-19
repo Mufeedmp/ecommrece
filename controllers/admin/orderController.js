@@ -6,22 +6,23 @@ const PDFDocument = require('pdfkit');
 
 const orderList=async (req,res) => {
     try {
-        let page=1
-        if(req.query.page){
-            page=parseInt(req.query.page)
-        }
+      
+        const page=parseInt(req.query.page)||1
         const limit=6
+        const skip=(page-1)*limit
 
         const orders=await Order.find()
         .populate('userId')
+        .sort({createdAt:-1})
         .limit(limit)
-        .skip((page-1)*limit)
-        .exec()
+        .skip(skip)
+        
 
         const count=await Order.find().countDocuments()
-       res.render('orderList', {
+        const totalPages=Math.ceil(count/limit)
+        res.render('orderList', {
             orders,       
-            totalpages: Math.ceil(count / limit), 
+            totalPages:totalPages,
             currentPage: page     
         });
     } catch (error) {
@@ -79,15 +80,43 @@ const updateOrderStatus = async (req, res) => {
     }
   };
 
+  const loadReport=async (req,res) => {
+    try {
+      const page=parseInt(req.query.page)||1
+        const limit=6
+        const skip=(page-1)*limit
+
+      const order=await Order.find({status:{$in:["Delivered","Returned"]}})
+      .populate('userId')
+      .sort({createdAt:-1})
+      .limit(limit)
+      .skip(skip)
+
+
+      const count=await Order.find().countDocuments()
+      const totalPages=Math.ceil(count/limit)
+      res.render('reports',{
+        order,
+        totalPages:totalPages,
+        currentPage: page     
+      })
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      res.redirect('/admin/pageerror'); 
+    }
+  }
+
   const loadExcel=async (req,res) => {
     try {
-      const orders = await Order.find().lean();
+      const orders = await Order.find({status:{$in:["Delivered","Returned"]}}).lean()
+      .populate('userId');
 
+      
       const data = orders.map((order) => ({
         ID: order.orderId,
         Name: order.userId?.name || 'N/A',
         Email: order.userId?.email || 'N/A',
-        Total: `$${order.totalAmount}`,
+        Total: `₹${order.totalAmount}`,
         Status: order.status,
         Date: new Date(order.createdAt).toLocaleDateString(),
       }));
@@ -105,10 +134,12 @@ const updateOrderStatus = async (req, res) => {
       res.status(500).send('Could not generate Excel file');
     }
   }
+
   
   module.exports={
     orderList,
     orderDetails,
     updateOrderStatus,
-    loadExcel 
+    loadExcel ,
+    loadReport
   }

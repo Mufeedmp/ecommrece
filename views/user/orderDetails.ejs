@@ -191,7 +191,7 @@
         <table class="order-details">
             <tr>
                 <th>Order ID</th>
-                <td><%= order._id %></td>
+                <td><%= order.orderId %></td>
             </tr>
             <tr>
                 <th>Order Status</th>
@@ -206,9 +206,21 @@
                 <td><%= order.paymentStatus %></td>
             </tr>
             <tr>
+              <th>Payment Method</th>
+              <td><%= order.paymentMethod %></td>
+          </tr>
+            <tr>
                 <th>Total Amount</th>
-                <td>₹<%= order.totalAmount %></td>
+                <td>₹<%= order.totalAmount+order.discount %></td>
             </tr>
+            <tr>
+              <th>Total Discount</th>
+              <td>₹<%= order.discount %></td>
+          </tr>
+          <tr>
+            <th>Amount</th>
+            <td>₹<%= order.totalAmount %></td>
+        </tr>
         </table>
 
         
@@ -248,18 +260,35 @@
                     <th>Product</th>
                     <th>Size</th>
                     <th>Quantity</th>
-                    <th>Price</th>
+                    <th>Total Amount</th>
+                    <th>Discount</th>
+                    <th>Amount</th>
                 </tr>
             </thead>
             <tbody>
-                <% order.items.forEach(item => { %>
+              
+                <%
+                let discountPerQty=0
+                  order.items.forEach(item => { 
+                    discountPerQty=order.discount/order.totalQuantity
+
+                    %>
+             
                     <tr>
                         <td>
                             <img src="/uploads/product-images/<%= item.image %>" alt="<%= item.productId.name %>">
                         </td>
                         <td><%= item.size %></td>
                         <td><%= item.quantity %></td>
-                        <td>₹<%= item.price %></td>
+                        <td>₹<%= item.total %></td>
+                        <td>₹<%=(discountPerQty*item.quantity).toFixed(2) %></td>
+                        <td>₹<%= (item.total-discountPerQty).toFixed(2) %></td>
+                        <td> <% if (order.status !== 'Cancelled' && order.status !== 'Delivered'&& order.status !== 'Returned'&& order.status !== 'Pending') { %>
+                          <form id="cancel" action="/cancelOrder/<%= order.orderId %>" method="POST">
+                            <button id="cancel-button" data-id="<%= order.orderId %>">Cancel Order</button>
+                          </form>
+                        <% } %>
+                      </td>
                     </tr>
                 <% }); %>
             </tbody>
@@ -293,14 +322,14 @@
 
         
        
-        <% if (order.status !== 'Cancelled' && order.status !== 'Delivered') { %>
-          <form id="cancel" action="/cancelOrder/<%= order._id %>" method="POST">
-            <button id="cancel-button" data-id="<%= order._id %>">Cancel Order</button>
+        <% if (order.status !== 'Cancelled' && order.status !== 'Delivered'&& order.status !== 'Returned'&& order.status !== 'Pending') { %>
+          <form id="cancel" action="/cancelOrder/<%= order.orderId %>" method="POST">
+            <button id="cancel-button" data-id="<%= order.orderId %>">Cancel Order</button>
           </form>
         <% } %>
         
         <% if (order.status === 'Delivered') { %>
-            <button type="button"  onclick="returnOrder('<%= order._id %>')">Return Order</button>
+            <button type="button"  onclick="returnOrder('<%= order.orderId %>')">Return Order</button>
         <% } %>
             
        

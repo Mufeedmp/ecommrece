@@ -21,14 +21,13 @@ const orderSchema=new Schema({
         type:Date,
         default:Date.now
     },
-
-    paymentStatus: {
-        type: String, 
-        default: "Pending"
-    },
     totalAmount: { 
         type: Number,
         required: true
+    },
+    totalQuantity: {
+        type: Number, 
+        default: 1
     },
     items:[{
         productId:{
@@ -49,12 +48,20 @@ const orderSchema=new Schema({
             required: true
         },
         price:{
-            type:String,
+            type:Number,
             required:true
         },
         total:{
-            type:String,
+            type:Number,
             required:true
+        },
+        couponDiscount:{
+            type:Number,
+            default:0,
+        },
+        netTotal:{
+            type:Number,
+            default:0,
         },
         image:{
             type:[String],
@@ -113,12 +120,12 @@ const orderSchema=new Schema({
     },
     status: { 
         type: String, 
-        enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Returned"], 
+        enum: ["Pending","Confirmed", "Processing", "Shipped", "Delivered", "Cancelled", "Returned"], 
         default: "Pending" 
       }, 
     paymentStatus: { 
         type: String, 
-        enum: ["Paid", "Pending", "Failed", "Refunded"], 
+        enum: ["Paid", "Pending", "Failed", "Refunded","Successful"], 
         default: "Pending" 
       },
     createdAt: {
@@ -136,6 +143,10 @@ const orderSchema=new Schema({
     paymentMethod:{
         type:String,
         required:true
+    },
+    paymentOrderId:{
+        type:String,
+        required:false
     }
 })
 

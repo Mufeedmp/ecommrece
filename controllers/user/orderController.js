@@ -20,11 +20,21 @@ const orderSuccess=async (req,res) => {
         const userId = req.session.user;
         const userData = await User.findById(userId);
         const page = req.query.page || 1;
-        const limit = 4;
-        const orders = await Order.find({ userId })
-        .sort({ orderDate: -1 });
+        const limit = 6;
+        const skip=(page-1)*limit
 
-        res.render('orders', { orders,user:userData });
+        const orders = await Order.find({ userId })
+        .sort({ orderDate: -1 })
+        .limit(limit)
+        .skip(skip)
+
+        const count=await Order.find().countDocuments()
+        const totalPages=Math.ceil(count/limit)
+        res.render('orders', {
+           orders,user:userData,
+           totalPages:totalPages,
+           currentPage: page  
+          });
     } catch (error) {
         console.error('Error loading orders:', error.message);
         res.status(500).send('Internal Server Error');
@@ -55,10 +65,10 @@ const orderDetails=async (req,res) =>   {
 const cancelOrder = async (req, res) => {
     try {
       const userId = req.session.user;
-      const orderId = req.params.id;
+      const orderId = req.params.orderId;
   console.log('cancelOrder:', orderId);
   
-      const order = await   Order.findById  (orderId).populate('items.productId', 'name  size quantity ');
+      const order = await   Order.findOne  ({orderId}).populate('items.productId', 'name  size quantity ');
         if (!order) {
             return res.status(404).json({ status: 'error', message: 'Order not found' });
         }
@@ -102,7 +112,7 @@ const returnOrder = async (req, res) => {
     try {
       const { orderId } = req.body;
   
-      const order = await Order.findOne({ _id: orderId }).populate('items.productId', 'name size quantity');
+      const order = await Order.findOne({ orderId: orderId }).populate('items.productId', 'name size quantity');
   
       if (!order) {
         return res.status(404).json({ message: 'Order not found' });
@@ -110,7 +120,25 @@ const returnOrder = async (req, res) => {
   
       if (order.status === 'Delivered') {
 
+        const stockUpdatePromises = order.items.map(async item => {
+          const productId = item.productId._id;
+          const orderedQuantity = item.quantity;
+          const size = item.size;
+    
+          
+          return Product.findOneAndUpdate(
+              { _id: productId, "size.sizeName": size }, 
+              { $inc: { "size.$.quantity": orderedQuantity } }, 
+              { new: true } 
+          );
+          });
+    
+       
+        await Promise.all(stockUpdatePromises);
+
+
         order.status = 'Returned';
+        order.paymentStatus='Refunded'
         await order.save();
   
         const userId = order.userId;

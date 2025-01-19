@@ -1,80 +1,16 @@
 <%- include("../../views/partials/admin/header") %>
-<style>
-    .search-input {
-      width: 1000px; 
-      padding: 8px;
-      font-size: 14px;
-    }
-  </style>
-<header class="card-header">
-    <div class="card">
-        <div class="card-header p-3">
-   
-            <div class="row mb-3">
-                <div class="col-12">
-                    <form method="get" class="d-flex w-10">
-                        <input 
-                            type="text" 
-                            name="query" 
-                            placeholder="Search order ID, name, or email" 
-                            class="search-input"
-                            value=""
-                        />
-                        <button type="submit" class="btn btn-primary" style="min-width: 100px;">Search</button>
-                    </form>
-                </div>
-            </div>
-    
-            
-            <div class="row">
-                <div class="col-12 d-flex justify-content-end">
-                    <div class="d-flex gap-3 align-items-center flex-wrap">
-             
-                        <form id="filter-form" method="get" class="d-flex gap-2">
-                            <input 
-                                type="date" 
-                                name="start_date" 
-                                id="start_date" 
-                                class="form-control" 
-                                value=""
-                            />
-                            <input 
-                                type="date" 
-                                name="end_date" 
-                                id="end_date" 
-                                class="form-control" 
-                                value=""
-                            />
-                            <select name="range" id="range" class="form-control">
-                                <option value="daily">Daily</option>
-                                <option value="weekly">Weekly</option>
-                                <option value="yearly">Yearly</option>
-                            </select>
-                        </form>
-                    
-                      
-                        <div class="d-flex gap-2">
-                            <a href="/admin/download-excel" class="btn btn-success" id="download-excel">Download Excel</a>
-                            <!-- <a href="#" id="download-pdf" class="btn btn-danger">Download PDF</a> -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-        
-</header>
 
-<main class="content-main" style="margin-left: 15%;">
+
+
     <section class="content-main">
         <div class="content-header">
-            <h2 class="content-title">Order List</h2>
+            <h2 class="content-title" >Order List</h2>
         </div>
     
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
+        <div class="right mt-5">
+            <div class="card-header">
+                <div class="card-body">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>#ID</th>
@@ -92,7 +28,7 @@
                                     <td><%= order.orderId %></td>
                                     <td><%= order.userId.name %></td>
                                     <td><%= order.userId.email %></td>
-                                    <td>$<%= order.totalAmount %></td>
+                                    <td>₹<%= order.totalAmount %></td>
                                     <td><span class="badge rounded-pill alert-warning"><%= order.status %></span></td>
                                     <td><%= order.createdAt.toDateString() %></td>
                                     <td class="text-end">
@@ -106,26 +42,23 @@
                 </div>
             </div>
         </div>
+        <div class="pagination-container" style="text-align: center;">
+            <% if (currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>">&laquo; Previous</a>
+            <% } %> <% for (let i = 1; i <= totalPages; i++) { %> <% if (i ===
+            currentPage) { %>
+            <span class="current-page"><%= i %></span>
+            <% } else { %>
+            <a href="?page=<%= i %>"><%= i %></a>
+            <% } %> <% } %> <% if (currentPage < totalPages) { %>
+            <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
+            <% } %>
+          </div>
     </section>
-    
-  
-    
-</main>
-     
-            <footer class="main-footer font-xs">
-                <div class="row pb-30 pt-15">
-                    <div class="col-sm-6">
-                        <script>
-                            document.write(new Date().getFullYear());
-                        </script>
-                        &copy; Nest - HTML Ecommerce Template .
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="text-sm-end">All rights reserved</div>
-                    </div>
-                </div>
-            </footer>
+          
         </main>
+        
+        <script>document.write(new Date().getFullYear());</script>
         <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
         <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
         <script src="assets/js/vendors/select2.min.js"></script>

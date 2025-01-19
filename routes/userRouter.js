@@ -76,7 +76,7 @@ router.post('/removeFromWishlist', shopProductController.removeFromWishlist);
 router.get('/orderSuccess', orderController.orderSuccess);
 router.get('/orders', orderController.loadOrders);
 router.get('/orderDetails/:id', orderController.orderDetails);
-router.post('/cancelOrder/:id', orderController.cancelOrder);
+router.post('/cancelOrder/:orderId', orderController.cancelOrder);
 router.post('/returnOrder', orderController.returnOrder);
 
 module.exports = router;

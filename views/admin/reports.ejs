@@ -1,0 +1,117 @@
+<%- include("../../views/partials/admin/header") %>
+
+
+ 
+<header class="card-header">
+    <div class="card">
+        <div class="card-header p-3">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Search Form Section -->
+                    <form id="filter-form" method="get" class="row gy-2 gx-3 align-items-center">
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <input 
+                                style="min-width: 200px;"
+                                type="text" 
+                                name="query" 
+                                placeholder="Search order ID, name, or email" 
+                                class="form-control search-input"
+                                aria-label="Search orders by ID, name, or email"
+                            />
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <input 
+                                type="date" 
+                                name="start_date" 
+                                id="start_date" 
+                                class="form-control" 
+                                aria-label="Start date"
+                            />
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <input 
+                                type="date" 
+                                name="end_date" 
+                                id="end_date" 
+                                class="form-control" 
+                                aria-label="End date"
+                            />
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-2">
+                            <select name="range" id="range" class="form-control">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 col-lg-2 d-grid">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-12 d-flex justify-content-end mt-3">
+                    <!-- Download Buttons -->
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="/admin/download-excel" class="btn btn-success" id="download-excel">Download Excel</a>
+                        <a href="#" id="download-pdf" class="btn btn-danger">Download PDF</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Sales Report</h2>
+    </div>
+
+    <div class="right mt-5">
+        <div class="card-header">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% order.forEach(order => { %>
+                            <tr>
+                                <td><%= order.orderId %></td>
+                                <td><%= order.userId.name %></td>
+                                <td><%= order.userId.email %></td>
+                                <td>₹<%= order.totalAmount %></td>
+                                <td><span class="badge rounded-pill alert-warning"><%= order.status %></span></td>
+                                <td><%= order.createdAt.toDateString() %></td>
+                                <td class="text-end">
+                                    <a href="/admin/order-details/<%= order._id %>" class="btn btn-sm btn-primary">Details</a>
+                                    
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="pagination-container" style="text-align: center;">
+        <% if (currentPage > 1) { %>
+        <a href="?page=<%= currentPage - 1 %>">&laquo; Previous</a>
+        <% } %> <% for (let i = 1; i <= totalPages; i++) { %> <% if (i ===
+        currentPage) { %>
+        <span class="current-page"><%= i %></span>
+        <% } else { %>
+        <a href="?page=<%= i %>"><%= i %></a>
+        <% } %> <% } %> <% if (currentPage < totalPages) { %>
+        <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
+        <% } %>
+      </div>
+</section>
+
+<%- include("../../views/partials/admin/footer") %>

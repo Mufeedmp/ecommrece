@@ -51,11 +51,12 @@
                     id="order-status" 
                     onchange="return orderStatus(event, '<%= order._id %>')" 
                     class="form-select form-select-sm"
-                    <%= (order.status === 'Delivered' || order.status === 'Cancelled') ? 'disabled' : '' %>>
+                    <%= (order.status === 'Delivered' || order.status === 'Cancelled' || order.status==='Returned') ? 'disabled' : '' %>>
                     <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
                     <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                     <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                     <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                    <option value="Returned" <%= order.status === 'Returned' ? 'selected' : '' %>>Returned</option>
                 </select>
                     <br>         
                     <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>

@@ -39,22 +39,6 @@ const userSchema=new Schema({
         type:Boolean,
         default:false
     },
-    cart:[{
-        type:Schema.Types.ObjectId,
-        ref:"Cart"
-    }],
-    wishlist:[{
-        type:Schema.Types.ObjectId,
-        ref:"Wishlist"
-    }],
-    wallet:{
-        type:Number,
-        default:0
-    },
-    orderHistory:[{
-        type:Schema.Types.ObjectId,
-        ref:"Order"
-    }],
     createdOn:{
         type:Date,
         default:Date.now
@@ -65,24 +49,7 @@ const userSchema=new Schema({
     redeemed:{
         type:Boolean
     },
-    redeemedUsers:[{
-        type:Schema.Types.ObjectId,
-        ref:"User"
-    }],
-    searchHistory:[{
-        category:{
-            type:Schema.Types.ObjectId,
-            ref:"Category"
-        },
-        brand:{
-            type:String
-        },
-        searchOn:{
-            type:Date,
-            default:Date.now
-        }
-    }]
-
+   
 
 })
 
@@ -90,3 +57,38 @@ const userSchema=new Schema({
 
 const User=mongoose.model('User',userSchema)
 module.exports=User
+
+
+
+
+ // cart:[{
+    //     type:Schema.Types.ObjectId,
+    //     ref:"Cart"
+    // }],
+    // wishlist:[{
+    //     type:Schema.Types.ObjectId,
+    //     ref:"Wishlist"
+    // }],
+    // wallet:{
+    //     type:Number,
+    //     default:0
+    // },
+    // 
+   
+    // redeemedUsers:[{
+    //     type:Schema.Types.ObjectId,
+    //     ref:"User"
+    // }],
+    // searchHistory:[{
+    //     category:{
+    //         type:Schema.Types.ObjectId,
+    //         ref:"Category"
+    //     },
+    //     brand:{
+    //         type:String
+    //     },
+    //     searchOn:{
+    //         type:Date,
+    //         default:Date.now
+    //     }
+    // }]

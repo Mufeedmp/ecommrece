@@ -84,7 +84,16 @@
   margin-bottom: 10px;
 }
 
-
+.coupon-form {
+            max-width: 400px;
+            margin: 20px;
+        }
+        .icon_tag_alt {
+            margin-right: 8px;
+        }
+        .icon_tag_alt::before {
+            content: "🏷️";
+        }
 
 
     </style>
@@ -202,15 +211,35 @@
     
               <!-- Right Column (Apply Coupon and Your Order Sections) -->
               <div class="col-lg-4 col-md-6">
-                <h6 class="coupon__code"><span class="icon_tag_alt"></span>
+                <div class="coupon-form">
+                  <h6 class="mb-3">
+                      <span class="icon_tag_alt"></span>
+                      Have a coupon?
+                  </h6>
+                  <form id="applyCouponForm" class="d-flex gap-2">
+                    <input type="text" 
+                           class="form-control" 
+                           name="code" 
+                           id="coupon-code" 
+                           placeholder="Coupon code">
+                    <input type="hidden" id="cart-total" value="<%= cart.cartTotal %>">
+                    <input type="hidden" name="discount" id="discount-amount" value="">
+                    <button type="button" 
+                            class="btn btn-primary" 
+                            id="couponButton" 
+                            onclick="handleCoupon()">
+                        Apply
+                    </button>
+                </form>
+                <!-- <h6 class="coupon__code"><span class="icon_tag_alt"></span>
                   Have a coupon?
                   <form id="applyCouponForm">
                     <input type="text" name="code" id="coupon-code" placeholder="Coupon code">
                     <input type="hidden" id="cart-total" value="<%= cart.cartTotal %>">
                     <button type="button" onclick="applyCoupon()">Apply</button>
                   </form>
-                </h6>
-    
+                </h6> -->
+              </div>
                 <div class="available-coupons" style="margin-top: 15px;">
                   <h6>Available Coupons</h6>
                   <ul id="coupon-list" style="max-height: 140px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 5px;">
@@ -239,7 +268,7 @@
                     <li>Discount <span id="total-discount" name="discount"></span></li>
                     <li>Total <span id="cart-total-display">₹<%= cart.cartTotal %></span></li>
                   </ul>
-                  <input type="hidden" id="discount-amount" name="discount">
+                  
 
                   <div class="checkout__input__checkbox">
                     <label for="cod">
@@ -252,6 +281,13 @@
                     <label for="paypal">
                       Online Payment
                       <input type="radio" id="paypal" name="paymentMethod" value="online">
+                      <span class="checkmark"></span>
+                    </label>
+                  </div>
+                  <div class="checkout__input__checkbox">
+                    <label for="Wallet">
+                      Wallet
+                      <input type="radio" id="Wallet" name="paymentMethod" value="wallet">
                       <span class="checkmark"></span>
                     </label>
                   </div>
@@ -289,12 +325,12 @@
 
    
   </body>
-</html>
-<script>
-const cartTotal = JSON.parse('<%= JSON.stringify(cart.cartTotal) %>') *100
+ </html>
+ <script>
+ const cartTotal = JSON.parse('<%= JSON.stringify(cart.cartTotal) %>') *100
 
 
-const userName = '<%= user.name %>';
+ const userName = '<%= user.name %>';
   const userEmail = '<%= user.email %>';
   const userContact = '<%= user.phone %>';
 
@@ -340,6 +376,7 @@ const userName = '<%= user.name %>';
       form.action = "/checkout"; 
       form.method = "POST";
       form.submit();
+      
     } else if (selectedPaymentMethod.value === "online") {
 
       const formData = new FormData(form);
@@ -357,7 +394,7 @@ const userName = '<%= user.name %>';
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: cartTotal,savedAddress, paymentMethod,discount }),
       });
-console.log('discount',discount);
+
 
     const orderData = await orderResponse.json();
     console.log(orderData.id)
@@ -418,45 +455,157 @@ console.log('discount',discount);
 
     const rzp = new Razorpay(options);
     rzp.open();
-  };
-}
+  }else if (selectedPaymentMethod.value === "wallet") {
+    const formData = new FormData(form);
+  const formObject = {};
+  formData.forEach((value, key) => (formObject[key] = value));
 
-async function applyCoupon() {
-  const couponCode = document.getElementById('coupon-code').value.trim();
-  const cartTotal = parseFloat(document.getElementById('cart-total').value);
-
-  
-  if (!couponCode) {
-    Swal.fire('Error', 'Please enter a coupon code.', 'error');
-    return;
-  }
-  
   try {
-    const response = await fetch('/applyCoupon', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ code: couponCode, cartTotal }),
+    const response = await fetch("/pay-wallet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formObject),
     });
 
     const result = await response.json();
 
-    if (response.ok) {
-      Swal.fire('Success', result.message, 'success');
-      document.getElementById('total-discount').textContent = `₹${result.discount}`;
-      document.getElementById('cart-total-display').textContent = `₹${result.newTotal}`;
-
-      document.getElementById('discount-amount').value = result.discount;
-
+    if (result.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: result.message,
+      }).then(() => {
+        window.location.href = "/orderSuccess";
+      });
     } else {
-      Swal.fire('Error', result.message, 'error');
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: result.message,
+      });
     }
   } catch (error) {
-    Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
-    console.log('error',error);
-    
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Something went wrong. Please try again.",
+    });
   }
+ }
 }
+
+// async function applyCoupon() {
+//   const couponCode = document.getElementById('coupon-code').value.trim();
+//   const cartTotal = parseFloat(document.getElementById('cart-total').value);
+
+  
+//   if (!couponCode) {
+//     Swal.fire('Error', 'Please enter a coupon code.', 'error');
+//     return;
+//   }
+  
+//   try {
+//     const response = await fetch('/applyCoupon', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({ code: couponCode, cartTotal }),
+//     });
+
+//     const result = await response.json();
+
+//     if (response.ok) {
+//       Swal.fire('Success', result.message, 'success');
+//       document.getElementById('total-discount').textContent = `₹${result.discount}`;
+//       document.getElementById('cart-total-display').textContent = `₹${result.newTotal}`;
+
+//       document.getElementById('discount-amount').value = result.discount;
+
+//     } else {
+//       Swal.fire('Error', result.message, 'error');
+//     }
+//   } catch (error) {
+//     Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
+//     console.log('error',error);
+    
+//   }
+// }
+
+let isCouponApplied = false;
+        
+        async function handleCoupon() {
+            const couponButton = document.getElementById('couponButton');
+            
+            if (!isCouponApplied) {
+                // Apply coupon
+                await applyCoupon();
+            } else {
+                // Remove coupon
+                resetCoupon();
+            }
+        }
+
+        async function applyCoupon() {
+            const couponCode = document.getElementById('coupon-code').value.trim();
+            const cartTotal = parseFloat(document.getElementById('cart-total').value);
+            const couponButton = document.getElementById('couponButton');
+            const couponInput = document.getElementById('coupon-code');
+
+            if (!couponCode) {
+                Swal.fire('Error', 'Please enter a coupon code.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/applyCoupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code: couponCode, cartTotal }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    Swal.fire('Success', result.message, 'success');
+                    document.getElementById('total-discount').textContent = `₹${result.discount}`;
+                    document.getElementById('cart-total-display').textContent = `₹${result.newTotal}`;
+                    document.getElementById('discount-amount').value = result.discount;
+                    
+
+                    // Update UI for applied coupon
+                    isCouponApplied = true;
+                    couponInput.disabled = true;
+                    couponButton.textContent = 'Remove';
+                    couponButton.classList.remove('btn-primary');
+                    couponButton.classList.add('btn-danger');
+                } else {
+                    Swal.fire('Error', result.message, 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
+                console.log('error', error);
+            }
+        }
+
+        function resetCoupon() {
+            const couponInput = document.getElementById('coupon-code');
+            const couponButton = document.getElementById('couponButton');
+            const cartTotal = parseFloat(document.getElementById('cart-total').value);
+            // Reset all values
+            isCouponApplied = false;
+            couponInput.disabled = false;
+            couponInput.value = '';
+            couponButton.textContent = 'Apply';
+            couponButton.classList.remove('btn-danger');
+            couponButton.classList.add('btn-primary');
+            
+            // Reset discount and total displays
+            document.getElementById('total-discount').textContent = '';
+            document.getElementById('cart-total-display').textContent = `₹${cartTotal}`;
+            document.getElementById('discount-amount').value = '0';
+        }
 
 </script>

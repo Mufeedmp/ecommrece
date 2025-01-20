@@ -79,6 +79,27 @@ const cancelOrder = async (req, res) => {
             return res.status(400).json({status: 'error', message: 'Cannot cancel delivered order' });
         }
         order.status = 'Cancelled';
+        order.paymentStatus = 'Refunded'
+
+        if(order.paymentMethod==='online' || order.paymentMethod==='wallet'){
+          const userId = order.userId;
+          const returnAmount = order.totalAmount; 
+    
+          let wallet = await Wallet.findOne({ userId });
+          if (!wallet) {
+            wallet = new Wallet({ userId, balance: 0, transactions: [] });
+          }
+    
+          wallet.balance += returnAmount;
+          wallet.transactions.push({
+            amount: returnAmount,
+            type: 'credit',
+            description: `Refund for order ${orderId}`,
+          });
+    
+          await wallet.save();
+    
+        }
 
         const stockUpdatePromises = order.items.map(async item => {
             const productId = item.productId._id;
@@ -105,7 +126,87 @@ const cancelOrder = async (req, res) => {
     }
     }
 
+   const cancelItem=async (req,res) => {
+     const { orderId, productId } = req.params;
+    try {
+      const order = await Order.findOne({ orderId });
+
+      if (!order) {
+          return res.status(404).json({ message: 'Order not found' });
+      }
+      const itemIndex = order.items.findIndex(item => item.productId.toString() === productId);
+
+      if (itemIndex === -1) {
+          return res.status(404).json({ message: 'Item not found in order' });
+      }
+      const removedItem= order.items[itemIndex]              
+
+      console.log('removedItem',removedItem);
+      
+     
+        order.totalAmount -= removedItem.netTotal || 0;
+        order.totalQuantity -= removedItem.quantity || 0;
+
+        order.items[itemIndex].itemStatus = "Cancelled";
+
+    
+    const allCancelled = order.items.every(item => item.itemStatus === "Cancelled");
+    if (allCancelled) {
+      order.status = "Cancelled";
+      order.totalAmount = 0;
+      order.totalQuantity = 0;
    
+    }
+      
+    await order.save()
+
+      const canceledProductId  = removedItem.productId;
+      const orderedQuantity = removedItem.quantity;
+      const size = removedItem.size;
+  
+        
+      await Product.findOneAndUpdate(
+            { _id: canceledProductId , "size.sizeName": size }, 
+            { $inc: { "size.$.quantity": orderedQuantity } }, 
+            { new: true } 
+        );
+
+
+      if(order.paymentMethod==='online'|| order.paymentMethod==='wallet'){
+      const userId = order.userId;
+      const returnAmount = removedItem.netTotal || 0;
+
+
+      let wallet = await Wallet.findOne({ userId });
+      if (!wallet) {
+        wallet = new Wallet({ userId, balance: 0, transactions: [] });
+      }
+
+      wallet.balance += returnAmount;
+      wallet.transactions.push({
+        amount: returnAmount,
+        type: 'credit',
+        description: `Refund for order ${orderId}`,
+      });
+
+      await wallet.save();
+    }
+  
+  const responseMessage =
+  order.items.length === 0
+    ? 'Order canceled successfully'
+    : 'Item canceled successfully';
+
+res.status(200).json({
+  message: responseMessage,
+  order,
+});
+  } catch (error) {
+      console.error('Error canceling item:', error);
+      res.status(500).json({ message: 'Failed to cancel item', error });
+  }
+
+   }
 
 
 const returnOrder = async (req, res) => {
@@ -177,4 +278,5 @@ module.exports={
     loadOrders,
     orderDetails,
     cancelOrder,
+    cancelItem
 }

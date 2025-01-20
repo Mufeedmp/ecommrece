@@ -7,6 +7,7 @@ const Order=require('../../models/orderSchema')
 const mongoose=require('mongoose')
 const Wishlist=require('../../models/wishlistSchema')
 const Coupon=require('../../models/couponSchema')
+const Wallet=require('../../models/walletSchema')
 const Razorpay = require('razorpay')
 const crypto = require('crypto');
 const { validateWebhookSignature } = require('razorpay/dist/utils/razorpay-utils');
@@ -14,7 +15,7 @@ const { validateWebhookSignature } = require('razorpay/dist/utils/razorpay-utils
 
 
 
-const loadShopPage=async (req,res) => {
+const loadShopPage=async (req,res,next) => {
     try {
         if(req.session.passport){
             req.session.user=req.session.passport.user
@@ -74,8 +75,9 @@ const loadShopPage=async (req,res) => {
         }
         
     } catch (error) {
-        console.error('Error loading homepage:', error);
-        res.status(500).send('Server Error');
+        // console.error('Error loading homepage:', error);
+        // res.status(500).send('Server Error');
+        next(error);
     }
 }
 const productDetails=async (req,res) => {
@@ -182,7 +184,7 @@ const loadCart = async (req, res) => {
 };
 
  
-const addToCart = async (req, res) => {
+const addToCart = async (req, res,next) => {
     try {
         const { productId,quantity,size } = req.body;
         const userId = req.session.user
@@ -282,9 +284,10 @@ const addToCart = async (req, res) => {
             return res.status(500).json({ success: false, message: 'Cart products are not available' });
         }
     } catch (error) {
-        console.error('Error:', error);
-        return res.status(500).json({ success: false, message: 'An error occurred while adding the item to the cart' });
-    }
+        // console.error('Error:', error);
+        // return res.status(500).json({ success: false, message: 'An error occurred while adding the item to the cart' });
+        next(error);
+      } 
 };
 
 const updateCart = async (req, res) => {
@@ -472,7 +475,7 @@ const removeItem = async (req, res) => {
       const userId = req.session.user;
       const { amount,savedAddress,paymentMethod,discount, ...newAddress } = req.body;
 
-
+      console.log('ghfgf',req.body);
       const items = await Cart.findOne({ userId }).populate('items.productId', 'productName productImage size quantity salePrice');
       const totalAmount = items.cartTotal;
       const totalQuantity = items.items.reduce((acc, item) => acc + item.quantity, 0);
@@ -579,7 +582,7 @@ const removeItem = async (req, res) => {
         productId: item.productId._id, 
         name: item.productId.productName,  
         price: item.productId.salePrice,
-        size:item.size,
+        size:item.size, 
         quantity: item.quantity,
         image:item.productId.productImage[0],  
         total: item.quantity * item.productId.salePrice,
@@ -662,6 +665,8 @@ const removeItem = async (req, res) => {
   const verifyPayment = async (req, res) => {
     try {
       const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body.response;
+      
+      
       
       if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
         return res.status(400).send({ status: "failure", message: "Invalid payment data" });
@@ -783,6 +788,109 @@ try {
 }
 };
 
+const payUsingWallet = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const { amount, savedAddress, paymentMethod, discount, ...newAddress } = req.body;
+  
+    console.log('reqqq',req.body);
+    
+    const items = await Cart.findOne({ userId }).populate(
+      'items.productId',
+      'productName productImage size quantity salePrice'
+    );
+    const totalAmount = items.cartTotal;
+    const totalQuantity = items.items.reduce((acc, item) => acc + item.quantity, 0);
+    const discountPerQty = discount / totalQuantity;
+  
+    const orderItems = items.items.map(item => {
+      const itemDiscount = discountPerQty * item.quantity;
+      return {
+        productId: item.productId._id,
+        name: item.productId.productName,
+        price: item.productId.salePrice,
+        size: item.size,
+        quantity: item.quantity,
+        image: item.productId.productImage[0],
+        total: item.quantity * item.productId.salePrice,
+        couponDiscount: Number(itemDiscount.toFixed(2)),
+        netTotal: Number((item.quantity * item.productId.salePrice - itemDiscount).toFixed(2)),
+      };
+    });
+  
+    let selectedAddress;
+    if (savedAddress) {
+      const userAddresses = await Address.findOne({
+        userId,
+        'address._id': savedAddress,
+      }).select('address');
+  
+      selectedAddress = userAddresses.address.find(addr => addr._id.toString() === savedAddress);
+      if (!selectedAddress) {
+        return res.status(400).json({ success: false, message: 'Invalid saved address.' });
+      }
+    } else {
+      selectedAddress = { ...newAddress };
+    }
+  
+    
+  
+    const order = new Order({
+      userId,
+      address: selectedAddress,
+      items: orderItems,
+      totalAmount: totalAmount - discount,
+      paymentMethod,
+      discount,
+      totalQuantity,
+      status: 'Confirmed',
+      paymentStatus: "Successful"
+    });
+  
+    const savedOrder=await order.save();
+
+    if (paymentMethod === 'wallet') {
+      const userWallet = await Wallet.findOne({ userId }); 
+      if (!userWallet || userWallet.balance < totalAmount - discount) {
+        return res.status(400).json({ success: false, message: 'Insufficient wallet balance.' });
+      }
+  
+      userWallet.balance -= totalAmount - discount;
+      userWallet.transactions.push({
+        amount: totalAmount - discount,
+        type: 'debit',
+        description: `Payment for order ${savedOrder.orderId} `,
+      });
+
+      await userWallet.save();
+    }
+  
+    const stockUpdatePromises = items.items.map(async item => {
+      const productId = item.productId._id;
+      const orderedQuantity = item.quantity;
+      const size = item.size;
+  
+      return Product.findOneAndUpdate(
+        { _id: productId, 'size.sizeName': size },
+        { $inc: { 'size.$.quantity': -orderedQuantity } },
+        { new: true }
+      );
+    });
+  
+    await Promise.all(stockUpdatePromises);
+  
+    await Cart.findOneAndUpdate(
+      { userId },
+      { $set: { items: [], cartSubtotal: 0, cartTotal: 0 } }
+    );
+    res.json({ success: true, message: 'Order placed successfully!' });
+ 
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+  
+};
 
 
 
@@ -800,6 +908,7 @@ module.exports = {
     addToWishlist,
     removeFromWishlist,
     createOrder,
-    verifyPayment
+    verifyPayment,
+    payUsingWallet
 };
  

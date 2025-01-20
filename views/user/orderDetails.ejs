@@ -283,12 +283,13 @@
                         <td>₹<%= item.total %></td>
                         <td>₹<%=(discountPerQty*item.quantity).toFixed(2) %></td>
                         <td>₹<%= (item.total-discountPerQty).toFixed(2) %></td>
-                        <td> <% if (order.status !== 'Cancelled' && order.status !== 'Delivered'&& order.status !== 'Returned'&& order.status !== 'Pending') { %>
-                          <form id="cancel" action="/cancelOrder/<%= order.orderId %>" method="POST">
-                            <button id="cancel-button" data-id="<%= order.orderId %>">Cancel Order</button>
-                          </form>
-                        <% } %>
-                      </td>
+                        <td>
+                          <% if (order.status !== 'Cancelled' && order.status !== 'Delivered' && order.status !== 'Returned' && order.status !== 'Pending' && item.itemStatus !== 'Cancelled') { %>
+                            <button onclick="cancelItem('<%= order.orderId %>', '<%= item.productId %>', '<%= item._id %>')">Cancel Item</button>
+                          <% } else { %>
+                            <p>Cancelled</p>
+                          <% } %>
+                        </td>
                     </tr>
                 <% }); %>
             </tbody>
@@ -426,5 +427,31 @@ console.log('data',data);
         }
         window.location.reload();
       }
+
+      async function cancelItem(orderId, productId) {
+            try {
+              const response = await fetch(`/cancelItem/${orderId}/${productId}`, {
+                    method: 'PATCH'
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    Swal.fire({
+                      icon:'Success',
+                      title:'item cancelled successfully',
+                      text:result.message,
+                      confirmButtonText: 'OK'
+
+                    }).then(()=>{
+                      window.location.reload();
+                    })
+                   
+                } else {
+                    alert('Failed to cancel item.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred.');
+            }
+        }
     </script>
     

@@ -3,6 +3,8 @@ const Order=require('../../models/orderSchema')
 const User=require('../../models/userSchema')
 const xlsx = require('xlsx');
 const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const moment = require('moment');
 
 const orderList=async (req,res) => {
     try {
@@ -70,6 +72,9 @@ const updateOrderStatus = async (req, res) => {
       }
       
       order.status = status;
+      if(order.status==="Delivered"){
+        order.paymentStatus='Successful'
+      }
       await order.save();
       
       res.status(200).json({ success: true, message: "Order status updated successfully", newStatus: order.status });
@@ -134,6 +139,65 @@ const updateOrderStatus = async (req, res) => {
       res.status(500).send('Could not generate Excel file');
     }
   }
+  const loadPdf = async (req, res) => {
+    try {
+      const salesData = await Order.find({ 
+        status: { $in: ["Delivered", "Returned"] }
+      });
+  
+      const doc = new PDFDocument();
+      
+      // Set response headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=sales-report.pdf');
+      doc.pipe(res);
+  
+      // Add title
+      doc.fontSize(20)
+         .text('Sales Report', { align: 'center' })
+         .moveDown(2);
+  
+      // Add current date
+      doc.fontSize(12)
+         .text(`Date: ${new Date().toLocaleDateString()}`, { align: 'right' })
+         .moveDown(2);
+  
+      // Add summary
+      const totalAmount = salesData.reduce((sum, order) => sum + order.totalAmount, 0);
+      doc.fontSize(14)
+         .text(`Total Orders: ${salesData.length}`)
+         .text(`Total Sales: ${totalAmount.toFixed(2)}`)
+         .moveDown(2);
+  
+      // Add table header
+      doc.fontSize(12)
+         .text('Order Details:', { underline: true })
+         .moveDown();
+  
+      // Add orders
+      salesData.forEach((order, index) => {
+        doc.text('----------------------------------------')
+           .fontSize(10)
+           .text(`Order ${index + 1}`)
+           .text(`Order ID: ${order._id}`)
+           .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`)
+           .text(`Amount: ${order.totalAmount}`)
+           .text(`Status: ${order.status}`)
+           .text(`Payment Method: ${order.paymentMethod}`)
+           .moveDown();
+      });
+  
+      // End the document
+      doc.end();
+  
+    } catch (error) {
+      console.error('PDF Generation Error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to generate PDF report' 
+      });
+    }
+  };
 
   
   module.exports={
@@ -141,5 +205,6 @@ const updateOrderStatus = async (req, res) => {
     orderDetails,
     updateOrderStatus,
     loadExcel ,
-    loadReport
+    loadReport,
+    loadPdf
   }

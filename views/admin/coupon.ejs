@@ -47,7 +47,7 @@
                 <tr>
                   <td><%= coupon.name %></td>
                   <td>₹<%= coupon.offerPrice %></td>
-                  <td><%= coupon.expireOn %></td>
+                  <td><%= coupon.expireOn.toDateString() %></td>
                   <td>
                     <form action="/admin/deleteCoupon" method="post" style="display: inline;">
                       <input type="hidden" name="couponId" value="<%= coupon.id %>">

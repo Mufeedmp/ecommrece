@@ -86,7 +86,10 @@ const addProducts = async (req, res) => {
       size: sizes,
       productOffer:products.regularPrice-products.salePrice,
       categoryOffer:(products.regularPrice*category.categoryOffer)/100,
-      salePrice: products.salePrice-(products.regularPrice*category.categoryOffer)/100,
+      salePrice: products.regularPrice - Math.max(
+        (products.regularPrice - products.salePrice), 
+        (products.regularPrice * category.categoryOffer) / 100 
+      ),
 
     });
 
@@ -228,7 +231,11 @@ const editProduct = async (req, res) => {
       size: sizes,
       productOffer:data.regularPrice-data.salePrice,
       categoryOffer:(data.regularPrice*category.categoryOffer)/100,
-      salePrice: data.salePrice-(data.regularPrice*category.categoryOffer)/100,
+      salePrice: data.regularPrice - Math.max(
+        (data.regularPrice - data.salePrice), 
+        (data.regularPrice * category.categoryOffer) / 100 
+      ),
+
     };
 
  

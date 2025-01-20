@@ -74,7 +74,12 @@ const orderSchema=new Schema({
         productOffer:{
           type:Number,
           default:0
-        }
+        },
+        itemStatus: { 
+            type: String, 
+            enum: ["Pending","Confirmed", "Processing", "Shipped", "Delivered", "Cancelled", "Returned"], 
+            default: "Pending" 
+          }
     }],
 
     discount:{

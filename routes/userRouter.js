@@ -66,6 +66,7 @@ router.post('/checkout', shopProductController.placeOrder);
 router.post('/applyCoupon',shopProductController.applyCoupon)
 router.post('/create-order',shopProductController.createOrder)
 router.post('/verify-payment',shopProductController.verifyPayment)
+router.post('/pay-wallet',shopProductController.payUsingWallet);
 
 // Wishlist Routes
 router.get('/wishlist', shopProductController.loadWishlist);
@@ -77,64 +78,8 @@ router.get('/orderSuccess', orderController.orderSuccess);
 router.get('/orders', orderController.loadOrders);
 router.get('/orderDetails/:id', orderController.orderDetails);
 router.post('/cancelOrder/:orderId', orderController.cancelOrder);
+router.patch('/cancelItem/:orderId/:productId', orderController.cancelItem);
 router.post('/returnOrder', orderController.returnOrder);
 
 module.exports = router;
 
-
-
-
-// router.get('/pageNotFound',userController.pageNotFound)
-// router.get('/',userController.loadHomepage)
-// router.get('/shop',userController.loadShopPage)
-// router.get('/signup',userController.loadSignup)
-// router.post('/signup',userController.signup) 
-// router.post('/verify-otp',userController.verifyotp)
-// router.post('/resend-otp',userController.resendotp)
-
-// router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
-// router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),(req,res)=>{
-//     res.redirect('/')
-// }) 
-
-// router.get('/login',userController.loadLogin)
-// router.post('/login',userController.login)
-// router.get('/logout',userAuth,userController.logout)
-
-// router.get('/productDetails/:id',productController.productDetails)
-// router.get('/profile',userController.loadProfile)
-// router.get('/change-email',userController.loadChangeEmail)
-// router.post('/change-email',userController.verifyEmailOtp)
-// router.post('/verify-email-otp',userController.loadUpdateEmail)
-// router.post('/update-email',userController.emailChanged)
-// router.get('/change-password',userController.loadChangePassword)
-// router.post('/change-password',userAuth,userController.changePassword)
-// router.get('/address',userController.loadAddress)
-// router.get('/add-address',userController.loadAddAddress)
-// router.post('/add-address',userAuth,userController.addAddress)
-// router.get('/edit-address/:id',userController.loadEditAddress)
-// router.post('/edit-address',userController.editAddress)     
-// router.post('/deleteAddress/:id',userController.deleteAddress) 
-// router.get('/forget-password',userController.loadForgetPassword)
-// router.post('/forget-password',userController.forgetPassword)
-// router.post('/forget-passwordOTP',userController.forgetPasswordOtp)
-// router.get('/reset-password',userController.loadResetPassword)
-// router.post('/reset-password',userController.resetPassword)
-// router.post('/addToCart',productController.addToCart)
-// router.get('/cart',productController.loadCart)
-// router.put('/updateCart',productController.updateCart)
-// router.get('/checkout',productController.loadCheckout)
-// router.delete('/removeItem',productController.removeItem)
-// router.post('/checkout',productController.placeOrder)
-// router.get('/orderSuccess',productController.orderSuccess)
-// router.get('/orders',productController.loadOrders)
-// router.get('/orderDetails/:id',productController.orderDetails)
-// router.post('/cancelOrder/:id',productController.cancelOrder)
-// router.get('/wishlist',productController.loadWishlist)
-// router.post('/addToWishlist',productController.addToWishlist)
-// router.post('/removeFromWishlist',productController.removeFromWishlist)
-// router.get('/wallet',userController.loadWallet)
-// router.post('/returnOrder/:id',orderController.returnOrder)
-
- 
-// module.exports = router;    

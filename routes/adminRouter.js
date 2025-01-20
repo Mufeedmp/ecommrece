@@ -45,7 +45,7 @@ router.get('/order-details/:id', adminAuth, orderController.orderDetails)
 router.post('/update-status', adminAuth, orderController.updateOrderStatus)
 router.get('/salesReport',adminAuth,orderController.loadReport)
 router.get('/download-excel',adminAuth,orderController.loadExcel)
-
+router.get('/download-pdf',adminAuth,orderController.loadPdf);
 
 
 router.get('/coupons', adminAuth, couponController.loadCoupon)

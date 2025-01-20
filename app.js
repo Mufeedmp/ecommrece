@@ -7,6 +7,7 @@ const userRouter = require('./routes/userRouter')
 const adminRouter = require('./routes/adminRouter')
 const MongoStore = require('connect-mongo');
 const db = require('./config/db')
+const errorMiddleware = require('./middlewares/errorMiddleware');
 
 dotenv.config()
 
@@ -36,6 +37,9 @@ app.use((req,res,next)=>{
     res.set('cache-controle','no-store')
     next()
 })
+
+app.use(errorMiddleware);
+
 
 
 app.set('view engine','ejs')

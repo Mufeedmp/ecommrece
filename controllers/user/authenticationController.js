@@ -1,6 +1,7 @@
 const User = require('../../models/userSchema');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
+const Wallet = require('../../models/walletSchema')
 
 
 
@@ -46,7 +47,7 @@ async function sendVerificationEmail(email, otp) {
 
 const signup = async (req, res) => {
     try {
-        const { name, phone, email, password, cPassword } = req.body;
+        const { name, phone, email, password, cPassword,referralCode } = req.body;
 
         if (password !== cPassword) {
             return res.render('signup', { message: 'Passwords do not match.' });
@@ -65,7 +66,7 @@ const signup = async (req, res) => {
         }
 
         req.session.userOtp = otp;
-        req.session.userData = { name, phone, email, password };
+        req.session.userData = { name, phone, email, password,referralCode };
 
         res.render('verify-otp');
         console.log('OTP sent:', otp);
@@ -96,6 +97,12 @@ const verifyotp = async (req, res) => {
         if (otp === req.session.userOtp) {
             const user = req.session.userData;
 
+            const refferer=await User.findOne({referralCode:user.referralCode})
+
+            if(!refferer){
+                res.status(400).json({success:false,message:'invalid refferal code'})
+            }
+
             const passwordHash = await securePassword(user.password);
 
             const newUser = new User({
@@ -103,12 +110,50 @@ const verifyotp = async (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 password: passwordHash,
+                referredBy:refferer
             });
- console.log('Generated OTP:', otp);
+            console.log('Generated OTP:', otp);
             console.log('Stored in session:', req.session.userOtp);
             await newUser.save();
-           
+
             req.session.user = newUser._id;
+
+            const userId=req.session.user
+            
+            let wallet = await Wallet.findOne({ userId });
+            let myBonus=50
+        
+         wallet = new Wallet({ userId, balance: 0, transactions: [] });
+         
+          wallet.balance += myBonus;
+          wallet.transactions.push({
+            amount: myBonus,
+            type: 'credit',
+            description: `Referral bonus (reffered by ${refferer.name})`,
+          });
+
+          await wallet.save();
+
+          if(refferer){
+            let reffererWallet = await Wallet.findOne({ userId:refferer });
+            let reffererBonus=100
+            if (!reffererWallet) {
+                reffererWallet = new Wallet({ userId:refferer, balance: 0, transactions: [] });
+            }
+      
+            reffererWallet.balance += reffererBonus;
+            reffererWallet.transactions.push({
+              amount: reffererBonus,
+              type: 'credit',
+              description: `Referral bonus (from ${newUser.name})` ,
+            });
+      
+            await reffererWallet.save();
+          }
+    
+         
+           
+            
 
             delete req.session.userOtp;
             delete req.session.userData;

@@ -284,12 +284,15 @@
                         <td>₹<%=(discountPerQty*item.quantity).toFixed(2) %></td>
                         <td>₹<%= (item.total-discountPerQty).toFixed(2) %></td>
                         <td>
-                          <% if (order.status !== 'Cancelled' && order.status !== 'Delivered' && order.status !== 'Returned' && order.status !== 'Pending' && item.itemStatus !== 'Cancelled') { %>
-                            <button onclick="cancelItem('<%= order.orderId %>', '<%= item.productId %>', '<%= item._id %>')">Cancel Item</button>
+                          <% if (item.itemStatus !== 'Cancelled') { %>
+                            <% if (order.status !== 'Delivered' && order.paymentStatus !== 'Payment Pending') { %>
+                              <button onclick="cancelItem('<%= order.orderId %>', '<%= item.productId %>', '<%= item._id %>')">Cancel Item</button>
+                            <% } %>
                           <% } else { %>
                             <p>Cancelled</p>
                           <% } %>
                         </td>
+                        
                     </tr>
                 <% }); %>
             </tbody>
@@ -313,6 +316,7 @@
                         <label for="comment-<%= item.productId._id %>">Comment:</label>
                         <textarea name="comment" id="comment-<%= item.productId._id %>" rows="3" placeholder="Write your review here..."></textarea>
                         <button type="submit">Submit Review</button>
+                         <a href="/download-invoice/<%= order.orderId %>" class="btn btn-success" id="download-excel">Download Invoice</a>
                     </form>
                 <% } else { %>
                     <p style="color: #555;">You can review this product after it's delivered.</p>
@@ -331,12 +335,19 @@
         
         <% if (order.status === 'Delivered') { %>
             <button type="button"  onclick="returnOrder('<%= order.orderId %>')">Return Order</button>
+           
         <% } %>
+
+        <% if (order.paymentStatus === 'Payment Pending') { %>
+          <button type="button"  onclick="retryPayment('<%= order.paymentOrderId %>')">Retry Payment</button>
+         
+      <% } %>
             
        
         
     </div>
     <%- include("../../views/partials/user/footer") %>
+
 
     <!-- Search Begin -->
     <div class="search-model">
@@ -361,6 +372,7 @@
     <script src="/js/owl.carousel.min.js"></script>
     <script src="/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     </body>
     
     </html>
@@ -404,7 +416,7 @@
           });
 
           const data = await response.json();
-console.log('data',data);
+
 
           if(Response.ok){
             Swal.fire({
@@ -453,5 +465,87 @@ console.log('data',data);
                 alert('An error occurred.');
             }
         }
+
+      document.addEventListener("DOMContentLoaded", () => {
+
+      const retryButton = document.getElementById("retryButton");
+
+      if (!retryButton) {
+        console.error("Retry button not found in the DOM.");
+        return;
+      }
+
+    
+      retryButton.addEventListener("click", async () => {
+        const paymentOrderId = "order_Pntv3JKClVe0Cy"; 
+        await retryPayment(paymentOrderId);
+      });
+    });
+
+    async function retryPayment(paymentOrderId) {
+  try {
+    const orderResponse = await fetch(`/retry-payment/${paymentOrderId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    const orderData = await orderResponse.json();
+
+    const options = {
+      key: "rzp_test_NwltbJ8WRRxJmi",
+      amount: orderData.amount,
+      currency: orderData.currency,
+      order_id: orderData.razorPayOrderId,
+      handler: async function (response) {
+        try {
+          const verifyResponse = await fetch("/retryVerify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ response })
+          });
+
+          const verifyData = await verifyResponse.json();
+
+          if (verifyData.success) {
+            Swal.fire({
+              icon: "success",
+              title: "Payment Successful",
+              text: "Your payment has been processed."
+            }).then((result) => {
+        if (result.isConfirmed) {
+         
+          window.location.href = "/orderSuccess"; 
+        }
+      });
+          } else {
+            Swal.fire({
+              icon: "error", 
+              title: "Payment Failed",
+              text: verifyData.message
+            });
+          }
+        } catch (error) {
+          console.error('Verification Error:', error);
+          Swal.fire({
+            icon: "error",
+            title: "Verification Error",
+            text: error.message
+          });
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch (error) {
+    console.error('Retry Payment Error:', error);
+    Swal.fire({
+      icon: "error",
+      title: "Payment Error",
+      text: error.message
+    });
+  }
+}
+
     </script>
     

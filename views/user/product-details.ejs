@@ -318,8 +318,14 @@
               <ul>
                 <li class=""><a href="/">Home</a></li>
                 <li class=""><a href="/shop">Shop</a></li>
-               
-
+                <li>
+                  <a href="#">Pages</a>
+                  <ul class="dropdown">
+                    <li><a href="/orders">Orders</a></li>
+                    <li><a href="/wallet">Wallet</a></li>
+          
+                  </ul>
+                </li>
                 <li><a href="./contact.html">Contacts</a></li>
               </ul>
             </nav>
@@ -405,8 +411,11 @@
             <span class="save__price"><%= Math.round(((Products.regularPrice - Products.salePrice) / Products.regularPrice) * 100) %>% Off</span>
           </div>
           <p class="save__price">
-            Product Offer ₹<%=Products.productOffer%><br>
-            category Offer ₹<%=Products.categoryOffer%>
+            <% if (Products.productOffer >= Products.categoryOffer) { %>
+              Product Offer ₹<%= Products.productOffer %>
+          <% } else { %>
+              Category Offer ₹<%= Products.categoryOffer %>
+          <% } %>
            </p>
          
           <p class="short__description">

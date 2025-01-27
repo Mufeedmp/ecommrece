@@ -141,63 +141,174 @@ const updateOrderStatus = async (req, res) => {
   }
   const loadPdf = async (req, res) => {
     try {
-      const salesData = await Order.find({ 
-        status: { $in: ["Delivered", "Returned"] }
-      });
-  
-      const doc = new PDFDocument();
+    
+        const salesData = await Order.find({ 
+            status: { $in: ["Delivered", "Returned"] }
+        });
+
+
+        const doc = new PDFDocument({
+            margin: 50,
+            size: 'A4'
+        });
+
       
-      // Set response headers
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=sales-report.pdf');
-      doc.pipe(res);
-  
-      // Add title
-      doc.fontSize(20)
-         .text('Sales Report', { align: 'center' })
-         .moveDown(2);
-  
-      // Add current date
-      doc.fontSize(12)
-         .text(`Date: ${new Date().toLocaleDateString()}`, { align: 'right' })
-         .moveDown(2);
-  
-      // Add summary
-      const totalAmount = salesData.reduce((sum, order) => sum + order.totalAmount, 0);
-      doc.fontSize(14)
-         .text(`Total Orders: ${salesData.length}`)
-         .text(`Total Sales: ${totalAmount.toFixed(2)}`)
-         .moveDown(2);
-  
-      // Add table header
-      doc.fontSize(12)
-         .text('Order Details:', { underline: true })
-         .moveDown();
-  
-      // Add orders
-      salesData.forEach((order, index) => {
-        doc.text('----------------------------------------')
-           .fontSize(10)
-           .text(`Order ${index + 1}`)
-           .text(`Order ID: ${order._id}`)
-           .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`)
-           .text(`Amount: ${order.totalAmount}`)
-           .text(`Status: ${order.status}`)
-           .text(`Payment Method: ${order.paymentMethod}`)
-           .moveDown();
-      });
-  
-      // End the document
-      doc.end();
-  
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
+
+     
+        doc.pipe(res);
+
+       
+        const totalSales = salesData.reduce((sum, order) => sum + order.totalAmount, 0);
+        const totalOrders = salesData.length;
+        const avgSale = totalOrders > 0 ? totalSales / totalOrders : 0;
+
+   
+        const formatCurrency = (amount) => `${amount.toFixed(2)}`;
+
+      
+        doc.fontSize(24)
+           .font('Helvetica-Bold')
+           .text('Sales Report', {
+               align: 'center'
+           });
+
+        doc.fontSize(12)
+           .font('Helvetica')
+           .text(new Date().toLocaleDateString('en-US', {
+               year: 'numeric',
+               month: 'long',
+               day: 'numeric'
+           }), {
+               align: 'center'
+           });
+
+        doc.moveDown(2);
+
+       
+        const summaryBox = {
+            x: 50,
+            y: doc.y,
+            width: doc.page.width - 100,
+            height: 100,
+            padding: 10
+        };
+
+      
+        doc.rect(summaryBox.x, summaryBox.y, summaryBox.width, summaryBox.height)
+           .fill('#f5f5f5');
+
+       
+        doc.fill('#000000')
+           .font('Helvetica-Bold')
+           .text('Summary', summaryBox.x + summaryBox.padding, summaryBox.y + summaryBox.padding)
+           .font('Helvetica')
+           .moveDown(0.5)
+           .text(`Total Sales: ${formatCurrency(totalSales)}`)
+           .text(`Total Orders: ${totalOrders}`)
+           .text(`Average Sale: ${formatCurrency(avgSale)}`);
+
+        doc.moveDown(2);
+
+        const headers = ['Date', 'Order ID', 'Status', 'Items', 'Amount'];
+        const columnWidths = {
+            date: 80,
+            orderId: 100,
+            status: 80,
+            items: 150,
+            amount: 80
+        };
+
+        let startX = 50;
+        let startY = doc.y;
+
+   
+        doc.rect(startX, startY, doc.page.width - 100, 20)
+           .fill('#4CAF50');
+
+        doc.fillColor('#FFFFFF');
+        let currentX = startX + 5;
+        headers.forEach((header, i) => {
+            doc.text(
+                header,
+                currentX,
+                startY + 5,
+                { width: Object.values(columnWidths)[i], align: 'left' }
+            );
+            currentX += Object.values(columnWidths)[i];
+        });
+
+   
+        doc.fillColor('#000000');
+
+
+        startY += 20;
+        salesData.forEach((order, index) => {
+            
+            if (startY + 20 > doc.page.height - 50) {
+                doc.addPage();
+                startY = 50;
+            }
+
+            if (index % 2 === 0) {
+                doc.rect(startX, startY, doc.page.width - 100, 20)
+                   .fill('#f2f2f2');
+            }
+
+            const orderDate = new Date(order.createdAt).toLocaleDateString();
+            
+   
+            const itemsSummary = order.items
+                .map(item => `${item.quantity}x ${item.netTotal}`)
+                .join(', ');
+
+         
+            currentX = startX + 5;
+            doc.fillColor('#000000')
+               .text(orderDate, currentX, startY + 5, 
+                    { width: columnWidths.date, align: 'left' });
+            
+            currentX += columnWidths.date;
+            doc.text(order._id.toString().slice(-8), currentX, startY + 5, 
+                    { width: columnWidths.orderId, align: 'left' });
+            
+            currentX += columnWidths.orderId;
+            doc.text(order.status, currentX, startY + 5, 
+                    { width: columnWidths.status, align: 'left' });
+            
+            currentX += columnWidths.status;
+            doc.text(itemsSummary, currentX, startY + 5, 
+                    { width: columnWidths.items, align: 'left' });
+            
+            currentX += columnWidths.items;
+            doc.text(formatCurrency(order.totalAmount), currentX, startY + 5, 
+                    { width: columnWidths.amount, align: 'right' });
+
+            startY += 20;
+        });
+
+        const pages = doc.bufferedPageRange();
+        for (let i = 0; i < pages.count; i++) {
+            doc.switchToPage(i);
+            doc.text(
+                `Page ${i + 1} of ${pages.count}`,
+                0,
+                doc.page.height - 50,
+                { align: 'center' }
+            );
+        }
+
+        doc.end();
+
     } catch (error) {
-      console.error('PDF Generation Error:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to generate PDF report' 
-      });
+        console.error('PDF Generation Error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to generate PDF report' 
+        });
     }
-  };
+}; 
 
   
   module.exports={

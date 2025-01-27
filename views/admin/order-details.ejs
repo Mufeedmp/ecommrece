@@ -120,6 +120,7 @@
                                     <th width="40%">Product</th>
                                     <th width="20%">Unit Price</th>
                                     <th width="20%">Quantity</th>
+                                    <th width="20%">Discount</th>
                                     <th width="20%" class="text-end">Total</th>
                                 </tr>
                             </thead>
@@ -136,7 +137,8 @@
                                         </td>
                                         <td>₹<%= item.price%></td>
                                         <td><%= item.quantity %></td>
-                                        <td class="text-end">₹<%= item.total %></td>
+                                        <td><%= item.couponDiscount %></td>
+                                        <td class="text-end">₹<%= item.netTotal %></td>
                                     </tr>
                                 <% }); %>
                             </tbody>

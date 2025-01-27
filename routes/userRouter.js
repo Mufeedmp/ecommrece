@@ -55,18 +55,20 @@ router.get('/shop', shopProductController.loadShopPage);
 router.get('/productDetails/:id', shopProductController.productDetails);
 
 // Cart Routes
-router.post('/addToCart', shopProductController.addToCart);
-router.get('/cart', shopProductController.loadCart);
-router.put('/updateCart', shopProductController.updateCart);
-router.delete('/removeItem', shopProductController.removeItem);
+router.post('/addToCart', orderController.addToCart);
+router.get('/cart', orderController.loadCart);
+router.put('/updateCart', orderController.updateCart);
+router.delete('/removeItem', orderController.removeItem);
 
 // Checkout Routes
-router.get('/checkout', shopProductController.loadCheckout);
-router.post('/checkout', shopProductController.placeOrder);
-router.post('/applyCoupon',shopProductController.applyCoupon)
-router.post('/create-order',shopProductController.createOrder)
-router.post('/verify-payment',shopProductController.verifyPayment)
-router.post('/pay-wallet',shopProductController.payUsingWallet);
+router.get('/checkout', orderController.loadCheckout);
+router.post('/checkout', orderController.placeOrder);
+router.post('/applyCoupon',orderController.applyCoupon)
+router.post('/create-order',orderController.createOrder)
+router.post('/verify-payment',orderController.verifyPayment)
+router.post('/pay-wallet',orderController.payUsingWallet);
+router.post('/retry-Payment/:paymentOrderId',orderController.retryPayment)
+router.post('/retryVerify-payment',orderController.retryVerifyPayment)
 
 // Wishlist Routes
 router.get('/wishlist', shopProductController.loadWishlist);
@@ -80,6 +82,7 @@ router.get('/orderDetails/:id', orderController.orderDetails);
 router.post('/cancelOrder/:orderId', orderController.cancelOrder);
 router.patch('/cancelItem/:orderId/:productId', orderController.cancelItem);
 router.post('/returnOrder', orderController.returnOrder);
+router.get('/download-invoice/:orderId',orderController.downloadInvoice)
 
 module.exports = router;
 

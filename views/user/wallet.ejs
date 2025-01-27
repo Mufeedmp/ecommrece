@@ -127,6 +127,42 @@
   color: red;
 }
 
+.pagination-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px 0;
+      gap: 8px;
+    }
+    
+    .pagination-container a,
+    .pagination-container span {
+      padding: 8px 16px;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      color: #007bff;
+      transition: all 0.3s ease;
+    }
+    
+    .pagination-container a:hover {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    
+    .pagination-container .current-page {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    
+    .pagination-container .disabled {
+      color: #6c757d;
+      pointer-events: none;
+      background-color: #f8f9fa;
+      border-color: #ddd;
+    }
       </style>
    
 </head>
@@ -177,7 +213,19 @@
         </tbody>
       </table>
     </div>
-    
+    <div class="pagination-container" style="text-align: center;">
+      <% if (currentPage > 1) { %>
+      <a href="?page=<%= currentPage - 1 %>">&laquo; Previous</a>
+      <% } %> <% for (let i = 1; i <= totalPages; i++) { %> <% if (i ===
+      currentPage) { %>
+      <span class="current-page"><%= i %></span>
+      <% } else { %>
+      <a href="?page=<%= i %>"><%= i %></a>
+      <% } %> <% } %> <% if (currentPage < totalPages) { %>
+      <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
+      <% } %>
+    </div>
+  
     
     
   </div>

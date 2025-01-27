@@ -231,14 +231,7 @@
                         Apply
                     </button>
                 </form>
-                <!-- <h6 class="coupon__code"><span class="icon_tag_alt"></span>
-                  Have a coupon?
-                  <form id="applyCouponForm">
-                    <input type="text" name="code" id="coupon-code" placeholder="Coupon code">
-                    <input type="hidden" id="cart-total" value="<%= cart.cartTotal %>">
-                    <button type="button" onclick="applyCoupon()">Apply</button>
-                  </form>
-                </h6> -->
+                
               </div>
                 <div class="available-coupons" style="margin-top: 15px;">
                   <h6>Available Coupons</h6>
@@ -365,17 +358,52 @@
   
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
     if (!selectedPaymentMethod) {
-      alert("Please select a payment method!");
+      Swal.fire({
+      icon: "warning",
+      title: "No Payment Method Selected",
+      text: "Please select a payment method!",
+    });
       return;
     }
 
     const form = document.querySelector("form"); 
 
     if (selectedPaymentMethod.value === "COD") {
-   
-      form.action = "/checkout"; 
-      form.method = "POST";
-      form.submit();
+      const formData = new FormData(form);
+  const formObject = {};
+  formData.forEach((value, key) => (formObject[key] = value));
+
+  try {
+    const response = await fetch("/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formObject),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: result.message,
+      }).then(() => {
+        window.location.href = "/orderSuccess";
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: result.message,
+      });
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Something went wrong. Please try again.",
+    });
+  }
       
     } else if (selectedPaymentMethod.value === "online") {
 
@@ -397,10 +425,9 @@
 
 
     const orderData = await orderResponse.json();
-    console.log(orderData.id)
-    console.log(orderData.razorPayOrder)
+
     const options = {
-      key: "rzp_test_NwltbJ8WRRxJmi", 
+      key: 'rzp_test_NwltbJ8WRRxJmi',
       amount: orderData.amount, 
       currency: orderData.currency,
       name: "GENTS CLUB", 
@@ -494,43 +521,6 @@
  }
 }
 
-// async function applyCoupon() {
-//   const couponCode = document.getElementById('coupon-code').value.trim();
-//   const cartTotal = parseFloat(document.getElementById('cart-total').value);
-
-  
-//   if (!couponCode) {
-//     Swal.fire('Error', 'Please enter a coupon code.', 'error');
-//     return;
-//   }
-  
-//   try {
-//     const response = await fetch('/applyCoupon', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ code: couponCode, cartTotal }),
-//     });
-
-//     const result = await response.json();
-
-//     if (response.ok) {
-//       Swal.fire('Success', result.message, 'success');
-//       document.getElementById('total-discount').textContent = `₹${result.discount}`;
-//       document.getElementById('cart-total-display').textContent = `₹${result.newTotal}`;
-
-//       document.getElementById('discount-amount').value = result.discount;
-
-//     } else {
-//       Swal.fire('Error', result.message, 'error');
-//     }
-//   } catch (error) {
-//     Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
-//     console.log('error',error);
-    
-//   }
-// }
 
 let isCouponApplied = false;
         
@@ -538,10 +528,10 @@ let isCouponApplied = false;
             const couponButton = document.getElementById('couponButton');
             
             if (!isCouponApplied) {
-                // Apply coupon
+               
                 await applyCoupon();
             } else {
-                // Remove coupon
+         
                 resetCoupon();
             }
         }
@@ -575,7 +565,6 @@ let isCouponApplied = false;
                     document.getElementById('discount-amount').value = result.discount;
                     
 
-                    // Update UI for applied coupon
                     isCouponApplied = true;
                     couponInput.disabled = true;
                     couponButton.textContent = 'Remove';
@@ -594,7 +583,7 @@ let isCouponApplied = false;
             const couponInput = document.getElementById('coupon-code');
             const couponButton = document.getElementById('couponButton');
             const cartTotal = parseFloat(document.getElementById('cart-total').value);
-            // Reset all values
+   
             isCouponApplied = false;
             couponInput.disabled = false;
             couponInput.value = '';
@@ -602,7 +591,6 @@ let isCouponApplied = false;
             couponButton.classList.remove('btn-danger');
             couponButton.classList.add('btn-primary');
             
-            // Reset discount and total displays
             document.getElementById('total-discount').textContent = '';
             document.getElementById('cart-total-display').textContent = `₹${cartTotal}`;
             document.getElementById('discount-amount').value = '0';

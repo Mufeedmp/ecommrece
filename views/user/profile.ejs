@@ -215,6 +215,9 @@
                      <p class="card-text">
                        <strong>Email:<%=user.email%></strong>
                      </p>
+                     <p class="card-text">
+                      <strong>Referral Code:<%=user.referralCode%></strong>
+                    </p>
                      <% if (user.authMethod !== 'google') { %>
                      <a href="/change-password" class="btn btn-sm btn-dark">Change Password</a>
                      <% } %>

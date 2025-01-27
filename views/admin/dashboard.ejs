@@ -2,9 +2,274 @@
 <section class="content-main">
     <div class="content-header">
         <div>
-            <h2 class="content-title card-title">Dashboard </h2>
+            <h2 class="content-title card-title">Dashboard</h2>
+            <p>Whole data about your business here</p>
         </div>
-       
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-primary-light">
+                        <i class="text-primary material-icons md-monetization_on"></i>
+                    </span>
+                    <div class="text">
+                        <h6 class="mb-1 card-title">Total Revenue</h6>
+                        <span id="totalRevenue">₹<%=totalRevenue%></span>
+                        <span class="text-sm">Shipping fees not included</span>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-success-light">
+                        <i class="text-success material-icons md-local_shipping"></i>
+                    </span>
+                    <div class="text">
+                        <h6 class="mb-1 card-title">Total Orders</h6>
+                        <span id="totalOrders"><%=totalOrders%></span>
+                        <span class="text-sm">Excluding orders in transit</span>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-warning-light">
+                        <i class="text-warning material-icons md-qr_code"></i>
+                    </span>
+                    <div class="text">
+                        <h6 class="mb-1 card-title">Total Products</h6>
+                        <span id="totalProducts"><%=totalProducts%></span>
+                        <span class="text-sm">In categories</span>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-info-light">
+                        <i class="text-info material-icons md-shopping_basket"></i>
+                    </span>
+                    <div class="text">
+                        <h6 class="mb-1 card-title">Total Users</h6>
+                        <span id="totalUsers">₹<%=totalUsers%></span>
+                        <span class="text-sm">Based on local time</span>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="chart-container p-4 bg-white rounded-lg shadow">
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <h5 class="card-title mb-0">Sales Analytics</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="btn-group filter-period mr-3" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-period="monthly">Monthly</button>
+                            <button type="button" class="btn btn-outline-primary" data-period="yearly">Yearly</button>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div style="height: 300px; position: relative;">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid p-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">Top 10 Products</div>
+                    <div class="card-body">
+                        <table class="table table-striped" id="topProductsTable">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Product</th>
+                                    <th>Sales</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% topProducts.forEach((product, index) => { %>
+                                    <tr>
+                                        <td><%= index + 1 %></td> 
+                                        <td><%= product.productName %></td>
+                                        <td><%= product.totalQuantitySold %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">Top 10 Categories</div>
+                    <div class="card-body">
+                        <table class="table table-striped" id="topCategoriesTable">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Category</th>
+                                    <th>Sales</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% topProducts.forEach((product, index) => { %>
+                                    <tr>
+                                        <td><%= index + 1 %></td> 
+                                        <td><%= product.categoryName %></td>
+                                        <td><%= product.totalQuantitySold %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
-<%- include("../../views/partials/admin/footer") %>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/path/to/dashboard.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        
+        let chart = null;
+    
+        function setupChart(data, labels = months, chartLabel = 'Monthly Sales') {
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: chartLabel,
+                        data: data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+    
+            if (chart) {
+                chart.destroy();
+            }
+            
+            chart = new Chart(ctx, chartConfig);
+            return chart;
+        }
+    
+        async function updateChartData(period) {
+            try {
+             
+                if (chart) {
+                    chart.data.datasets[0].data = [];
+                    chart.update('none');
+                }
+    
+                const response = await fetch(`/admin/dashboard-sales?type=${period}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+    
+                const data = await response.json();
+                
+                if (period === 'yearly') {
+                    setupChart(
+                        data.map(item => item.totalSales),
+                        data.map(item => `Year ${item._id}`),
+                        'Yearly Sales'
+                    );
+                } else {
+                    setupChart(data.map(item => item.totalSales));
+                }
+    
+            } catch (error) {
+                console.error('Error updating chart:', error);
+                alert('Failed to load sales data. Please try again.');
+            }
+        }
+    
+        try {
+            const response = await fetch('/admin/dashboard-sales?type=monthly', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const initialData = await response.json();
+            setupChart(initialData.map(item => item.totalSales));
+    
+        } catch (error) {
+            console.error('Error loading initial chart data:', error);
+            alert('Failed to load initial sales data. Please refresh the page.');
+        }
+    
+
+        const periodButtons = document.querySelectorAll('.filter-period button');
+        periodButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                periodButtons.forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+                
+                const period = button.dataset.period;
+                updateChartData(period);
+            });
+        });
+    });
+    </script>

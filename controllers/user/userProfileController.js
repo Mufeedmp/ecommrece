@@ -59,27 +59,53 @@ const loadProfile=async (req,res) => {
         res.status(500).send('Internal server error');
     }
    }
-   const loadWallet=async (req,res) => {
+
+   const loadWallet = async (req, res, next) => {
     try {
         const userId = req.session.user;
-        const userData = await User.findById(userId);
         if (!userId) {
             return res.redirect('/login');
         }
 
-        const wallet = await Wallet.findOne({ userId });
+        const userData = await User.findById(userId);
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
+
+        let wallet = await Wallet.findOne({ userId });
 
         if (!wallet) {
             return res.render('wallet', {
-              user: userData,
-              wallet: { balance: 0, transactions: [] },
+                user: userData,
+                wallet: { balance: 0, transactions: [] },
+                totalPages: 1,
+                currentPage: 1
             });
-          }
-          res.render('wallet', { user: userData, wallet });
+        }
+
+        const count = wallet.transactions.length;
+        const totalPages = Math.ceil(count / limit);
+
+        const paginatedTransactions = wallet.transactions
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(skip, skip + limit);
+
+        const paginatedWallet = {
+            ...wallet.toObject(),
+            transactions: paginatedTransactions
+        };
+
+        res.render('wallet', {
+            user: userData,
+            wallet: paginatedWallet,
+            totalPages: totalPages,
+            currentPage: page
+        });
+
     } catch (error) {
-        
+        next(error);
     }
-}
+};
 
    module.exports = {
     loadProfile,

@@ -1,4 +1,5 @@
 const mongoose=require('mongoose')
+
 const {Schema}=mongoose
 
 
@@ -43,15 +44,30 @@ const userSchema=new Schema({
         type:Date,
         default:Date.now
     },
-    referalCode:{
-        type:String
+    referralCode: {
+        type: String,
+        unique: true
     },
-    redeemed:{
-        type:Boolean
+    referredBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     },
-   
+    referralCount: {
+        type: Number,
+        default: 0
+    },
+  
 
 })
+
+userSchema.pre('save', async function (next) {
+    if (!this.referralCode) {
+        const namePrefix = this.name ? this.name.substring(0, 4).toUpperCase() : "USER";
+        const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+        this.referralCode = namePrefix + randomPart;
+    }
+    next();
+});
 
 
 

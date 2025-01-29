@@ -67,8 +67,11 @@
   <div class="wishlist-container">
       <% if (wishlist && wishlist.products.length > 0) { %>
           <% wishlist.products.forEach((item) => { %>
+          
               <div class="wishlist-item d-flex align-items-center" id="wishlist-item-<%= item.productId._id %>">
-                  <img src="/uploads/product-images/<%=item.productId.productImage[0]%>" alt="Product Image">
+                <a href="/productDetails/<%= item.productId._id %>">
+                <img src="/uploads/product-images/<%=item.productId.productImage[0]%>" alt="Product Image">
+                </a>
                   <div class="wishlist-details">
                       <h5 class="mb-2"><%= item.productId.productName %></h5>
                       <p class="text-muted mb-1"><%= item.productId.description %></p>
@@ -83,6 +86,7 @@
                       <button class="btn btn-outline-danger btn-sm" onclick="removeProductFromWishlist('<%= item.productId._id %>')">Remove</button>
                   </div>
               </div>
+           
           <% }); %>
       <% } else { %>
           <p>Your wishlist is empty.</p>

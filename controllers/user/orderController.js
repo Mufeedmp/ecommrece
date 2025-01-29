@@ -10,11 +10,6 @@ const Coupon=require('../../models/couponSchema')
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const PDFDocument = require('pdfkit');
-const fs = require('fs');
-const path = require('path');
-const { validateWebhookSignature } = require('razorpay/dist/utils/razorpay-utils');
-
-
 
 
 const loadCart = async (req, res) => {
@@ -41,7 +36,7 @@ const loadCart = async (req, res) => {
               return {
                   productId: item.productId._id,
                   productName: item.productName,
-                  productImage: item.productImage[0] || 'default-image.jpg',
+                  productImage: item.productImage[0] ,
                   salePrice: item.salePrice,
                   regularPrice:item.regularPrice,
                   quantity: item.quantity,
@@ -301,19 +296,33 @@ const removeItem = async (req, res) => {
 const loadCheckout = async (req, res) => {
   try {
     const userId = req.session.user;
-    if (userId) {
-      const userData = await User.findById(userId);
-      const addressDocument = await Address.findOne({ userId });
-      const cart=await Cart.findOne({ userId })
+
+    if(!userId){
+      return res.redirect('/login')
+    }
+
+    const userData = await User.findById(userId);
+
+    const cart=await Cart.findOne({ userId })
+
+    if(!cart || cart.items.length===0){
+      return res.redirect('/shop')
+    }
+
+     
+      const addressDocument = await Address.findOne({ userId }); 
       const coupons=await Coupon.find()
       const savedAddresses = addressDocument ? addressDocument.address : [];
       const cartItems=cart.items
       
-      res.render('checkout', { user: userData, savedAddresses: savedAddresses, cart, cartItems,coupons });
-
-    } else {
-      res.redirect('/'); 
-    }
+      res.render('checkout', {
+         user: userData,
+        savedAddresses: savedAddresses,
+         cart,
+          cartItems,
+        coupons });
+      
+  
   } catch (error) {
     console.error("Error loading checkout:", error);
     res.status(500).send("Internal Server Error");
@@ -412,8 +421,8 @@ const loadCheckout = async (req, res) => {
         paymentMethod: req.body.paymentMethod,
         discount:discount,
         totalQuantity:totalQuantity,
-        status:'Confirmed'
-   
+        status:'Confirmed',
+        
       });
   
       await order.save();
@@ -423,8 +432,11 @@ const loadCheckout = async (req, res) => {
         { userId },
         { $set: { items: [], cartSubtotal: 0, cartTotal: 0 } }
       );
-  
-     
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Order placed successfully!',
+      });
   
       
     } catch (error) {
@@ -537,10 +549,6 @@ const loadCheckout = async (req, res) => {
       const hmac = crypto.createHmac("sha256", razorpay.key_secret);
       hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
       const generatedSignature = hmac.digest("hex");
-
-      console.log('generatedSignature',generatedSignature);
-      console.log('razorpay_signature',razorpay_signature);
-      
   
       if (generatedSignature === razorpay_signature) {
         const updatedOrder = await Order.findOneAndUpdate(
@@ -1148,6 +1156,8 @@ const returnOrder = async (req, res) => {
     }
   };
 
+
+
 module.exports={
     loadCart,
     addToCart,
@@ -1167,5 +1177,6 @@ module.exports={
     cancelItem,
     downloadInvoice,
     retryPayment,
-    retryVerifyPayment
+    retryVerifyPayment,
+
 }    

@@ -395,44 +395,56 @@
 </html>
 <script>
 
+function buildShopUrl({ query = '', sort = '', category = '' }) {
+  const params = new URLSearchParams();
+  if (query) params.set('query', query);
+  if (sort) params.set('sort', sort);
+  if (category) params.set('category', category);
+  return `/shop?${params.toString()}`;
+}
 
-  const searchForm = document.getElementById('searchForm');
-const searchInput = document.getElementById('searchInput');
-
-searchForm.addEventListener('submit', function (event) {
-  const query = searchInput.value.trim(); 
-  
+document.getElementById('searchForm').addEventListener('submit', function (event) {
+  event.preventDefault();
+  const query = document.getElementById('searchInput').value.trim();
 
   if (query.length > 50) {
-    event.preventDefault();
     alert('Search term is too long. Please enter fewer than 50 characters.');
     return;
   }
-  
 
-  window.location.href = `/shop?query=${query}`;
+  const urlParams = new URLSearchParams(window.location.search);
+  const sort = urlParams.get('sort') || '';
+  const category = urlParams.get('category') || '';
+
+  const newUrl = buildShopUrl({ query, sort, category });
+  window.location.href = newUrl;
 });
 
-const filterForm = document.getElementById('price-filter-form');
-const filterDropdown = document.getElementById('price-filter');
 
-filterForm.addEventListener('submit', (event) => {
-  event.preventDefault(); 
-  const sort = filterDropdown.value;
+document.getElementById('price-filter-form').addEventListener('submit', function (event) {
+  event.preventDefault();
+  const sort = document.getElementById('price-filter').value;
 
-  window.location.href = `/shop?sort=${sort}`;
+  const urlParams = new URLSearchParams(window.location.search);
+  const query = urlParams.get('query') || '';
+  const category = urlParams.get('category') || '';
+
+  const newUrl = buildShopUrl({ query, sort, category });
+  window.location.href = newUrl;
 });
 
-const categoryForm = document.getElementById('category-filter-form');
-const categoryDropdown = document.getElementById('category-filter');
+// Category Filter
+document.getElementById('category-filter-form').addEventListener('submit', function (event) {
+  event.preventDefault();
+  const category = document.getElementById('category-filter').value;
 
-categoryForm.addEventListener('submit', (event) => {
-  event.preventDefault(); 
-  const category = categoryDropdown.value;
+  const urlParams = new URLSearchParams(window.location.search);
+  const query = urlParams.get('query') || '';
+  const sort = urlParams.get('sort') || '';
 
-  window.location.href = `/shop?category=${category}`;
+  const newUrl = buildShopUrl({ query, sort, category });
+  window.location.href = newUrl;
 });
-
 
 
 

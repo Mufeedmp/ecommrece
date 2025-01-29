@@ -9,9 +9,8 @@ const Wishlist=require('../../models/wishlistSchema')
 
 const loadShopPage=async (req,res,next) => {
     try {
-        if(req.session.passport){
-            req.session.user=req.session.passport.user
-        }
+        const userId=req.session.user
+
         const query = req.query.query?.trim() || '';
         const sortOption =req.query.sort || '';
         const selectedCategory = req.query.category || '';
@@ -58,8 +57,8 @@ const loadShopPage=async (req,res,next) => {
         
 
  
-        if(req.session.user){
-           const userData=await User.findOne({_id:req.session.user}) 
+        if(userId){
+            const userData=await User.findById(userId) 
            
           return res.render('shop',{user:userData,Products:productData,categories,});
         }else{

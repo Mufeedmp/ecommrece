@@ -130,7 +130,7 @@ const orderSchema=new Schema({
       }, 
     paymentStatus: { 
         type: String, 
-        enum: ["Paid", "Payment Pending", "Failed", "Refunded","Successful"], 
+        enum: ["Pending","Paid", "Payment Pending", "Failed", "Refunded","Successful"], 
         default: "Pending" 
       },
     createdAt: {
@@ -150,6 +150,10 @@ const orderSchema=new Schema({
         required:true
     },
     paymentOrderId:{
+        type:String,
+        required:false
+    },
+    review:{
         type:String,
         required:false
     }

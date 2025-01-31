@@ -976,9 +976,9 @@ const returnOrder = async (req, res) => {
 
       doc.fontSize(24)
          .fillColor('#333')
-         .text('GENTS CLUB', 200, 50, { align: 'right' })
-         .fontSize(10)
-         .text('Tax Invoice', { align: 'right' });
+         .text('GENTS CLUB', 200, 50, { align: 'centre' })
+        
+         
 
       doc.strokeColor('#ddd')
          .lineWidth(1)
@@ -995,9 +995,16 @@ const returnOrder = async (req, res) => {
       doc.text('BILL TO:', 400, 150)
          .fillColor('#333')
          .text(`${order.userId?.name || 'N/A'}`, 400, 170)
-         .text(`${order.userId?.email || 'N/A'}`, 400, 190);
-  
-      const tableTop = 250;
+         .text(`${order.userId?.email || 'N/A'}`, 400, 190)
+         .text(`${order.address?.city || 'N/A'}`, 400, 210)
+         .text(`${order.address?.landmark || 'N/A'}`, 400, 230)
+         .text(`${order.address?.state || 'N/A'}`, 400, 250)
+         .text(`${order.address?.pincode || 'N/A'}`, 400, 270)
+         .text(`${order.address?.phone || 'N/A'}`, 400, 290)
+         .text(`${order.address?.altphone || 'N/A'}`, 400, 310)
+       
+     
+      const tableTop = 350;
       doc.fontSize(10)
          .fillColor('#666')
          .text('Product', 50, tableTop, { width: 250 })

@@ -96,13 +96,14 @@ const verifyotp = async (req, res) => {
 
         if (otp === req.session.userOtp) {
             const user = req.session.userData;
-
-            const refferer=await User.findOne({referralCode:user.referralCode})
+         let refferer=null
+   if(user.referralCode){
+           refferer=await User.findOne({referralCode:user.referralCode})
 
             if(!refferer){
-                res.status(400).json({success:false,message:'invalid refferal code'})
+               return res.status(400).json({success:false,message:'invalid refferal code'})
             }
-
+        }
             const passwordHash = await securePassword(user.password);
 
             const newUser = new User({
@@ -110,7 +111,7 @@ const verifyotp = async (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 password: passwordHash,
-                referredBy:refferer
+                referredBy:refferer?refferer:null
             });
             console.log('Generated OTP:', otp);
             console.log('Stored in session:', req.session.userOtp);
@@ -119,7 +120,7 @@ const verifyotp = async (req, res) => {
             req.session.user = newUser._id;
 
             const userId=req.session.user
-            
+            if(refferer){
             let wallet = await Wallet.findOne({ userId });
             let myBonus=50
         
@@ -133,7 +134,7 @@ const verifyotp = async (req, res) => {
           });
 
           await wallet.save();
-
+        }
           if(refferer){
             let reffererWallet = await Wallet.findOne({ userId:refferer });
             let reffererBonus=100
@@ -151,18 +152,12 @@ const verifyotp = async (req, res) => {
             await reffererWallet.save();
           }
     
-         
-           
-            
-
             delete req.session.userOtp;
             delete req.session.userData;
 
-
-
             res.json({ success: true, redirectUrl: '/' });
         } else {
-            res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
+          return  res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
         }
     } catch (error) {
         console.error('Error verifying OTP:', error);

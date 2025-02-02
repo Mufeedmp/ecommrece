@@ -10,7 +10,7 @@ const db = require('./config/db')
 const errorMiddleware = require('./middlewares/errorMiddleware');
 
 dotenv.config()
-
+ 
 const app = express()
 
 db()

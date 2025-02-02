@@ -1110,7 +1110,7 @@ const returnOrder = async (req, res) => {
       order.paymentStatus = 'Payment Pending';
       await order.save();
 
-      res.json({
+      res.json({ 
         success: true,
         amount: order.totalAmount,
         currency: 'INR',

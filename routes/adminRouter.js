@@ -12,7 +12,7 @@ const {uploadCategoryImage,uploadProductImage}=require('../utils/multer')
 const path = require('path')
 const fs = require('fs')
 
-router.get('/pageerror', adminController.pageerror)
+router.get('/pageerror', adminController.pageerror) 
 
 router.get('/dashboard', dashboardController.getDashboardData)
 router.get('/dashboard-sales', dashboardController.getSalesByFilter);

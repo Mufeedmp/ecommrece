@@ -1,111 +1,251 @@
+<!-- CSS with added styling for user actions -->
+<style>
+  .header {
+    position: relative;
+    z-index: 500;
+  }
+  
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    right: 0;
+  }
+  
+  .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+  }
+  
+  .dropdown-content a:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  
+  /* Mobile Menu Styles */
+  .canvas__open {
+    display: none;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  .mobile-menu-active {
+    display: block !important;
+  }
+
+  /* Mobile actions styles */
+  .header__menu .mobile-actions,
+  .header__menu .mobile-user-actions {
+    display: none;
+  }
+  
+  @media (max-width: 767px) {
+    .canvas__open {
+      display: block;
+    }
+  
+    .header__menu {
+      display: none;
+      position: absolute;
+      left: 0;
+      top: 100%;
+      width: 100%;
+      background: white;
+      padding: 20px;
+      z-index: 9;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+  
+    .header__menu ul {
+      flex-direction: column;
+      padding: 0;
+    }
+  
+    .header__menu ul li {
+      display: block;
+      margin: 0;
+      padding: 8px 0;
+    }
+  
+    .header__menu ul li ul.dropdown {
+      position: static;
+      display: none;
+      width: 100%;
+      background: #f9f9f9;
+      padding: 10px 0;
+      margin-top: 5px;
+    }
+  
+    .header__menu ul li:hover ul.dropdown {
+      display: block;
+      
+    }
+  
+    .header__menu ul li a {
+      display: block;
+      padding: 8px 0;
+    }
+  
+    .mobile-menu-active {
+      display: block;
+    }
+
+    /* Show mobile actions in menu */
+    .header__menu .mobile-actions,
+    .header__menu .mobile-user-actions {
+      display: block;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+
+    .header__menu .mobile-actions a,
+    .header__menu .mobile-user-actions a {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      color: #333;
+      text-decoration: none;
+    }
+
+    .header__menu .mobile-actions img {
+      margin-right: 10px;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Hide desktop elements when in mobile */
+    .header__nav__option {
+      display: none;
+    }
+  }
+
+.header__menu .dropdown li a {
+  background-color: black; 
+  
+}
 
 
-  <body>
-    <style>
-      .dropdown {
-        position: relative;
-        display: inline-block;
-      }
-      .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: white;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        right: 0;
-      }
-      .dropdown-content a {
-        color: black;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        width: 100%;
-      }
-      .dropdown-content a:hover {
-        background-color: #f1f1f1;
-      }
-      .dropdown:hover .dropdown-content {
-        display: block;
-      }
-      .header {
-        position: relative;
-        z-index: 500;
-      }
-     </style>
-    <!-- Page Preloder -->
-    <div id="preloder">
-      <div class="loader"></div>
-    </div>
+.header__menu .dropdown li a:hover {
+  background-color: rgb(144, 140, 140); 
+  
+}
+</style>
 
-    <!-- Header Section Begin -->
-    <header class="header">
-      <div class="header__top">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-6 col-md-7">
-              <div class="header__top__left">
-                <p>Free shipping, 10-day return or refund guarantee.</p>
-              </div>
-            </div>
-            <div class="col-lg-6 col-md-5">
-              <div class="header__top__right">
-                <div class="header__top__links"></div>
-              </div>
-            </div>
-          </div>
+<!-- Header HTML Structure -->
+<header class="header">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3 col-md-3">
+        <div class="header__logo">
+          <a href="/"><img src="/img/logo.png" alt="" /></a>
         </div>
       </div>
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-3 col-md-3">
-            <div class="header__logo">
-              <a href="./index.html"><img src="/img/logo.png" alt="" /></a>
-            </div>
-          </div>
-          <div class="col-lg-6 col-md-6">
-            <nav class="header__menu mobile-menu">
-              <ul>
-                <li class=""><a href="/">Home</a></li>
-                <li class=""><a href="/shop">Shop</a></li>
-                <li>
-                  <a href="#">Pages</a>
-                  <ul class="dropdown">
-                    <li><a href="/orders">Orders</a></li>
-                    <li><a href="/wallet">Wallet</a></li>
-          
-                  </ul>
-                </li>
-
-                <li><a href="./contact.html">Contacts</a></li>
+      <div class="col-lg-6 col-md-6">
+        <nav class="header__menu mobile-menu">
+          <ul>
+            <li class=""><a href="/">Home</a></li>
+            <li class=""><a href="/shop">Shop</a></li>
+            <li>
+              <a href="#">Pages</a>
+              <ul class="dropdown">
+                <li><a href="/orders">Orders</a></li>
+                <li><a href="/wallet">Wallet</a></li>
               </ul>
-            </nav>
+            </li>
+          </ul>
+          <!-- User actions section for mobile -->
+          <div class="mobile-user-actions">
+            <%if(locals.user){%>
+              <a href="/profile"><i class="fa fa-user mr-2"></i> Profile</a>
+              <a href="/logout"><i class="fa fa-sign-out mr-2"></i> Logout</a>
+            <%}else{%>
+              <a href="/login"><i class="fa fa-sign-in mr-2"></i> Log in</a>
+              <a href="/signup"><i class="fa fa-user-plus mr-2"></i> Sign up</a>
+            <%}%>
           </div>
-          <div class="col-lg-3 col-md-6">
-            <div class="header__nav__option">
-              <%if(locals.user){%>
-              <div class="dropdown">
-                <a href="#" class="sign-in-link"><%=locals.user.name%></a>
-                <div class="dropdown-content">
-                  <a href="/profile">Profile</a>
-                  <a href="/logout">Logout</a>
-                </div>
-              </div>
-              <%}else{%>
-              <a href="/login" class="sign-in-link">Log in</a>
-              <a href="/signup" class="sign-in-link">Sign up</a>
-              <%}%>
-              <a href="#" class="search-switch"
-                ><img src="img/icon/search.png" alt=""
-              /></a>
-              <a href="/wishlist"><img src="img/icon/heart.png" alt="" /></a>
-              <a href="/cart"><img src="img/icon/cart.png" alt="" /> </a>
+          <!-- Cart and wishlist section for mobile -->
+          <div class="mobile-actions">
+            <a href="/cart"><img src="/img/icon/cart.png" alt="" /> Cart</a>
+            <a href="/wishlist"><img src="/img/icon/heart.png" alt="" /> Wishlist</a>
+          </div>
+        </nav>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="header__nav__option">
+          <%if(locals.user){%>
+          <div class="dropdown">
+            <a href="#" class="sign-in-link"><%=locals.user.name%></a>
+            <div class="dropdown-content">
+              <a href="/profile">Profile</a>
+              <a href="/logout">Logout</a>
             </div>
           </div>
+          <%}else{%>
+          <a href="/login" class="sign-in-link">Log in</a>
+          <a href="/signup" class="sign-in-link">Sign up</a>
+          <%}%>
+          <a href="/wishlist"><img src="/img/icon/heart.png" alt="" /></a>
+          <a href="/cart"><img src="/img/icon/cart.png" alt="" /></a>
         </div>
-        <div class="canvas__open"><i class="fa fa-bars"></i></div>
       </div>
-    </header>
-    <!-- Header Section End -->
-  </body>
+    </div>
+    <div class="canvas__open"><i class="fa fa-bars"></i></div>
+  </div>
+</header>
 
+<!-- JavaScript code -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const canvasOpen = document.querySelector('.canvas__open');
+  const mobileMenu = document.querySelector('.mobile-menu');
+  
+  // Toggle mobile menu
+  canvasOpen.addEventListener('click', function() {
+    mobileMenu.classList.toggle('mobile-menu-active');
+    this.classList.toggle('active');
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!mobileMenu.contains(event.target) && !canvasOpen.contains(event.target)) {
+      mobileMenu.classList.remove('mobile-menu-active');
+      canvasOpen.classList.remove('active');
+    }
+  });
+
+  // Handle mobile dropdown menus
+  const dropdownLinks = document.querySelectorAll('.mobile-menu li a');
+  dropdownLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      const parent = this.parentElement;
+      if (parent.querySelector('.dropdown')) {
+        if (window.innerWidth <= 767) {
+          e.preventDefault();
+          const dropdown = parent.querySelector('.dropdown');
+          dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+      }
+    });
+  });
+});
+</script>

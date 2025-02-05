@@ -374,7 +374,6 @@
   }
 }
 
-/* Additional Optimizations */
 .product-card {
   transition: transform 0.2s ease-in-out;
 }
@@ -384,7 +383,6 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Improve touch targets for mobile */
 @media (hover: none) {
   .search-button,
   .filter-button,
@@ -544,7 +542,6 @@ document.getElementById('price-filter-form').addEventListener('submit', function
   window.location.href = newUrl;
 });
 
-// Category Filter
 document.getElementById('category-filter-form').addEventListener('submit', function (event) {
   event.preventDefault();
   const category = document.getElementById('category-filter').value;

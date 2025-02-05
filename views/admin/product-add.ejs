@@ -203,96 +203,121 @@
 
 <script>
 
-
 function validateForm() {
     clearErrorMessages();
-    
-    const name = document.getElementById('product_name')?.value || '';
-    const description = document.getElementById('descriptionid')?.value || '';
-    const price = document.getElementById('regularPrice')?.value || '';
-    const saleprice = document.getElementById('salePrice')?.value || '';
-    const color = document.getElementById('color')?.value || '';
-    const category = document.getElementById('category');
-    const M = document.getElementById('sizeM')?.value || '';
-    const L = document.getElementById('sizeL')?.value || '';
-    const XL = document.getElementById('sizeXL')?.value || '';
-    const imageDatas = document.getElementsByName("images");
-
     let isValid = true;
 
-    if (name.trim() === "") {
-        displayErrorMessage('productName-error', 'Please enter a product name.');
+    const name = document.getElementById('product_name').value;
+    const description = document.getElementById('descriptionid').value;
+    const regularPrice = document.getElementById('regularPrice').value;
+    const salePrice = document.getElementById('salePrice').value;
+    const color = document.getElementById('color').value;
+    const category = document.getElementById('category').value;
+    const sizeM = document.getElementById('sizeM').value;
+    const sizeL = document.getElementById('sizeL').value;
+    const sizeXL = document.getElementById('sizeXL').value;
+
+    if (!name || name.trim() === '') {
+        displayErrorMessage('productName-error', 'Please enter a product name');
         isValid = false;
     }
 
-    if (description.trim() === "") {
-        displayErrorMessage('description-error', 'Please enter a product description.');
+    if (!description || description.trim() === '') {
+        displayErrorMessage('description-error', 'Please enter a product description');
         isValid = false;
     }
 
-    if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-        displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative regular price.');
+    if (!regularPrice || regularPrice.trim() === '') {
+        displayErrorMessage('regularPrice-error', 'Please enter a regular price');
         isValid = false;
-    }
-    if(saleprice>price){
-        displayErrorMessage('salePrice-error', 'Sale Price not grater than regular price.');
-        isValid = false;
-    }
-
-    if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-        displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');
+    } else if (!/^\d+(\.\d{1,2})?$/.test(regularPrice)) {
+        displayErrorMessage('regularPrice-error', 'Please enter a valid price');
         isValid = false;
     }
 
-    if (color.trim() === "") {
-        displayErrorMessage('color-error', 'Please enter a color.');
+    if (!salePrice || salePrice.trim() === '') {
+        displayErrorMessage('salePrice-error', 'Please enter a sale price');
+        isValid = false;
+    } else if (!/^\d+(\.\d{1,2})?$/.test(salePrice)) {
+        displayErrorMessage('salePrice-error', 'Please enter a valid price');
+        isValid = false;
+    } else if (parseFloat(salePrice) >= parseFloat(regularPrice)) {
+        displayErrorMessage('salePrice-error', 'Sale price must be less than regular price');
         isValid = false;
     }
 
-    if (category.trim() === "") {
-        displayErrorMessage('category-error', 'Please select a category.');
+    if (!color || color.trim() === '') {
+        displayErrorMessage('color-error', 'Please enter a color');
         isValid = false;
     }
 
-    if (M.trim() === "") {
-        displayErrorMessage('M-error', 'Please enter quantity of M size.');
+    if (!category || category.trim() === '') {
+        displayErrorMessage('category-error', 'Please select a category');
         isValid = false;
     }
 
-    if (L.trim() === "") {
-        displayErrorMessage('L-error', 'Please enter quantity of L size.');
+    const mQuantity = parseInt(sizeM) || 0;
+    const lQuantity = parseInt(sizeL) || 0;
+    const xlQuantity = parseInt(sizeXL) || 0;
+    
+    if (mQuantity + lQuantity + xlQuantity === 0) {
+        displayErrorMessage('M-error', 'At least one size must have a positive quantity');
         isValid = false;
     }
 
-    if (XL.trim() === "") {
-        displayErrorMessage('XL-error', 'Please enter quantity of XL size.');
+    const imageInputs = [
+        document.getElementById('input1'),
+        document.getElementById('input2'),
+        document.getElementById('input3'),
+        document.getElementById('input4')
+    ];
+    
+    let hasImage = false;
+    for (const input of imageInputs) {
+        if (input.files && input.files.length > 0) {
+            hasImage = true;
+            break;
+        }
+    }
+    
+    if (!hasImage) {
+        displayErrorMessage('images-error', 'Please select at least one image');
         isValid = false;
     }
-
-    if (!imageDatas) {
-        displayErrorMessage('images-error', 'Please select an image.');
-        isValid = false;
-    }
-
     return isValid;
 }
 
-          
-           function displayErrorMessage(elementId, message) {
-               var errorElement = document.getElementById(elementId);
-               errorElement.innerText = message;
-               errorElement.style.display = "block";
-           }
-    
-           function clearErrorMessages() {
-               const errorElements = document.getElementsByClassName('error-message');
-               Array.from(errorElements).forEach(element => {
-                   element.innerText = '';
-               });
-              
-    
-           }
-    
+function displayErrorMessage(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function clearErrorMessages() {
+    const errorElements = document.getElementsByClassName('error-message');
+    Array.from(errorElements).forEach(element => {
+        element.textContent = '';
+        element.style.display = 'none';
+    });
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const errorId = this.id + '-error';
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.textContent = '';
+                errorElement.style.display = 'none';
+            }
+        });
+    });
+});
     
     function viewImage1(event) {
                document.getElementById('imgView1').src = URL.createObjectURL(event.target.files[0])

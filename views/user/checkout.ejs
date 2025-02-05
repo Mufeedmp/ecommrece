@@ -327,7 +327,6 @@
   const userEmail = '<%= user.email %>';
   const userContact = '<%= user.phone %>';
 
-
   document.addEventListener('DOMContentLoaded', () => {
   
     const useSavedAddressCheckbox = document.getElementById('use-saved-address');
@@ -372,6 +371,11 @@
       const formData = new FormData(form);
   const formObject = {};
   formData.forEach((value, key) => (formObject[key] = value));
+
+  const couponCode = document.getElementById("coupon-code").value.trim();
+  if (couponCode) {
+    formObject["couponCode"] = couponCode; 
+  }
 
   try {
     const response = await fetch("/checkout", {

@@ -20,7 +20,7 @@ const loadCart = async (req, res) => {
       if (req.session.user) {
           const userData = await User.findById(req.session.user);
           if (!userData) {
-              return res.render('cart', { cartItems: []  });
+              return res.redirect('/login');
           }
 
           const cart = await Cart.findOne({ userId:userData }).populate('items.productId', 'salePrice productName quantity productImage');
@@ -359,7 +359,7 @@ const loadCheckout = async (req, res) => {
       newTotal: newTotal,
       discount: discount,
     });
-
+ 
     } catch (error) {
       console.error(error)
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -369,10 +369,32 @@ const loadCheckout = async (req, res) => {
   const placeOrder = async (req, res) => {
     try {
       const userId = req.session.user;
-      const { amount,savedAddress,paymentMethod,discount, ...newAddress } = req.body;
+      const {savedAddress,paymentMethod,couponCode, ...newAddress } = req.body;
 
       const items = await Cart.findOne({ userId }).populate('items.productId', 'productName productImage size quantity salePrice');
       const totalAmount = items.cartTotal;
+
+      let discount = 0; 
+
+      if (couponCode) {
+      const coupon=await Coupon.findOne({name:couponCode})
+
+      if(!coupon){
+       return res.status(400).json({message:'coupon not found'})
+      }
+
+      const currentDate = new Date();
+    if (coupon.expireOn < currentDate) {
+      return res.status(400).json({ message: 'Coupon has expired.' });
+    }
+
+    if (totalAmount < coupon.minPrice) {
+      return res.status(400).json({ message: `Minimum purchase of ₹${coupon.minPrice} is required to use this coupon.` });
+    }
+    discount = coupon.offerPrice;
+
+  }
+     
       const totalQuantity = items.items.reduce((acc, item) => acc + item.quantity, 0);
       const discountPerQty = discount / totalQuantity;
       const netTotal=totalAmount-discount

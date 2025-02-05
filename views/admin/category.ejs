@@ -89,22 +89,22 @@
             <form method="POST" action="/admin/addCategory" enctype="multipart/form-data" onsubmit="return handleFormSubmit(event)">
               <div class="mb-4">
                 <label for="product_name" class="form-label">Name</label>
-                <input type="text" name="name" placeholder="Type here" class="form-control" id="product_name" required />
+                <input type="text" name="name" placeholder="Type here" class="form-control" id="product_name"  />
                 <div id="name-error" class="error-message"></div>
               </div>
               <div class="mb-4">
                 <label class="form-label">Description</label>
-                <textarea placeholder="Type here" name="description" class="form-control" id="descriptionId" required></textarea>
+                <textarea placeholder="Type here" name="description" class="form-control" id="descriptionId" ></textarea>
                 <div id="description-error" class="error-message"></div>
               </div>
               <div class="mb-4">
                 <label for="category_offer" class="form-label">Offer %</label>
-                <input type="text" name="categoryOffer" placeholder="Type here" class="form-control" id="categoryOffer" required />
+                <input type="text" name="categoryOffer" placeholder="Type here" class="form-control" id="categoryOffer"  />
                 <div id="offer-error" class="error-message"></div>
               </div>
               <div class="mb-4">
                 <label for="category_image" class="form-label">Image</label>
-                <input type="file" name="images" class="form-control" id="category_image" accept="image/*" required />
+                <input type="file" name="images" class="form-control" id="category_image" accept="image/*"  />
                 <div id="image-error" class="error-message"></div>
               </div>
               <div class="d-grid">
@@ -237,6 +237,8 @@ function validateForm(){
 
     const name=document.getElementsByName('name')[0].value.trim()
     const description=document.getElementById('descriptionId').value.trim()
+    const offer=document.getElementById('categoryOffer').value.trim()
+    const image=document.getElementById('category_image').value
     isValid=true
 
     if(name===''){
@@ -248,6 +250,17 @@ function validateForm(){
     }
     if(description===''){
         displayErrorMessage('description-error','please enter a description')
+        isValid=false  
+    }
+    if(offer===''){
+      displayErrorMessage('offer-error','please enter a Offer')
+      isValid=false
+    }else if(!/^[0-9]+$/.test(offer)){
+      displayErrorMessage('offer-error','offer must be a number')
+        isValid=false  
+    }
+    if(image===''){
+      displayErrorMessage('image-error','please select a image')
         isValid=false  
     }
     return isValid

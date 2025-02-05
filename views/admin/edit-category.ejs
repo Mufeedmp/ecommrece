@@ -1,4 +1,12 @@
 <%- include("../../views/partials/admin/header") %>
+<style>
+    .error-message {
+        color: red;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: none;
+    }
+</style>
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 mt-60">
@@ -9,16 +17,21 @@
                 <div class="mb-4 mt-30">
                     <label for="product_name" class="form-label">Name</label>
                     <input type="text" name="categoryname" value="<%=category.name%>" class="form-control border" />
+                    <div id="name-error" class="error-message"></div>
                 </div>
                 
                 <div class="mb-4">
                     <label class="form-label">Description</label>
                     <textarea name="description" class="form-control border"><%=category.description%></textarea>
+                    <div id="description-error" class="error-message"></div>
                 </div>
+
                 <div class="mb-4 mt-30">
                     <label for="category_offer" class="form-label">Offer %</label>
                     <input type="text" name="categoryOffer" value="<%=category.categoryOffer%>" class="form-control border" />
+                    <div id="offer-error" class="error-message"></div>
                 </div>
+
                 <div class="mb-4 position-relative">
                     <label for="category_image" class="form-label">Image</label>
                     <input type="file" name="images" class="form-control" id="category_image" accept="image/*" />
@@ -34,3 +47,58 @@
 </div>
 <%- include("../../views/partials/admin/footer") %>
 
+<script>
+    
+document.addEventListener('DOMContentLoaded', () => { 
+    const form = document.querySelector('form');
+    if (form) {
+        form.removeAttribute('onsubmit');
+    form.addEventListener('submit', function(event) {
+
+            event.preventDefault();
+     
+            const name = document.querySelector('input[name="categoryname"]').value.trim();
+            const description = document.querySelector('textarea[name="description"]').value.trim();
+            const offer = document.querySelector('input[name="categoryOffer"]').value.trim();
+            
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.textContent = '';
+                error.style.display = 'none';
+            });
+            
+            let isValid = true;
+            
+            if (name === '') {
+                showError('name-error', 'Please enter a name');
+                isValid = false;
+            }
+          
+            if (description === '') {
+                showError('description-error', 'Please enter a description');
+                isValid = false;
+            }
+            
+            if(offer===''){
+      displayErrorMessage('offer-error','please enter a Offer')
+      isValid=false
+    }else if(!/^[0-9]+$/.test(offer)){
+      displayErrorMessage('offer-error','offer must be a number')
+        isValid=false  
+    }
+            
+            if (isValid) {
+                form.submit();
+            }
+        });
+    }
+});
+
+function showError(elementId, message) {
+    const errorDiv = document.getElementById(elementId);
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        errorDiv.style.color = 'red';
+    }
+}
+      </script>

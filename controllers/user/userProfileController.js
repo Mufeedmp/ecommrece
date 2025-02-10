@@ -22,6 +22,32 @@ const loadProfile=async (req,res) => {
     }
    }
 
+   const loadEditProfile=async (req,res) => {
+    try { 
+        const user=req.session.user
+        const userData=await User.findById(user)
+        res.render('editProfile',{user:userData})
+    } catch (error) {
+        console.log('error',error);
+        res.redirect('/pageNotFound')
+    }
+   }
+ const editProfile=async (req,res) => {
+    const{name}=req.body
+    try {
+        const user=req.session.user
+        if (!user) return res.status(401).json({ error: "Unauthorized" });
+        const updatedUser=await User.findByIdAndUpdate(
+            user,
+        {name},
+        {new:true}
+        )
+
+        res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ error: "Server error" });
+    }
+ }
    
 
    const loadChangePassword=async (req,res) => {
@@ -111,5 +137,7 @@ const loadProfile=async (req,res) => {
     loadProfile,
     loadChangePassword,
     changePassword,
-    loadWallet
+    loadWallet,
+    loadEditProfile,
+    editProfile
    }

@@ -285,7 +285,7 @@
                         <td>₹<%= (item.total-discountPerQty).toFixed(2) %></td>
                         <td>
                           <% if (item.itemStatus !== 'Cancelled') { %>
-                            <% if (order.status !== 'Delivered' && order.paymentStatus !== 'Payment Pending') { %>
+                            <% if (order.status !== 'Delivered' && order.paymentStatus !== 'Payment Pending'&& order.status !== 'Return requested'&& order.status !== 'Return accepted') { %>
                               <button onclick="cancelItem('<%= order.orderId %>', '<%= item.productId %>', '<%= item._id %>')">Cancel Item</button>
                             <% } %>
                           <% } else { %>
@@ -298,7 +298,8 @@
             </tbody>
         </table>
        
-        <% if (order.status !== 'Cancelled' && order.status !== 'Delivered'&& order.status !== 'Returned'&& order.status !== 'Pending') { %>
+        <% if (order.status !== 'Cancelled' && order.status !== 'Delivered'&& order.status !== 'Returned'&& order.status !== 'Pending'
+        && order.status !== 'Return requested'&& order.status !== 'Return accepted') { %>
           <form id="cancel" action="/cancelOrder/<%= order.orderId %>" method="POST">
             <button id="cancel-button" data-id="<%= order.orderId %>">Cancel Order</button>
           </form>

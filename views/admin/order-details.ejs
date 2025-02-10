@@ -57,6 +57,8 @@
                     <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                     <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
                     <option value="Returned" <%= order.status === 'Returned' ? 'selected' : '' %>>Returned</option>
+                    <option value="Return requested" <%= order.status === 'Return requested' ? 'selected' : '' %>>Return requested</option>
+                    <option value="Return accepted" <%= order.status === 'Return accepted' ? 'selected' : '' %>>Return accepted</option>
                 </select>
                     <br>         
                     <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>

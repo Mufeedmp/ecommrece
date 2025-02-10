@@ -418,13 +418,16 @@
       data[key] = value;
     });
 
+    console.log("Extracted Data from Form:", data);
     
-    const { savedAddress, paymentMethod } = data;
+
+    
+    const { savedAddress, paymentMethod,newAddress } = data;
     const discount = document.getElementById('discount-amount')?.value || 0;
       const orderResponse = await fetch("/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: cartTotal,savedAddress, paymentMethod,discount }),
+        body: JSON.stringify({ amount: cartTotal,savedAddress, paymentMethod,newAddress:data,discount }),
       });
 
 
@@ -474,6 +477,20 @@
     });
         })
       },
+      modal: {
+                ondismiss: function() {
+                    Swal.fire({
+                        title: 'Payment Failed!',
+                        text: 'Your payment was cancelled. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "/orders";
+                        }
+                    });
+                }
+            },
       prefill: {
         name: userName,
       email: userEmail,

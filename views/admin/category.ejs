@@ -212,19 +212,12 @@ function handleFormSubmit(event) {
         location.reload()
     })
     .catch(error=>{
-        if(error.message==='category already exists'){
             Swal.fire({
                 icon:'error',
                 title:'Oops',
                 text:'category already exists'
             })
-        }else{
-            Swal.fire({
-                icon:'error',
-                title:'Oops',
-                text:'an error occured while adding the category'
-            })
-        }
+        
     })
 
 }

@@ -31,6 +31,8 @@ router.get('/auth/google/callback',passport.authenticate('google', { failureRedi
 
 // User Profile Management
 router.get('/profile', userProfileController.loadProfile);
+router.get('/edit-profile', userProfileController.loadEditProfile);
+router.post('/edit-profile', userAuth, userProfileController.editProfile);
 router.get('/change-password', userProfileController.loadChangePassword);
 router.post('/change-password', userAuth, userProfileController.changePassword);
 router.get('/wallet', userProfileController.loadWallet);

@@ -1,17 +1,71 @@
 <%- include("../../views/partials/admin/header") %>
 
 
- 
+<header class="card-header">
+    <div class="card">
+        <div class="card-header p-3">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Search Form Section -->
+                    <form id="filter-form" method="get" class="row gy-2 gx-3 align-items-center">
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <input 
+                            type="text" 
+                            name="query" 
+                            value="<%= query || '' %>"
+                            placeholder="Search order ID, name, or email" 
+                            class="form-control search-input"
+                            aria-label="Search orders by ID, name, or email"
+                        />
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <input 
+                            type="date" 
+                            name="start_date" 
+                            id="start_date" 
+                            class="form-control" 
+                            value="<%= startDate || '' %>"
+                            aria-label="Start date"
+                            />
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <input 
+                            type="date" 
+                            name="end_date" 
+                            id="end_date" 
+                            class="form-control" 
+                            value="<%= endDate || '' %>"
+                            aria-label="End date"
+                        />
+                        
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-2">
+                            <select name="range" id="range" class="form-control">
+                                <option value="daily" <%= range === 'daily' ? 'selected' : '' %>>Daily</option>
+                                <option value="weekly" <%= range === 'weekly' ? 'selected' : '' %>>Weekly</option>
+                                <option value="yearly" <%= range === 'yearly' ? 'selected' : '' %>>Yearly</option>
+                                <option value="custom" <%= range === 'custom' ? 'selected' : '' %>>Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 col-lg-2 d-grid">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-12 d-flex justify-content-end mt-3">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="/admin/download-excel" class="btn btn-success" id="download-excel">Download Excel</a>
+                        <a href="/admin/download-pdf" id="download-PDF" class="btn btn-danger">Download PDF</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
 
 <section class="content-main">
     <div class="content-header">
         <h2 class="content-title">Sales Report</h2>
-    </div>
-    <div class="col-12 d-flex justify-content-end mt-3">
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="/admin/download-excel" class="btn btn-success" id="download-excel">Download Excel</a>
-            <a href="/admin/download-pdf" id="download-PDF" class="btn btn-danger">Download PDF</a>
-        </div>
     </div>
     <div class="right mt-5">
         <div class="card-header">
@@ -64,3 +118,37 @@
 
 <%- include("../../views/partials/admin/footer") %>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const rangeSelect = document.getElementById('range');
+      const startDate = document.getElementById('start_date');
+      const endDate = document.getElementById('end_date');
+      
+      // Function to toggle date inputs based on range selection
+      function toggleDateInputs() {
+        const isCustom = rangeSelect.value === 'custom';
+        startDate.disabled = !isCustom;
+        endDate.disabled = !isCustom;
+        
+        if (!isCustom) {
+          startDate.value = '';
+          endDate.value = '';
+        }
+      }
+      
+      // Initial state
+      toggleDateInputs();
+      
+      // Listen for changes
+      rangeSelect.addEventListener('change', toggleDateInputs);
+      
+      // Update form action to preserve pagination
+      const form = document.getElementById('filter-form');
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+        window.location.href = window.location.pathname + '?' + params.toString();
+      });
+    });
+    </script>

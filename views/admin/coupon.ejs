@@ -82,85 +82,70 @@
 </body>
 </html>
 <script>
-  const createCoupon = async () => {
+ const createCoupon = async () => {
+    try {
+ 
+        const couponData = {
+            couponCode: document.getElementById('couponCode').value.trim(),
+            discount: parseFloat(document.getElementById('discount').value),
+            minPrice: parseFloat(document.getElementById('minPrice').value),
+            expiryDate: document.getElementById('expiryDate').value
+        };
 
-  const couponData = {
-    couponCode: document.getElementById('couponCode').value,
-    discount: document.getElementById('discount').value,
-    minPrice: document.getElementById('minPrice').value,
-    expiryDate: document.getElementById('expiryDate').value,
-  };
+        if (!couponData.couponCode) {
+            document.getElementById('couponCodeError').innerHTML = 'Coupon code is required';
+            return;
+        }
 
+        if (!couponData.discount || couponData.discount <= 0) {
+            document.getElementById('discountError').innerHTML = 'Valid discount is required';
+            return;
+        }
 
-  document.getElementById('couponCodeError').innerHTML = '';
-  document.getElementById('discountError').innerHTML = '';
-  document.getElementById('minPriceError').innerHTML = '';
-  document.getElementById('expiryDateError').innerHTML = '';
+        if (!couponData.minPrice || couponData.minPrice <= 0) {
+            document.getElementById('minPriceError').innerHTML = 'Valid minimum price is required';
+            return;
+        }
+        if(couponData.minPrice <= couponData.discount){
+          document.getElementById('minPriceError').innerHTML = ' minimum price must be grater than discount';
+          return;
+        }
 
-  let isValid = true;
+        if (!couponData.expiryDate) {
+            document.getElementById('expiryDateError').innerHTML = 'Expiry date is required';
+            return;
+        }
 
-  
-  if (!couponData.couponCode || couponData.couponCode.trim() === '') {
-    document.getElementById('couponCodeError').innerHTML = 'Coupon code is required.';
-    isValid = false;
-  }
+        const response = await fetch('/admin/createCoupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(couponData)
+        });
 
+        const result = await response.json();
 
-  if (!couponData.discount || couponData.discount <= 0) {
-    document.getElementById('discountError').innerHTML = 'Discount value should be greater than 0.';
-    isValid = false;
-  }
-
-  
-  if (!couponData.minPrice || couponData.minPrice <= 0) {
-    document.getElementById('minPriceError').innerHTML = 'Minimum price should be greater than 0.';
-    isValid = false;
-  }
-
-
-  if (!couponData.expiryDate) {
-    document.getElementById('expiryDateError').innerHTML = 'Expiry date is required.';
-    isValid = false;
-  }
-
-
-  if (!isValid) return;
-
-  try {
-    const response = await fetch('/admin/createCoupon', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(couponData),
-    });
-
-    const result = await response.json();
-    console.log(result);
-    if (response.ok) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Coupon Created!',
-        text: result.message || 'Your coupon has been created successfully.',
-      }).then(() => {
-
-        window.location.href = "/admin/coupons";  
-      });
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: result.message || 'Something went wrong. Please try again.',
-      });
+        if (response.ok) {
+            await Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: result.message,
+                confirmButtonColor: '#3085d6'
+            });
+            window.location.href = "/admin/coupons";
+        } else {
+            throw new Error(result.message || 'Failed to create coupon');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to create coupon',
+            confirmButtonColor: '#3085d6'
+        });
     }
-  } catch (error) {
-    console.error('Error creating coupon:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Network Error',
-      text: 'Could not connect to the server. Please check your connection.',
-    });
-  }
 };
 
 </script>

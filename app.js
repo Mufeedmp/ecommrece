@@ -8,6 +8,7 @@ const adminRouter = require('./routes/adminRouter')
 const MongoStore = require('connect-mongo');
 const db = require('./config/db')
 const errorMiddleware = require('./middlewares/errorMiddleware');
+const nocache=require('nocache')
 
 dotenv.config()
  
@@ -18,6 +19,9 @@ db()
 const mongoUrl = process.env.MONGO_URI || 'mongodb://localhost:27017/ecommerce';
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+
+app.use(nocache());  
+
 
 app.use(session({
     secret:process.env.SESSION_SECRET,
@@ -38,8 +42,6 @@ app.use((req,res,next)=>{
     next()
 })
 
-app.use(errorMiddleware);
-
 
 
 app.set('view engine','ejs')
@@ -51,6 +53,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/',userRouter)
 app.use('/admin',adminRouter)
+
+
+app.use((req, res, next) => {
+    res.status(404).render('page-404');
+});
+
+app.use(errorMiddleware);
 
 
 const PORT= 3000 || process.env.PORT

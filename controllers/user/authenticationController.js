@@ -9,7 +9,10 @@ const Wallet = require('../../models/walletSchema')
 
 const loadSignup = async (req, res) => {
     try {
-        res.render('signup');
+        if (req.session.user) {
+            return res.redirect('/'); 
+        }
+        res.render('signup'); 
     } catch (error) {
         console.error('Error loading signup page:', error);
         res.status(500).send('Server Error');
@@ -193,11 +196,10 @@ const resendotp=async (req,res) => {
 
     const loadLogin= async (req,res) => {
         try {
-            if(!req.session.user){
-                return res.render('login')
-            }else{
-                res.redirect('/')
+            if (req.session.user) {
+                return res.redirect('/'); 
             }
+            res.render('login'); 
         } catch (error) {
             res.redirect('/pageNotFound')
         }

@@ -475,7 +475,10 @@ const loadCheckout = async (req, res) => {
   const createOrder = async (req, res) => {
     let order = null;
     try {
-      const { amount, savedAddress, paymentMethod,discount, ...newAddress } = req.body;
+      console.log("Full Request Body:", req.body);
+      const { amount, savedAddress, paymentMethod,discount, newAddress } = req.body;
+
+      console.log("Extracted Values:", { amount, savedAddress, paymentMethod, newAddress, discount });
 
   
       const userId = req.session.user;
@@ -511,7 +514,7 @@ const loadCheckout = async (req, res) => {
           return res.status(400).send('Invalid saved address.');
         }
       } else {
-        selectedAddress = { ...newAddress };
+        selectedAddress = newAddress 
       }
   
       const order = new Order({
@@ -924,43 +927,14 @@ const returnOrder = async (req, res) => {
   
       if (order.status === 'Delivered') {
 
-        const stockUpdatePromises = order.items.map(async item => {
-          const productId = item.productId._id;
-          const orderedQuantity = item.quantity;
-          const size = item.size;
-    
-          
-          return Product.findOneAndUpdate(
-              { _id: productId, "size.sizeName": size }, 
-              { $inc: { "size.$.quantity": orderedQuantity } }, 
-              { new: true } 
-          );
-          });
-    
-       
-        await Promise.all(stockUpdatePromises);
+        
 
 
-        order.status = 'Returned';
-        order.paymentStatus='Refunded'
+        order.status = 'Return requested';
+        order.paymentStatus='Pending'
         await order.save();
   
-        const userId = order.userId;
-        const returnAmount = order.totalAmount; 
-  
-        let wallet = await Wallet.findOne({ userId });
-        if (!wallet) {
-          wallet = new Wallet({ userId, balance: 0, transactions: [] });
-        }
-  
-        wallet.balance += returnAmount;
-        wallet.transactions.push({
-          amount: returnAmount,
-          type: 'credit',
-          description: `Refund for order ${orderId}`,
-        });
-  
-        await wallet.save();
+       
   
         return res.status(200).json({
           message: 'Order returned successfully. Refund credited to wallet.'

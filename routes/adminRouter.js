@@ -12,6 +12,9 @@ const {uploadCategoryImage,uploadProductImage}=require('../utils/multer')
 const path = require('path')
 const fs = require('fs')
 
+
+
+
 router.get('/pageerror', adminController.pageerror) 
 
 router.get('/dashboard', dashboardController.getDashboardData)
@@ -32,6 +35,7 @@ router.get('/listCategory', adminAuth, categoryController.listCategory)
 router.get('/unlistCategory', adminAuth, categoryController.unlistCategory)
 router.get('/editCategory', adminAuth, categoryController.getEditCategory)
 router.post('/editCategory/:id', adminAuth, uploadCategoryImage.single('images'), categoryController.editCategory)
+router.delete('/deleteImage/:categoryId/:name', adminAuth, categoryController.deleteCategoryImage)
 
 router.get('/addProducts', adminAuth, productController.getProductAddPage)
 router.post('/addProducts', adminAuth, uploadProductImage.array('images', 4), productController.addProducts)

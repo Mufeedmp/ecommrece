@@ -203,7 +203,7 @@
                <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
                  <div class="card card-green">
                    <div class="card-header">
-                     <h5 class="mb-0 text-center">User Profile</h5>
+                     <h5 class="mb-0 text-center"><%=user.name%></h5>
                    </div>
                    <div class="card-body text-center">
                      <h5 class="card-title"></h5>
@@ -221,6 +221,7 @@
                      <% if (user.authMethod !== 'google') { %>
                      <a href="/change-password" class="btn btn-sm btn-dark">Change Password</a>
                      <% } %>
+                     <a href="/edit-profile" class="btn btn-sm btn-warning">Edit</a>
                    </div>
                  </div>
                </div>

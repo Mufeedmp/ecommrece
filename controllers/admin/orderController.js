@@ -5,6 +5,8 @@ const xlsx = require('xlsx');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const moment = require('moment');
+const Wallet=require('../../models/walletSchema')
+const Product=require('../../models/productSchema')
 
 const orderList=async (req,res) => {
     try {
@@ -55,7 +57,7 @@ const updateOrderStatus = async (req, res) => {
       const orderId = req.query.id;
       const status = req.body.orderStatus;
       
-      const validStatuses = ["Pending", "Shipped", "Delivered", "Cancelled"];
+      const validStatuses = ["Pending", "Shipped", "Delivered", "Cancelled","Return accepted"];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({ success: false, message: "Invalid order status" });
       }
@@ -75,7 +77,46 @@ const updateOrderStatus = async (req, res) => {
       if(order.status==="Delivered"){
         order.paymentStatus='Successful'
       }
+      if(order.status==='Return accepted'){
+        order.paymentStatus='Refunded'
+
+        const stockUpdatePromises = order.items.map(async item => {
+          const productId = item.productId._id;
+          const orderedQuantity = item.quantity;
+          const size = item.size;
+    
+          
+          return Product.findOneAndUpdate(
+              { _id: productId, "size.sizeName": size }, 
+              { $inc: { "size.$.quantity": orderedQuantity } }, 
+              { new: true } 
+          );
+          });
+    
+       
+        await Promise.all(stockUpdatePromises);
+
+        const userId = order.userId;
+        const returnAmount = order.totalAmount; 
+  
+        let wallet = await Wallet.findOne({ userId });
+        if (!wallet) {
+          wallet = new Wallet({ userId, balance: 0, transactions: [] });
+        }
+  
+        wallet.balance += returnAmount;
+        wallet.transactions.push({
+          amount: returnAmount,
+          type: 'credit',
+          description: `Refund for order ${orderId}`,
+        });
+  
+        await wallet.save();
+      }
+
       await order.save();
+
+     
       
       res.status(200).json({ success: true, message: "Order status updated successfully", newStatus: order.status });
       
@@ -85,31 +126,92 @@ const updateOrderStatus = async (req, res) => {
     }
   };
 
-  const loadReport=async (req,res) => {
+  const loadReport = async (req, res) => {
     try {
-      const page=parseInt(req.query.page)||1
-        const limit=6
-        const skip=(page-1)*limit
-
-      const order=await Order.find({status:{$in:["Delivered","Returned"]}})
-      .populate('userId')
-      .sort({createdAt:-1})
-      .limit(limit)
-      .skip(skip)
-
-
-      const count=await Order.find().countDocuments()
-      const totalPages=Math.ceil(count/limit)
-      res.render('reports',{
+      const page = parseInt(req.query.page) || 1;
+      const limit = 6;
+      const skip = (page - 1) * limit;
+      
+      // Get search parameters
+      const query = req.query.query || '';
+      const range = req.query.range || 'daily';
+      const startDate = req.query.start_date;
+      const endDate = req.query.end_date;
+  
+      // Build date filter
+      let dateFilter = {};
+      
+      if (startDate && endDate) {
+        // Custom date range
+        dateFilter = {
+          createdAt: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate)
+          }
+        };
+      } else if (range) {
+        const now = new Date();
+        switch (range) {
+          case 'daily':
+            const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+            dateFilter = { createdAt: { $gte: startOfDay } };
+            break;
+          case 'weekly':
+            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+            dateFilter = { createdAt: { $gte: startOfWeek } };
+            break;
+          case 'yearly':
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            dateFilter = { createdAt: { $gte: startOfYear } };
+            break;
+        }
+      }
+  
+      // Build search query
+      let searchFilter = {};
+      if (query) {
+        searchFilter = {
+          $or: [
+            { orderId: { $regex: query, $options: 'i' } },
+            { 'userId.name': { $regex: query, $options: 'i' } },
+            { 'userId.email': { $regex: query, $options: 'i' } }
+          ]
+        };
+      }
+  
+      // Combine all filters
+      const filter = {
+        status: { $in: ['Delivered', 'Returned'] },
+        ...dateFilter,
+        ...searchFilter
+      };
+  
+      // Execute query with filters
+      const order = await Order.find(filter)
+        .populate('userId')
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip);
+  
+      // Get total count for pagination
+      const count = await Order.countDocuments(filter);
+      const totalPages = Math.ceil(count / limit);
+  
+      res.render('reports', {
         order,
-        totalPages:totalPages,
-        currentPage: page     
-      })
+        totalPages,
+        currentPage: page,
+        query,
+        range,
+        startDate,
+        endDate
+      });
+  
     } catch (error) {
       console.error('Error fetching orders:', error);
-      res.redirect('/admin/pageerror'); 
+      res.redirect('/admin/pageerror');
     }
-  }
+  };
 
   const loadExcel=async (req,res) => {
     try {

@@ -87,6 +87,28 @@ const getEditCategory=async (req,res) => {
         res.redirect('/pageerror')
     }
 }
+const deleteCategoryImage = async (req, res) => {
+    const { categoryId, name } = req.params; 
+
+    try {
+       
+        await Category.findByIdAndUpdate(categoryId, {
+            $set: { imagePath: "" } 
+        });
+
+        const fs = require('fs');
+        const imagePath = `./public/uploads/cat-images/${name}`;
+
+        if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+        }
+
+        res.status(200).json({ message: 'Image deleted successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to delete the image.' });
+    }
+};
 
 const editCategory=async (req,res) => {
     try {
@@ -97,7 +119,7 @@ const editCategory=async (req,res) => {
         _id:{$ne:id}
         })
       if(existingCategory){
-        return res.status(400).json({error:'category exists,please choose another name'})
+        return res.status(400).json({message:'category exists,please choose another name'})
       }
 
       const currentCategory = await Category.findById(id);
@@ -142,5 +164,6 @@ module.exports={
     listCategory,
     unlistCategory,
     getEditCategory,
-    editCategory
+    editCategory,
+    deleteCategoryImage
 }

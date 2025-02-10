@@ -36,37 +36,43 @@ const loadCoupon=async (req,res) => {
     }
   }
 
-  const createCoupon=async (req,res) => {
+  const createCoupon = async (req, res) => {
     try {
-      const {couponCode,discount,minPrice,expiryDate}=req.body
+        const { couponCode, discount, minPrice, expiryDate } = req.body;
 
-      if(!couponCode||!discount||!minPrice||!expiryDate){
-        res.status(400).json({message:'All fields required'})
-      }
-
-      const existingCoupon=await Coupon.findOne({couponCode})
-
-      if(existingCoupon){
-        res.status(400).json({message:'coupon code already exists'})
-      }
-
-      const newCoupon = new Coupon({
-        name:couponCode,
-        offerPrice:discount,
-        minPrice:minPrice,
-        expireOn:expiryDate 
-      }) 
     
-      await newCoupon.save()
+        if (!couponCode || !discount || !minPrice || !expiryDate) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
 
-       res.status(200).json({message:'coupon created successfully'})
+        const existingCoupon = await Coupon.findOne({ name: couponCode });
+        
+        if (existingCoupon) {
+            return res.status(400).json({ message: 'Coupon code already exists' });
+        }
+
+      
+        const newCoupon = new Coupon({
+            name: couponCode,           
+            offerPrice: discount,      
+            minPrice: minPrice,        
+            expireOn: expiryDate,     
+            createdOn: new Date(),      
+            isList: true,               
+     
+        });
+
+        await newCoupon.save();
+        return res.status(201).json({ message: 'Coupon created successfully' });
 
     } catch (error) {
-      console.error(error)
-res.status(500).json({message:  'Internal server error.' });
-     
+        console.error('Coupon creation error:', error);
+        return res.status(500).json({ 
+            message: 'Internal server error',
+            details: error.message
+        });
     }
-  }
+};
   const deleteCoupon = async (req, res) => {
   try {
     const couponId = req.body.couponId; 

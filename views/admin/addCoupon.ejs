@@ -96,6 +96,10 @@
     isValid = false;
   }
 
+  if(couponData.minPrice <= couponData.discount){
+          document.getElementById('minPriceError').innerHTML = ' minimum price must be grater than discount';
+          return;
+        }
 
   if (!couponData.expiryDate) {
     document.getElementById('expiryDateError').innerHTML = 'Expiry date is required.';

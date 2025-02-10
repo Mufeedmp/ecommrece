@@ -3,9 +3,18 @@ const bcrypt=require('bcrypt')
 const mongoose=require('mongoose')
 
 
-const loadLogin=(req,res)=>{
-    res.render('admin-login',{message:null})
-}
+const loadLogin = (req, res) => {
+    try {
+        if (req.session.admin) {
+            return res.redirect('/admin/dashboard'); 
+        }
+        res.render('admin-login',{ message: null });
+    } catch (error) {
+        console.log('login page error',error);
+        return res.redirect('/pageerror')
+    }
+};
+
 
 const login= async (req,res) => {
     try {

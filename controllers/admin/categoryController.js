@@ -5,6 +5,7 @@ const path = require('path');
 
 const category=async (req,res) => {
     try {
+   
         const page=parseInt(req.query.page)||1
         const limit=4
         const skip=(page-1)*limit
@@ -22,7 +23,6 @@ const category=async (req,res) => {
             totalPages:totalPages,
             totalCategories:totalCategories
             })
-
     } catch (error) {
         console.error(error)
         res.redirect('/admin/pageerror')

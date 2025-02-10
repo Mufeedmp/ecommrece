@@ -19,6 +19,7 @@ router.get('/', errorHomeController.loadHomepage);
 // User Authentication & Profile Routes
 router.get('/signup', authenticationController.loadSignup);
 router.post('/signup', authenticationController.signup);
+router.get('/loadverify-otp',authenticationController.loadVerifyOtp)
 router.post('/verify-otp', authenticationController.verifyotp);
 router.post('/resend-otp', authenticationController.resendotp);
 

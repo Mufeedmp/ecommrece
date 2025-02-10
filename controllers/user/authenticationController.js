@@ -71,7 +71,7 @@ const signup = async (req, res) => {
         req.session.userOtp = otp;
         req.session.userData = { name, phone, email, password,referralCode };
 
-        res.render('verify-otp');
+        res.redirect('/loadverify-otp');
         console.log('OTP sent:', otp);
     } catch (error) {
         console.error('Signup error:', error);
@@ -89,6 +89,18 @@ const securePassword = async (password) => {
         throw error;
     }
 }; 
+
+const loadVerifyOtp=async (req,res) => {
+    try {
+        if(req.session.user){
+            return res.redirect('/');
+        }
+        res.render('verify-otp')
+    } catch (error) {
+        console.error('Error loading otp page:', error);
+        res.status(500).send('Server Error');
+    }
+}
 
 const verifyotp = async (req, res) => {
     try {
@@ -255,6 +267,7 @@ const resendotp=async (req,res) => {
     module.exports = {
         loadSignup,
         signup,
+        loadVerifyOtp,
         verifyotp,
         resendotp,
         loadLogin,

@@ -26,7 +26,7 @@ const loadProfile=async (req,res) => {
     try { 
         const user=req.session.user
         const userData=await User.findById(user)
-        res.render('editProfile',{user:userData})
+        res.render('editprofile',{user:userData})
     } catch (error) {
         console.log('error',error);
         res.redirect('/pageNotFound')

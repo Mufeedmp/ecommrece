@@ -5,6 +5,9 @@ const User = require('../../models/userSchema');
 
 
 const getDashboardData = async (req, res) => {
+    if (!req.session.admin) {
+        return res.redirect('/admin/login'); 
+    }
     try {
         const currentYear = new Date().getFullYear();
         const availableYears = await getAvailableYears();
@@ -19,7 +22,7 @@ const getDashboardData = async (req, res) => {
                 Order.countDocuments(),
                 Product.countDocuments(),
                 User.countDocuments(),
-                getSalesData({ type: 'monthly' }), 
+                getSalesData({ type: 'monthly' }),  
                 getTopProducts()
             ]);
 
@@ -178,6 +181,9 @@ const getTopProducts = async () => {
 
 
 const getSalesByFilter = async (req, res) => {
+    if (!req.session.admin) {
+        return res.redirect('/admin/login'); 
+    }
     try {
         const { type = 'monthly' } = req.query;
         

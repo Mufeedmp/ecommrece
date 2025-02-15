@@ -37,36 +37,27 @@
         <tbody>
             <% data.forEach((product, index) => { %>
             
-            <tr>
+            <tr data-id="<%= product._id %>">
                 <td><%= index+1 %></td>
                 <td><%=product.productName%></td>
                 
                 <td><img src="/uploads/product-images/<%=product.productImage[0] %>" alt="Product Image" style="width: 50px; height: 50px; object-fit: cover;"></td>
                 <td><%=product.regularPrice%></td>
                 <td><%=product.salePrice%></td>
-                <!-- <td>
-                    
-
-                    <button class="btn btn-info" onclick="" style="width: 100px;">
-                        <a href="#" class="text-white">Add Offer</a>
-                    </button>
         
-                    <button class="btn btn-info" onclick="" style="width: 100px;">
-                        <a href="#" class="text-white">Remove</a>
-                    </button>
-                
-                </td> -->
                 
                 <td>
-                <%if(product.isBlocked===false){%>
-                    <button class="btn btn-danger" style="width: 80px;">
-                        <a href="/admin/blockProduct?id=<%=product._id%>" class="text-white" style="text-decoration: none;">Block</a>
-                    </button>
+                    <%if(product.isBlocked===false){%>
+                        <button class="btn btn-danger block-btn" style="width: 80px;" 
+                                onclick="toggleProductStatus('<%= product._id %>', 'block')">
+                            Block
+                        </button>
                     <%}else{%>
-                    <button class="btn btn-success" style="width: 80px;">
-                        <a href="/admin/unblockProduct?id=<%=product._id%>" class="text-white" style="text-decoration: none;">Unblock</a>
-                    </button>
-            <%}%>
+                        <button class="btn btn-success block-btn" style="width: 80px;" 
+                                onclick="toggleProductStatus('<%= product._id %>', 'unblock')">
+                            Unblock
+                        </button>
+                    <%}%>
                 </td>
                 <td>
                     <button class="btn btn-info" style="width: 80px;">
@@ -101,4 +92,53 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <%- include("../../views/partials/admin/footer") %>
+<script>
+async function toggleProductStatus(productId, action) {
+    try {
+        const response = await fetch(`/admin/${action}Product?id=${productId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
+        if (!response.ok) {
+            throw new Error('Failed to update product status');
+        }
+
+        const row = document.querySelector(`tr[data-id="${productId}"]`);
+        const button = row.querySelector('.block-btn');
+  
+        if (action === 'block') {
+            button.className = 'btn btn-success block-btn';
+            button.textContent = 'Unblock';
+            button.onclick = () => toggleProductStatus(productId, 'unblock');
+        } else {
+            button.className = 'btn btn-danger block-btn';
+            button.textContent = 'Block';
+            button.onclick = () => toggleProductStatus(productId, 'block');
+        }
+
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: `Product ${action}ed successfully`,
+            showConfirmButton: false,
+            timer: 1500
+        });
+
+    } catch (error) {
+        console.error('Error in toggleProductStatus:', error);
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Failed to update product status',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
+}
+
+</script>

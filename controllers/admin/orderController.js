@@ -9,6 +9,9 @@ const Wallet=require('../../models/walletSchema')
 const Product=require('../../models/productSchema')
 
 const orderList=async (req,res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin/login'); 
+}
     try {
       
         const page=parseInt(req.query.page)||1
@@ -35,6 +38,9 @@ const orderList=async (req,res) => {
     }
 }
 const orderDetails=async (req,res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin/login'); 
+}
     const orderId = req.params.id;
     
     try {
@@ -127,22 +133,22 @@ const updateOrderStatus = async (req, res) => {
   };
 
   const loadReport = async (req, res) => {
+    if (!req.session.admin) {
+      return res.redirect('/admin/login'); 
+  }
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = 6;
       const skip = (page - 1) * limit;
-      
-      // Get search parameters
+
       const query = req.query.query || '';
       const range = req.query.range || 'daily';
       const startDate = req.query.start_date;
       const endDate = req.query.end_date;
-  
-      // Build date filter
+
       let dateFilter = {};
       
       if (startDate && endDate) {
-        // Custom date range
         dateFilter = {
           createdAt: {
             $gte: new Date(startDate),
@@ -166,8 +172,7 @@ const updateOrderStatus = async (req, res) => {
             break;
         }
       }
-  
-      // Build search query
+
       let searchFilter = {};
       if (query) {
         searchFilter = {
@@ -178,22 +183,19 @@ const updateOrderStatus = async (req, res) => {
           ]
         };
       }
-  
-      // Combine all filters
+
       const filter = {
-        status: { $in: ['Delivered', 'Returned'] },
+        status: { $in: ['Delivered', 'Return accepted'] },
         ...dateFilter,
         ...searchFilter
       };
-  
-      // Execute query with filters
+
       const order = await Order.find(filter)
         .populate('userId')
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip);
-  
-      // Get total count for pagination
+
       const count = await Order.countDocuments(filter);
       const totalPages = Math.ceil(count / limit);
   
@@ -215,7 +217,7 @@ const updateOrderStatus = async (req, res) => {
 
   const loadExcel=async (req,res) => {
     try {
-      const orders = await Order.find({status:{$in:["Delivered","Returned"]}}).lean()
+      const orders = await Order.find({status:{$in:["Delivered","Return accepted"]}}).lean()
       .populate('userId');
 
       
@@ -245,7 +247,7 @@ const updateOrderStatus = async (req, res) => {
     try {
     
         const salesData = await Order.find({ 
-            status: { $in: ["Delivered", "Returned"] }
+            status: { $in: ["Delivered", "Return accepted"] }
         });
 
 
@@ -317,9 +319,9 @@ const updateOrderStatus = async (req, res) => {
         const columnWidths = {
             date: 80,
             orderId: 100,
-            status: 80,
-            items: 150,
-            amount: 80
+            status: 100,
+            items: 80,
+            amount: 60
         };
 
         let startX = 50;

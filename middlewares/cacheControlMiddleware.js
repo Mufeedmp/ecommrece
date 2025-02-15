@@ -1,4 +1,4 @@
-// middlewares/cacheControlMiddleware.js
+
 
 const preventBackButton = (req, res, next) => {
     res.set({

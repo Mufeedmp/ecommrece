@@ -4,6 +4,9 @@ const path = require('path');
 
 
 const category=async (req,res) => {
+    if (!req.session.admin) {
+        return res.redirect('/admin/login'); 
+    }
     try {
    
         const page=parseInt(req.query.page)||1
@@ -61,9 +64,9 @@ const listCategory=async (req,res) => {
     try {
         let id=req.query.id
         await Category.updateOne({_id:id},{$set:{isListed:true}})
-        res.redirect('/admin/category')
+        res.json({ success: true, message: 'Category listed successfully' });
     } catch (error) {
-        res.redirect('/pageerror')
+        res.status(500).json({ success: false, message: 'Failed to update category status' });
     }
 }
 
@@ -72,13 +75,16 @@ const unlistCategory=async (req,res) => {
     try {
         let id=req.query.id
         await Category.updateOne({_id:id},{$set:{isListed:false}})
-        res.redirect('/admin/category')
+        res.json({ success: true, message: 'Category unlisted successfully' });
     } catch (error) {
-        res.redirect('/pageerror')
+        res.status(500).json({ success: false, message: 'Failed to update category status' });
     }
 }
 
 const getEditCategory=async (req,res) => {
+    if (!req.session.admin) {
+        return res.redirect('/admin/login'); 
+    }
     try {
         const id=req.query.id
         const category=await Category.findOne({_id:id})

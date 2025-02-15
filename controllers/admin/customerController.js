@@ -5,6 +5,9 @@ const User=require('../../models/userSchema')
 
 
 const customers=async (req,res) => {
+    if (!req.session.admin) {
+        return res.redirect('/admin/login'); 
+    }
     try {
         let search= ''
         if(req.query.search){

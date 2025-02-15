@@ -9,7 +9,7 @@ const loadLogin = (req, res) => {
             return res.redirect('/admin/dashboard'); 
         }
         res.render('admin-login',{ message: null });
-    } catch (error) {
+    } catch (error) { 
         console.log('login page error',error);
         return res.redirect('/pageerror')
     }
@@ -23,6 +23,7 @@ const login= async (req,res) => {
         if(admin){
             const passwordMatch=await bcrypt.compare(password,admin.password)
             if(passwordMatch){
+                req.session.admin=admin.id
                 req.session.admin=true
                 return res.redirect('/admin/dashboard')
             }else{

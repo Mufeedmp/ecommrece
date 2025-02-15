@@ -131,7 +131,7 @@
                 </thead>
                 <tbody>
                   <% cat.reverse().forEach((category, index) => { %>
-                    <tr>
+                    <tr data-id="<%= category._id %>">
                       <td><%= index + 1 %></td>
                       <td><%= category.name %></td>
                       <td><%= category.description %></td>
@@ -142,21 +142,25 @@
                           <span>No Image</span>
                         <% } %>
                         </td>
-                     
-                      <td>
-                        <% if (category.isListed) { %>
-                          <span class="badge bg-success">Listed</span>
-                        <% } else { %>
-                          <span class="badge bg-danger">Unlisted</span>
-                        <% } %>
-                      </td>
-                      <td>
-                        <% if (category.isListed) { %>
-                          <a href="/admin/unlistCategory?id=<%= category._id %>" class="btn btn-danger btn-sm text-white">Unlist</a>
-                        <% } else { %>
-                          <a href="/admin/listCategory?id=<%= category._id %>" class="btn btn-success btn-sm text-white">List</a>
-                        <% } %>
-                      </td>
+                       
+                         
+                          <td>
+                              <% if (category.isListed) { %>
+                                  <span class="badge bg-success">Listed</span>
+                              <% } else { %>
+                                  <span class="badge bg-danger">Unlisted</span>
+                              <% } %>
+                          </td>
+                          <td>
+                              <button 
+                                  class="btn <%= category.isListed ? 'btn-danger' : 'btn-success' %> btn-sm text-white toggle-status"
+                                  onclick="toggleCategoryStatus('<%= category._id %>', '<%= category.isListed ? 'unlist' : 'list' %>')"
+                              >
+                                  <%= category.isListed ? 'Unlist' : 'List' %>
+                              </button>
+                          </td>
+                      
+                      
                       <td>
                         <a href="/admin/editCategory?id=<%= category._id %>" class="btn btn-info btn-sm text-white">Edit</a>
                       </td>
@@ -271,6 +275,56 @@ function clearErrorMessage(){
        element.innerText=''
        element.style.display='none'
    })
+}
+
+async function toggleCategoryStatus(categoryId, action) {
+    
+    try {
+        const response = await fetch(`/admin/${action}Category?id=${categoryId}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to update category status');
+        }
+        const row = document.querySelector(`tr[data-id="${categoryId}"]`);
+    
+        const statusBadge = row.querySelector('.badge');
+        
+        const toggleButton = row.querySelector('.toggle-status');
+        
+        if (action === 'list') {
+            statusBadge.className = 'badge bg-success';
+            statusBadge.textContent = 'Listed';
+            toggleButton.className = 'btn btn-danger btn-sm text-white toggle-status';
+            toggleButton.textContent = 'Unlist';
+            toggleButton.onclick = () => toggleCategoryStatus(categoryId, 'unlist');
+        } else {
+            statusBadge.className = 'badge bg-danger';
+            statusBadge.textContent = 'Unlisted';
+            toggleButton.className = 'btn btn-success btn-sm text-white toggle-status';
+            toggleButton.textContent = 'List';
+            toggleButton.onclick = () => toggleCategoryStatus(categoryId, 'list');
+        }
+
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: `Category ${action}ed successfully`,
+            showConfirmButton: false,
+            timer: 1500
+        });
+
+    } catch (error) {
+        console.error('Error in toggleCategoryStatus:', error);
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Failed to update status',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
 }
   </script>
 

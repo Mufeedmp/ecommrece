@@ -1,57 +1,66 @@
-const { session } = require('passport')
-const User=require('../models/userSchema')
+const { session } = require('passport');
+const User = require('../models/userSchema');
 const { Admin } = require('mongodb');
 
-// Global middleware to populate req.user
-const userAuth=(async (req, res, next) => {
+
+const userAuth = async (req, res, next) => {
+    if (req.session.admin) {
+        return next(); 
+    }
     if (req.session.user) {
         try {
             const user = await User.findById(req.session.user);
             if (user && !user.isBlocked) {
                 req.user = user;
+                next();
             } else {
-                // If user is blocked, destroy session
-                 req.session.destroy(err => {
+               
+                req.session.destroy(err => {
                     if (err) {
                         console.error('Error destroying session:', err);
                         return next(err);
                     }
-                    // Redirect with a query parameter to show a message
                     return res.redirect('/login?message=blocked');
                 });
-                return;
             }
         } catch (error) {
             console.error('Error fetching user in global middleware:', error);
             return next(error);
         }
+    } else {
+        next();
     }
-    next();
-});
+};
+
+const adminAuth = async (req, res, next) => {
+
+    try {
+
+        if (!req.session.admin) {
+            return res.redirect('/admin/login');
+        }
+
+        const adminUser = await User.findOne({
+            _id: req.session.admin,
+            isAdmin: true
+        });
+
+        if (!adminUser) {
+
+            req.session.admin = null;
+            return res.redirect('/admin/login');
+        }
 
 
-const adminAuth=(req,res,next)=>{
-        User.findOne({isAdmin:true})
-        .then(data=>{
-            if(data){
-                next()
-            }else{
-                res.redirect('/admin/login')
-            }
-        })
-        .catch(error=>{
-            console.log('error in admin auth middle ware')
-            res.status(500).send('internal server error')
-        })
-
+        req.admin = adminUser;
+        next();
+    } catch (error) {
+        console.error('Error in admin auth middleware:', error);
+        res.status(500).send('Internal server error');
     }
+};
 
-       
-
-    
-
-
-    module.exports={
-        userAuth,
-        adminAuth,
-    }
+module.exports = {
+    userAuth,
+    adminAuth
+};

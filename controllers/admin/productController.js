@@ -13,6 +13,9 @@ const { isArgumentsObject } = require("util/types");
 
 
 const getProductAddPage = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin/login'); 
+}
   try {
     const category = await Category.find({ isListed: true });
     res.render("product-add", {cat: category,});
@@ -104,6 +107,9 @@ const addProducts = async (req, res) => {
 
 
 const getAllProducts = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin/login'); 
+}
   try {
     const search = req.query.search || "";
     const page = req.query.page || 1;
@@ -160,6 +166,9 @@ const unblockProduct = async (req, res) => {
 };
 
 const getEditProduct = async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin/login'); 
+}
   try {
     const id = req.query.id;
     const product = await Product.findOne({_id:id})

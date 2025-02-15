@@ -1,6 +1,9 @@
 const Coupon=require('../../models/couponSchema')
 
 const loadCoupon=async (req,res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin/login'); 
+}
     try {
 
       const page=parseInt(req.query.page)||1
@@ -27,6 +30,9 @@ const loadCoupon=async (req,res) => {
     }
   }
   const loadAddCoupon=async (req,res) => {
+    if (!req.session.admin) {
+      return res.redirect('/admin/login'); 
+  }
     try {
       res.render('addCoupon')
     } catch (error) {

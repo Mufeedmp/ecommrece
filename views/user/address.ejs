@@ -6,13 +6,10 @@
     <meta name="keywords" content="Male_Fashion, unica, creative, html" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Gents Club </title>
+    <title>Gents Club</title>
 
     <!-- Google Font -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
 
     <!-- Css Styles -->
     <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css" />
@@ -24,23 +21,28 @@
     <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css" />
     <link rel="stylesheet" href="/css/style.css" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  
-   
   </head>
 <body>
-
-
     <%- include("../../views/partials/user/header") %>
 
-    <div class="container mt-5">
-      <h3 class="mb-4" style="color: #046963;">Your Addresses</h3>
+    <div class="container mt-5 mb-5" style="min-height: 60vh;">
+      <!-- Breadcrumb Section -->
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-light p-3 rounded">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Your Addresses</li>
+        </ol>
+      </nav>
+      
+      <h2 class="account__content--title h3 mb-20 text-center font-weight-bold">Your Addresses</h2>
+
 
       <!-- Address List -->
       <div class="row">
         <% addresses.forEach(function(addressDoc) { %>
           <% addressDoc.address.forEach(function(address) { %>
         <div class="col-md-6 mb-4">
-          <div class="card shadow-sm p-3">
+          <div class="card shadow-sm p-3" style="background-color: #F3F2EE;">
             <h5 class="card-title"><%= address.addressType %></h5>
             <p class="card-text">
               <strong>Name:</strong> <%= address.name %><br />
@@ -55,7 +57,7 @@
               <a href="/edit-address/<%= address._id %>" class="btn btn-sm btn-warning">Edit</a>
               <form action="/deleteAddress/<%= address._id %>" method="POST" id="deleteAddressForm-<%= address._id %>">
                 <input type="hidden" name="id" value="<%= address._id %>" />
-                <button type="submit" class="btn btn-danger delete-address-btn"  data-id="<%= address._id %>">Delete</button>
+                <button type="submit" class="btn btn-danger delete-address-btn" data-id="<%= address._id %>">Delete</button>
               </form>
             </div>
           </div>
@@ -72,10 +74,6 @@
 
     <!-- Footer -->
     <%- include("../../views/partials/user/footer") %>
-    
-    
-    
-
 
 <!-- Search Begin -->
 <div class="search-model">
@@ -101,7 +99,6 @@
 <script src="/js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
-
 </html>
 <script>
   document.addEventListener('DOMContentLoaded', () => {

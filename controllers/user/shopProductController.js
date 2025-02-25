@@ -77,7 +77,9 @@ const productDetails=async (req,res) => {
         
         const product=await Product.findById(productId).populate('category')
 
-        
+        if (!product || product.isBlocked || (product.category && !product.category.isListed)) {
+            return res.redirect('/shop');
+        }
         
         const findCategory=product.category
 
@@ -86,6 +88,7 @@ const productDetails=async (req,res) => {
         const relatedProducts = await Product.find({
             category: findCategory._id,
             _id: { $ne: productId }, 
+            isBlocked: false
         }).limit(4);
 
         const availableSizes = {

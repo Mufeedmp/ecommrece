@@ -24,8 +24,24 @@ router.post('/login', authenticationController.login);
 router.get('/logout', authenticationController.logout);
 
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/auth/google/callback',passport.authenticate('google', { failureRedirect: '/signup' }),(req, res) => {res.redirect('/');});
+// router.get('/auth/google/callback',passport.authenticate('google', { failureRedirect: '/signup' }),(req, res) => {res.redirect('/');});
 
+router.get('/auth/google/callback', (req, res, next) => {
+    passport.authenticate('google', (err, user, info) => {
+        if (err) {
+            return res.redirect('/login?error=Something went wrong');
+        }
+        if (!user) {
+            return res.redirect('/login?error=User blocked by admin');
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                return res.redirect('/login?error=Login failed');
+            }
+            return res.redirect('/');
+        });
+    })(req, res, next);
+});
 
 // Error & Home Routes
 router.get('/pageNotFound',errorHomeController.pageNotFound);

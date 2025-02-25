@@ -25,6 +25,16 @@ const loadCart = async (req, res) => {
 
           const cart = await Cart.findOne({ userId:userData }).populate('items.productId', 'salePrice productName quantity productImage');
           
+          if (!cart || cart.items.length === 0) {
+            return res.render('cart', { 
+              user: userData, 
+              cartItems: [], 
+              cartSubtotal: 0, 
+              totalOffer: 0, 
+              cartTotal: 0, 
+              emptyCart: true 
+            });
+          }
 
       const cartItems = await Promise.all(cart.items.map(async (item) => {
           const product = await Product.findById(item.productId._id).lean();
@@ -57,6 +67,7 @@ const loadCart = async (req, res) => {
               totalOffer: cart.totalOffer, 
               cartTotal: cart.cartTotal, 
           });
+       
       } else {
           res.redirect('/login');
       }
@@ -115,10 +126,10 @@ const addToCart = async (req, res,next) => {
                   salePrice: product.salePrice,
                   regularPrice: product.regularPrice,
                   productImage: product.productImage[0],
-                  totalPrice: product.regularPrice * effectiveQuantity,
+                  totalPrice: product.salePrice * effectiveQuantity,
                   productOffer: discountPerUnit
               }],
-              cartSubtotal: product.regularPrice * effectiveQuantity, 
+              cartSubtotal: product.salePrice * effectiveQuantity, 
               totalOffer: totalOfferForProduct,
               cartTotal: product.salePrice * effectiveQuantity 
           });
@@ -334,14 +345,20 @@ const loadCheckout = async (req, res) => {
     try {
       const {code,cartTotal}=req.body
 
-      const coupon=await Coupon.findOne({name:code})
+      const coupon = await Coupon.findOne({ name: code });
 
-      if(!coupon){
-        res.status(400).json({message:'coupon not found'})
+      if (!coupon) {
+        return res.status(400).json({ message: 'Invalid coupon. Please enter a valid code.' });
       }
 
       const currentDate = new Date();
-    if (coupon.expireOn < currentDate) {
+    currentDate.setHours(0, 0, 0, 0); 
+
+    const expireDate = new Date(coupon.expireOn);
+    expireDate.setHours(0, 0, 0, 0); 
+    
+
+    if (expireDate < currentDate) {
       return res.status(400).json({ message: 'Coupon has expired.' });
     }
 
@@ -384,7 +401,12 @@ const loadCheckout = async (req, res) => {
       }
 
       const currentDate = new Date();
-    if (coupon.expireOn < currentDate) {
+      currentDate.setHours(0, 0, 0, 0); 
+  
+      const expireDate = new Date(coupon.expireOn);
+      expireDate.setHours(0, 0, 0, 0); 
+      
+    if (expireDate < currentDate) {
       return res.status(400).json({ message: 'Coupon has expired.' });
     }
 

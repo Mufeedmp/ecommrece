@@ -8,12 +8,20 @@ const category=async (req,res) => {
         return res.redirect('/admin/login'); 
     }
     try {
+        let search= ''
+        if(req.query.search){
+            search=req.query.search
+        }
    
         const page=parseInt(req.query.page)||1
         const limit=4
         const skip=(page-1)*limit
 
-        const categoryData=await Category.find({})
+        const filter = search
+        ? { name: { $regex: search, $options: 'i' } } 
+        : {};
+
+        const categoryData=await Category.find(filter)
         .sort({createdAt:-1})
         .skip(skip)
         .limit(limit)

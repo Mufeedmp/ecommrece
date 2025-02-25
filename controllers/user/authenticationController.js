@@ -211,7 +211,7 @@ const resendotp=async (req,res) => {
             if (req.session.user) {
                 return res.redirect('/'); 
             }
-            res.render('login'); 
+            res.render('login', { error: req.query.error ? req.query.error : '' });
         } catch (error) {
             res.redirect('/pageNotFound')
         }

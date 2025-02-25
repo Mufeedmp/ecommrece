@@ -141,6 +141,13 @@
                 />
                 <div id="error2" class="error-message"></div>
               </div>
+              <% if (typeof error !== 'undefined' && error !== '') { %>
+                <div class="alert alert-danger">
+                  <%= error %>
+                </div>
+              <% } %>
+              
+            
               <%if(locals.message && message.length>0){%>
               <div class="alert alert-danger text-center">
                 <%=message%>

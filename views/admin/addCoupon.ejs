@@ -63,9 +63,9 @@
   const createCoupon = async () => {
 
   const couponData = {
-    couponCode: document.getElementById('couponCode').value,
-    discount: document.getElementById('discount').value,
-    minPrice: document.getElementById('minPrice').value,
+    couponCode: document.getElementById('couponCode').value.trim(),
+    discount: parseFloat(document.getElementById('discount').value),
+    minPrice: parseFloat(document.getElementById('minPrice').value),
     expiryDate: document.getElementById('expiryDate').value,
   };
 
@@ -77,6 +77,8 @@
 
   let isValid = true;
 
+  const currentDate = new Date().setHours(0, 0, 0, 0); 
+  const expiryDate = new Date(couponData.expiryDate).setHours(0, 0, 0, 0); 
   
   if (!couponData.couponCode || couponData.couponCode.trim() === '') {
     document.getElementById('couponCodeError').innerHTML = 'Coupon code is required.';
@@ -103,6 +105,10 @@
   if (!couponData.expiryDate) {
     document.getElementById('expiryDateError').innerHTML = 'Expiry date is required.';
     isValid = false;
+  }
+  if(expiryDate < currentDate) {
+  document.getElementById('expiryDateError').innerHTML = 'Expiry date must be today or in the future.';
+  isValid = false;
   }
 
 

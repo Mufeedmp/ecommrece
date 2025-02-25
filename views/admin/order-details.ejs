@@ -35,7 +35,7 @@
     <div class="content-header">
         <div>
             <h2 class="content-title card-title">Order Detail</h2>
-            <p>Details for Order ID: <%= order._id %></p>
+            <p>Details for Order ID: <%= order.orderId %></p>
         </div>
     </div>
     <div class="card">
@@ -43,7 +43,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
                     <span><i class="material-icons md-calendar_today"></i> <b><%= order.createdAt.toDateString() %>, <%= order.createdAt.toTimeString() %></b></span> <br />
-                    <small class="text-muted">Order ID: <%= order._id %></small>
+                    <small class="text-muted">Order ID: <%= order.orderId %></small>
                 </div>
                 <div class="col-lg-2 col-md-2 ms-auto text-md-end">
                     <select 
@@ -51,7 +51,8 @@
                     id="order-status" 
                     onchange="return orderStatus(event, '<%= order._id %>')" 
                     class="form-select form-select-sm"
-                    <%= (order.status === 'Delivered' || order.status === 'Cancelled' || order.status==='Returned') ? 'disabled' : '' %>>
+                    <%= (order.status === 'Delivered' || order.status === 'Cancelled' || order.status==='Returned' || order.status==='Pending' || order.status==='Return accepted') ? 'disabled' : '' %>>
+                    <option value="Confirmed" <%= order.status === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
                     <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
                     <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                     <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>

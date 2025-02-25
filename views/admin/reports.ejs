@@ -27,6 +27,7 @@
                             value="<%= startDate || '' %>"
                             aria-label="Start date"
                             />
+                            <small id="start_date_error" class="text-danger"></small>
                         </div>
                         <div class="col-6 col-md-3 col-lg-2">
                             <input 
@@ -37,7 +38,7 @@
                             value="<%= endDate || '' %>"
                             aria-label="End date"
                         />
-                        
+                        <small id="end_date_error" class="text-danger"></small>
                         </div>
                         <div class="col-12 col-md-4 col-lg-2">
                             <select name="range" id="range" class="form-control">
@@ -120,35 +121,133 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const rangeSelect = document.getElementById('range');
-      const startDate = document.getElementById('start_date');
-      const endDate = document.getElementById('end_date');
-      
-      // Function to toggle date inputs based on range selection
-      function toggleDateInputs() {
-        const isCustom = rangeSelect.value === 'custom';
-        startDate.disabled = !isCustom;
-        endDate.disabled = !isCustom;
-        
-        if (!isCustom) {
-          startDate.value = '';
-          endDate.value = '';
+        const rangeSelect = document.getElementById('range');
+        const startDate = document.getElementById('start_date');
+        const endDate = document.getElementById('end_date');
+        const form = document.getElementById('filter-form');
+        const startDateError = document.getElementById('start_date_error');
+        const endDateError = document.getElementById('end_date_error');
+    
+        function initializeDateInputs() {
+            const today = new Date().toISOString().split('T')[0];
+            startDate.max = today;
+            endDate.max = today;
+            
+            toggleDateInputs();
         }
-      }
-      
-      // Initial state
-      toggleDateInputs();
-      
-      // Listen for changes
-      rangeSelect.addEventListener('change', toggleDateInputs);
-      
-      // Update form action to preserve pagination
-      const form = document.getElementById('filter-form');
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(form);
-        const params = new URLSearchParams(formData);
-        window.location.href = window.location.pathname + '?' + params.toString();
-      });
+
+        function toggleDateInputs() {
+            const isCustom = rangeSelect.value === 'custom';
+            startDate.disabled = !isCustom;
+            endDate.disabled = !isCustom;
+    
+            if (!isCustom) {
+                startDate.value = '';
+                endDate.value = '';
+                clearErrors();
+            }
+        }
+
+        function clearErrors() {
+            startDateError.textContent = '';
+            endDateError.textContent = '';
+            startDate.classList.remove('is-invalid');
+            endDate.classList.remove('is-invalid');
+        }
+    
+        function validateCustomDateRange() {
+            clearErrors();
+    
+            if (rangeSelect.value !== 'custom') return true;
+    
+            let valid = true;
+
+            if (!startDate.value) {
+                startDateError.textContent = 'Start date is required';
+                startDate.classList.add('is-invalid');
+                valid = false;
+            }
+    
+            if (!endDate.value) {
+                endDateError.textContent = 'End date is required';
+                endDate.classList.add('is-invalid');
+                valid = false;
+            }
+ 
+            if (startDate.value && endDate.value) {
+                const start = new Date(startDate.value);
+                const end = new Date(endDate.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+    
+                if (start > end) {
+                    startDateError.textContent = 'Start date cannot be later than end date';
+                    startDate.classList.add('is-invalid');
+                    valid = false;
+                }
+    
+            }
+    
+            return valid;
+        }
+        rangeSelect.addEventListener('change', toggleDateInputs);
+        
+        startDate.addEventListener('change', () => {
+            if (endDate.value) validateCustomDateRange();
+        });
+    
+        endDate.addEventListener('change', () => {
+            if (startDate.value) validateCustomDateRange();
+        });
+    
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+    
+            if (!validateCustomDateRange()) {
+                return;
+            }
+    
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+    
+            for (const [key, value] of formData.entries()) {
+                if (value && value.trim() !== '') {
+                    params.append(key, value.trim());
+                }
+            }
+
+            window.location.href = `${window.location.pathname}?${params.toString()}`;
+        });
+
+        initializeDateInputs();
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const excelBtn = document.getElementById('download-excel');
+    const pdfBtn = document.getElementById('download-PDF');
+
+    function updateDownloadLinks() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const range = urlParams.get('range') || 'daily';
+        const query = urlParams.get('query') || '';
+        const startDate = urlParams.get('start_date') || '';
+        const endDate = urlParams.get('end_date') || '';
+
+        const params = new URLSearchParams({
+            range: range,
+            query: query,
+            start_date: startDate,
+            end_date: endDate
+        }).toString();
+
+        excelBtn.href = `/admin/download-excel?${params}`;
+        pdfBtn.href = `/admin/download-pdf?${params}`;
+    }
+
+    updateDownloadLinks();
+
+    document.querySelectorAll('select, input').forEach(element => {
+        element.addEventListener('change', updateDownloadLinks);
+    });
+});
     </script>

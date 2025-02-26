@@ -169,41 +169,49 @@
                   <div class="col-lg-6">
                     <div class="checkout__input">
                       <p>Address Type<span>*</span></p>
-                      <input type="text" name="addressType">
+                      <input type="text" name="addressType" id="addressType">
+                      <small class="error-message" id="addressType-error"></small>
                     </div>
                   </div>
                   <div class="col-lg-6">
                     <div class="checkout__input">
                       <p>Name<span>*</span></p>
-                      <input type="text" name="name">
+                      <input type="text" name="name"  id="name">
+                      <small class="error-message" id="name-error"></small>
                     </div>
                   </div>
                 </div>
                 <div class="checkout__input">
                   <p>City<span>*</span></p>
-                  <input type="text" name="city">
+                  <input type="text" name="city" id="city">
+                  <small class="error-message" id="city-error"></small>
                 </div>
                 <div class="checkout__input">
                   <p>Landmark<span>*</span></p>
-                  <input type="text" name="landmark">
+                  <input type="text" name="landmark" id="landmark">
+                  <small class="error-message" id="landmark-error"></small>
                 </div>
                 <div class="checkout__input">
                   <p>State<span>*</span></p>
-                  <input type="text" name="state">
+                  <input type="text" name="state" id="state">
+                  <small class="error-message" id="state-error"></small>
                 </div>
                 <div class="checkout__input">
                   <p>Pincode<span>*</span></p>
-                  <input type="text" name="pincode">
+                  <input type="text" name="pincode" id="pincode">
+                  <small class="error-message" id="pincode-error"></small>
                 </div>
                 <div class="checkout__input">
                   <p>Phone<span>*</span></p>
-                  <input type="text" name="phone">
+                  <input type="text" name="phone" id="phone">
+                  <small class="error-message" id="phone-error"></small>
                 </div>
                 <div class="row">
                   <div class="col-lg-6">
                     <div class="checkout__input">
                       <p>AltPhone<span>*</span></p>
-                      <input type="text" name="altphone">
+                      <input type="text" name="altphone" id="altphone">
+                      <small class="error-message" id="altphone-error"></small>
                     </div>
                   </div>
                 </div>
@@ -353,7 +361,47 @@
   
   document.getElementById("pay-btn").onclick = async function (event) {
     event.preventDefault(); 
+    let isValid = true;
 
+function validateField(id, message) {
+    const field = document.getElementById(id);
+    const errorElement = document.getElementById(id + "-error");
+
+    if (field.value.trim() === "") {
+        errorElement.textContent = message;
+        errorElement.style.color = "red";
+        isValid = false;
+    } else {
+        errorElement.textContent = "";
+    }
+}
+
+const useSavedAddressCheckbox = document.getElementById("use-saved-address");
+
+if (useSavedAddressCheckbox.checked) {
+    // Validate if any saved address is selected
+    const savedAddressSelected = document.querySelector('input[name="savedAddress"]:checked');
+    if (!savedAddressSelected) {
+        Swal.fire({
+            icon: "warning",
+            title: "No Saved Address Selected",
+            text: "Please select a saved address!",
+        });
+        return;
+    }
+} else {
+    // Perform manual address field validation if not using a saved address
+    validateField("addressType", "Address Type is required");
+    validateField("name", "Name is required");
+    validateField("city", "City is required");
+    validateField("landmark", "Landmark is required");
+    validateField("state", "State is required");
+    validateField("pincode", "Pincode is required");
+    validateField("phone", "Phone number is required");
+    validateField("altphone", "Alternate phone number is required");
+}
+
+if (!isValid) return;
   
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
     if (!selectedPaymentMethod) {
@@ -616,5 +664,7 @@ let isCouponApplied = false;
             document.getElementById('cart-total-display').textContent = `₹${cartTotal}`;
             document.getElementById('discount-amount').value = '0';
         }
+
+    
 
 </script>
